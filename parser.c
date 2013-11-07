@@ -4,8 +4,8 @@
 	Nov. 1st, 2013
 */
 
-#include"lexer_second.h"
-#include"parser_second.h"
+#include"lexer.h"
+#include"parser.h"
 FILE *in;
 struct token_sy token;
 
@@ -19,10 +19,10 @@ void print_verbose(const char x[]) {
 
 void parse_factor() {
     switch (token.sy) {
-    case LPARSY:
+    case LPARENT:
         get_token(in, &token);
         parse_expression();
-        if (token.sy != RPARSY) {
+        if (token.sy != RPARENT) {
             print_error("no RPARSY found after LPARSY");
         }
         get_token(in, &token);
@@ -35,15 +35,15 @@ void parse_factor() {
 }
 
 void parse_var() {
-    if (token.sy != IDSY||
+    if (token.sy != IDEN||
             strcmp(token.val.strVal, "i")) {
         print_error("not proper VAR found");
     }
     get_token(in, &token);
-    if (token.sy == LBRASY) {
+    if (token.sy == LBRACK) {
         get_token(in, &token);
         parse_expression();
-        if (token.sy != RBRASY) {
+        if (token.sy != RBRACK) {
             print_error("no RBARSY found after LBRASY");
         }
         get_token(in, &token);
@@ -52,7 +52,7 @@ void parse_var() {
 
 void parse_term() {
     parse_factor();
-    while (token.sy == STARSY) {
+    while (token.sy == MULT) {
         get_token(in, &token);
         parse_factor();
     }
@@ -61,7 +61,7 @@ void parse_term() {
 
 void parse_expression() {
     parse_term();
-    while (token.sy == PLUSY) {
+    while (token.sy == PLUS) {
         get_token(in, &token);
         parse_term();
     }
@@ -69,11 +69,11 @@ void parse_expression() {
 }
 
 void parse_if_statement() {
-    if (token.sy != IFSY)
+    if (token.sy != IFTK)
         return;
     get_token(in, &token);
     parse_expression();
-    if (token.sy != THENSY) {
+    if (token.sy != THENTK) {
         print_error("no THEN found after IF");
     }
     get_token(in, &token);
@@ -84,7 +84,7 @@ void parse_if_statement() {
 }
 
 void parse_else() {
-    if (token.sy != ELSESY)
+    if (token.sy != ELSETK)
         return;
     get_token(in, &token);
     parse_statement();
@@ -92,7 +92,7 @@ void parse_else() {
 }
 
 void parse_statement() {
-    if (token.sy == IFSY)
+    if (token.sy == IFTK)
         parse_if_statement();
     else
         parse_var();

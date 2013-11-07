@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1383821749 source:d:\documents\github\final_design\lexer.c
+	"lexer.h"
+
+1383820006 d:\documents\github\final_design\lexer.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1383810818 source:d:\documents\github\final_design\parser.c
+	"lexer.h"
+	"parser.h"
+
+1382864515 d:\documents\github\final_design\parser.h
+

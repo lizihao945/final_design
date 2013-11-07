@@ -5,27 +5,62 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BEGINSY     1
-#define ENDSY       2
-#define IFSY        3
-#define THENSY      4
-#define ELSESY      5
-
-#define IDSY        20
-#define INTSY       21
-#define PLUSY       22
-#define MINUSY      23
-#define STARSY      24
-#define DIVISY      25
-#define LPARSY      26
-#define RPARSY      27
-#define COMMASY     28
-#define SEMISY      29
-#define COLONSY     30
-#define ASSIGNSY    31
-#define EQUSY       32
-#define LBRASY      33
-#define RBRASY      34
+#define IDEN        11
+#define INTCON      21
+#define REALCON     -1
+#define CHARCON     41
+#define STRCON      51
+#define CONSTTK     61
+#define INTTK       71
+#define FLOATTK     -1
+#define CHARTK      91
+#define VARTK       101
+#define ARRAYTK     111
+#define OFTK        121
+#define REPTTK      -1
+#define UNLTK       -1
+#define IFTK        32
+#define THENTK      42
+#define ELSETK      52
+#define DOTK        62
+#define WHILETK     72
+#define SWITCHTK    -1
+#define CASETK      -1
+#define FORTK       102
+#define TOTK        112
+#define BYTK        -1
+#define DOWNTOTK    13
+#define PROCETK     23
+#define FUNCTK      33
+#define READTK      43
+#define WRITETK     53
+#define CALLTK      -1
+#define BEGINTK     73
+#define ENDTK       83
+#define ODDTK       -1
+#define PLUS        103
+#define MINU        113
+#define MULT        14
+#define DIV         24
+#define LSS         34
+#define LEQ         44
+#define GRE         54
+#define GEQ         64
+#define EQL         74
+#define NEQ         84
+#define ASSIGN      94
+#define SEMICN      104
+#define COMMA       114
+#define PERIOD      15
+#define COLON       25
+#define QMARK       35
+#define DQMARK      45
+#define LPARENT     55
+#define RPARENT     65
+#define LBRACK      75
+#define RBRACK      85
+#define LBRACE      -1
+#define RBRACE      -1
 
 #define LOWER_LETTER    111
 #define UPPER_LETTER    112
@@ -42,5 +77,5 @@ struct token_sy {
 };
 
 int get_token(FILE *fp, struct token_sy *token);
-int analyse_and_print(FILE *in);
+int analyse_and_print(FILE *in, FILE *out);
 #endif // LEXER_FIRST_H_INCLUDED
