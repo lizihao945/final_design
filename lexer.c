@@ -319,9 +319,9 @@ int analyse_and_print(FILE *in, FILE *out) {
 int main() {
     FILE *in, *out;
     char tmp[32], tmp2[32];
-//    scanf("%s", tmp);
-    strcpy(tmp, "test_by_myself.txt");
-    strcpy(tmp2, "output_lexical.txt");
+    printf("Input your source file name:\n");
+    scanf("%s", tmp);
+    strcpy(tmp2, "11061111_token.txt");
     in = fopen(tmp, "r");
     out = fopen(tmp2, "w");
     analyse_and_print(in, out);
