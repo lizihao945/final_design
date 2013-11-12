@@ -4,9 +4,9 @@
 	Nov. 1st, 2013
 */
 #include "lexer.h"
-
+FILE *in;
+struct token_sy token;
 const char *map_sy_string[120];
-
 
 int get_char_type(char ch) {
     if (ch >= 'a' && ch <= 'z') return LOWER_LETTER;
@@ -246,7 +246,17 @@ int get_token(FILE *fp, struct token_sy *token) {
 int analyse_and_print(FILE *in, FILE *out) {
     struct token_sy tmp;
     int token_count = 0;
+    init_map_sy_string();
+    while (get_token(in, &tmp) != 0) {
+        fprintf(out, "%d ", ++token_count);
+        fprintf(out, "%s ", map_sy_string[tmp.sy]);
+        if (tmp.sy == INTCON) fprintf(out, "%d\n", tmp.val.intVal);
+        else fprintf(out, "%s\n", tmp.val.strVal);
+    }
+    return 0;
+}
 
+int init_map_sy_string() {
     map_sy_string[11] = "IDEN";
     map_sy_string[21] = "INTCON";
     map_sy_string[31] = "REALCON";
@@ -307,25 +317,6 @@ int analyse_and_print(FILE *in, FILE *out) {
     map_sy_string[85] = "RBRACK";
     map_sy_string[95] = "LBRACE";
     map_sy_string[105] = "RBRACE";
-    while (get_token(in, &tmp) != 0) {
-        fprintf(out, "%d ", ++token_count);
-        fprintf(out, "%s ", map_sy_string[tmp.sy]);
-        if (tmp.sy == INTCON) fprintf(out, "%d\n", tmp.val.intVal);
-        else fprintf(out, "%s\n", tmp.val.strVal);
-    }
     return 0;
 }
 
-int main() {
-    FILE *in, *out;
-    char tmp[32], tmp2[32];
-    printf("Input your source file name:\n");
-    scanf("%s", tmp);
-    strcpy(tmp2, "11061111_token.txt");
-    in = fopen(tmp, "r");
-    out = fopen(tmp2, "w");
-    analyse_and_print(in, out);
-    fclose(in);
-    fclose(out);
-    return 0;
-}

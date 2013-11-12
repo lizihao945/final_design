@@ -20,6 +20,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="debug_helper_function.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="debug_helper_function.h" />
 		<Unit filename="lexer.c">
 			<Option compilerVar="CC" />
 		</Unit>
