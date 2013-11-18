@@ -1,6 +1,19 @@
 #include "debug_helper_function.h"
 struct token_sy token_history[120];
 int idx = 0;
+
+void print_tokens(FILE *in) {
+	struct token_sy tmp;
+	int token_count = 0;
+	init_map_sy_string();
+	while (get_token(in, &tmp) != 0) {
+		printf("%d ", ++token_count);
+		printf("%s ", map_sy_string[tmp.sy]);
+		if (tmp.sy == INTCON) printf("%d\n", tmp.val.intVal);
+		else printf("%s\n", tmp.val.strVal);
+	}
+}
+
 void get_token_with_history() {
     get_token(in, &token);
     token_history[idx++] = token;
@@ -15,7 +28,7 @@ void print_action(char * const str, int * const vals) {
     printf("%s\t%d\t%d\t%d\n", str, vals[0], vals[1], vals[2]);
 }
 
-void describe_token_history(struct token_sy const *token_history, int st, int en) {
+void describe_token_history(int st, int en) {
     int i;
     //since idx is ++ed every time a token is read,
     //the real index of last token should always - 1

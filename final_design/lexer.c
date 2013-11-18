@@ -28,6 +28,10 @@ int is_upper_letter(char ch) {
     return ('A' <= ch && ch <= 'Z') ? 1 : 0;
 }
 
+int is_str_val(char ch) {
+	return (ch == 32 || ch == 33 || (35 <= ch && ch <= 126))? 1 : 0;
+}
+
 int get_token(FILE *fp, struct token_sy *token) {
     int i, ch;
     char tmp[32];
@@ -184,15 +188,15 @@ int get_token(FILE *fp, struct token_sy *token) {
         } else
             return -1;
     case '"':
-        for (i = 1; is_letter_or_digit(ch = fgetc(fp)); i++)
+        for (i = 0; is_str_val(ch = fgetc(fp)); i++)
             token->val.strVal[i] = ch;
         if (ch == '"') {
             token->sy = STRCON;
             token->val.strVal[i] = '\0';
             return STRCON;
         } else {
-            ungetc(ch, fp);
-            return 0;
+			// '"' should appear in pairs
+            return -1;
         }
     case '<':
         ch = fgetc(fp);
