@@ -30,6 +30,7 @@ int is_upper_letter(char ch) {
 
 int get_token(FILE *fp, struct token_sy *token) {
     int i, ch;
+    char tmp[32];
     ch = fgetc(fp);
     while (is_blank(ch))
         ch = fgetc(fp);
@@ -114,7 +115,6 @@ int get_token(FILE *fp, struct token_sy *token) {
         return IDEN;
     case DIGIT:
         token->sy = INTCON;
-        char tmp[32];
         tmp[0] = ch;
         for (i = 1; get_char_type(ch = fgetc(fp)) == DIGIT; i++)
             tmp[i] = ch;
