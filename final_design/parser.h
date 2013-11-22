@@ -12,9 +12,10 @@ void parse_expressions();
 
 void parse_str();
 
-void parse_read();
 void parse_write();
 void parse_optwrite();
+void parse_read();
+void parse_optread();
 
 void parse_if_statement();
 void parse_statement();

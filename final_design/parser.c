@@ -42,9 +42,32 @@ void parse_optwrite() {
 	} else
 		parse_expression();
 }
-
+/**
+  * <读语句> ::= read'('<标识符>{,<标识符>}')'
+*/
 void parse_read() {
+	int i = idx;
+	if (token.sy != READTK)
+		return;
+	get_token_with_history();
+	if (token.sy != LPARENT)
+		return;
+	get_token_with_history();
+	parse_id();
+	parse_optread();
+	if (token.sy != RPARENT)
+		return;
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("a read parsed");
+}
 
+void parse_optread() {
+	if (token.sy == COMMA) {
+		get_token_with_history();
+		parse_id();
+		parse_optread();
+	}
 }
 
 void parse_if_statement() {
@@ -162,10 +185,10 @@ int main() {
 	//    printf("Input your source file name:\n");
 	//    scanf("%s", tmp);
 	init_map_sy_string();
-	in = fopen("test_write.txt", "r");
+	in = fopen("test_read.txt", "r");
 	//print_tokens(in);
 	get_token_with_history();
-	parse_write();
+	parse_read();
 	fclose(in);
 	return 0;
 }
