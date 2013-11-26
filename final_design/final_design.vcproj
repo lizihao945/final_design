@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\errors.c"
+				>
+			</File>
+			<File
 				RelativePath=".\lexer.c"
 				>
 			</File>
@@ -194,6 +198,10 @@
 			>
 			<File
 				RelativePath=".\debug_helper_function.h"
+				>
+			</File>
+			<File
+				RelativePath=".\errors.h"
 				>
 			</File>
 			<File
