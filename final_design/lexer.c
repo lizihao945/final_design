@@ -171,14 +171,7 @@ int get_token(FILE *fp, struct token_sy *token) {
         return COLON;
     case '\'':
         ch = fgetc(fp);
-        if ('0'<= ch && ch <= '9') {
-            char ch2 = fgetc(fp);
-            if (ch2 == '\'') {
-                token->sy = INTCON;
-                token->val.intVal = ch;
-                return INTCON;
-            }
-        } else if ('a'<= ch && ch <= 'z') {
+        if (('0'<= ch && ch <= '9') || ('a'<= ch && ch <= 'z') || ('A'<= ch && ch <= 'Z')) {
             char ch2 = fgetc(fp);
             if (ch2 == '\'') {
                 token->sy = CHARCON;

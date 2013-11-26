@@ -2,6 +2,22 @@
 struct token_sy token_history[120];
 int idx = 0;
 
+void test_const() {
+	char tmp;
+	FILE *inn = fopen("tests/test_const.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != EOF)
+			fprintf(in, "%c", tmp);
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		get_token_with_history();
+		parse_const();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
 void print_tokens(FILE *in) {
 	struct token_sy tmp;
 	int token_count = 0;

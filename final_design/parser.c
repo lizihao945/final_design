@@ -203,10 +203,7 @@ int main() {
 	//    printf("Input your source file name:\n");
 	//    scanf("%s", tmp);
 	init_map_sy_string();
-	in = fopen("test_const.txt", "r");
 	//print_tokens(in);
-	get_token_with_history();
-	parse_const();
-	fclose(in);
+	test_const();
 	return 0;
 }
