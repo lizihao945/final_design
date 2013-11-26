@@ -1,7 +1,7 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-void parse_else();
+void parse_const();
 
 void parse_term();
 void parse_terms();
@@ -18,6 +18,7 @@ void parse_read();
 void parse_optread();
 
 void parse_if_statement();
+void parse_else();
 void parse_statement();
 
 void print_error(const char x[]);

@@ -2,6 +2,26 @@
 #include"parser.h"
 #include "debug_helper_function.h"
 
+/**<常量>                   ::=    [+| -] <无符号整数>|<字符>
+*/
+void parse_const() {
+	int i = idx;
+	if (token.sy == PLUS || token.sy == MINU) {
+		get_token_with_history();
+		if (token.sy == INTCON) {
+			get_token_with_history();
+		} else {
+
+		}
+	} else if (token.sy == INTCON) {
+		get_token_with_history();
+	} else if (token.sy == CHARCON) {
+		get_token_with_history();
+	}
+	describe_token_history(i - 1, idx);
+	print_verbose("a const parsed");
+}
+
 void parse_str() {
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
@@ -42,9 +62,7 @@ void parse_optwrite() {
 	} else
 		parse_expression();
 }
-/**
-  * <读语句> ::= read'('<标识符>{,<标识符>}')'
-*/
+
 void parse_read() {
 	int i = idx;
 	if (token.sy != READTK)
@@ -185,10 +203,10 @@ int main() {
 	//    printf("Input your source file name:\n");
 	//    scanf("%s", tmp);
 	init_map_sy_string();
-	in = fopen("test_read.txt", "r");
+	in = fopen("test_const.txt", "r");
 	//print_tokens(in);
 	get_token_with_history();
-	parse_read();
+	parse_const();
 	fclose(in);
 	return 0;
 }
