@@ -2,6 +2,7 @@
 #define DEBUG_HELPER_FUNCTION_H_INCLUDED
 
 #include "lexer.h"
+#include "parser.h"
 extern struct token_sy token_history[120];
 extern int idx;
 

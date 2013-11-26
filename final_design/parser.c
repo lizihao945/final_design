@@ -11,12 +11,16 @@ void parse_const() {
 		if (token.sy == INTCON) {
 			get_token_with_history();
 		} else {
-
+			eval_error(UNACCEPTABLE);
+			return;
 		}
 	} else if (token.sy == INTCON) {
 		get_token_with_history();
 	} else if (token.sy == CHARCON) {
 		get_token_with_history();
+	} else {
+		eval_error(UNACCEPTABLE);
+		return;
 	}
 	describe_token_history(i - 1, idx);
 	print_verbose("a const parsed");

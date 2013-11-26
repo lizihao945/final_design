@@ -37,7 +37,10 @@ int get_token(FILE *fp, struct token_sy *token) {
     char tmp[32];
     ch = fgetc(fp);
     while (is_blank(ch))
-        ch = fgetc(fp);
+		ch = fgetc(fp);
+	// if end of file reached
+	if (ch == -1)
+		return -1;
     switch (get_char_type(ch)) {
     case LOWER_LETTER:
         token->sy = IDEN;
@@ -177,9 +180,14 @@ int get_token(FILE *fp, struct token_sy *token) {
                 token->sy = CHARCON;
                 token->val.intVal = ch;
                 return CHARCON;
-            }
-        } else
-            return -1;
+			} else {
+				eval_error(QMARK_MISSED);
+				return -1;
+			}
+		} else {
+            eval_error(DQMARK_MISSED);
+			return -1;
+		}
     case '"':
         for (i = 0; is_str_val(ch = fgetc(fp)); i++)
             token->val.strVal[i] = ch;

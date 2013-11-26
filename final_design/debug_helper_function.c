@@ -11,6 +11,7 @@ void test_const() {
 			fprintf(in, "%c", tmp);
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
+		printf("******************\n");
 		get_token_with_history();
 		parse_const();
 		fclose(in);
@@ -31,8 +32,10 @@ void print_tokens(FILE *in) {
 }
 
 void get_token_with_history() {
-    get_token(in, &token);
-    token_history[idx++] = token;
+	// get_token should only be called here!
+	if (get_token(in, &token) ==- -1)
+		return;
+	token_history[idx++] = token;
 }
 
 void describe_token(struct token_sy token) {
