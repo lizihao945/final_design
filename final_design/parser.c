@@ -123,23 +123,29 @@ void parse_optread() {
 }
 
 void parse_if_statement() {
-	if (token.sy != IFTK)
+	int i = idx;
+	if (token.sy != IFTK) {
+		eval_error(UNACCEPTABLE, "if_statement not started with IF");
 		return;
+	}
 	get_token_with_history();
-	parse_expression();
+	parse_cond();
 	if (token.sy != THENTK) {
-		print_error("no THEN found after IF");
+		eval_error(UNACCEPTABLE, "no THEN found after IF");
 	}
 	get_token_with_history();
 	parse_statement();
 	get_token_with_history();
 	parse_else();
+	describe_token_history(i, idx);
 	print_verbose("a IF statement");
 }
 
 void parse_else() {
-	if (token.sy != ELSETK)
+	if (token.sy != ELSETK) {
+		print_verbose("a IF statement with ELSE");
 		return;
+	}
 	get_token_with_history();
 	parse_statement();
 	print_verbose("a IF statement with ELSE");

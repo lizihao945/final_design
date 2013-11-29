@@ -23,5 +23,5 @@
 #define RETURN_VAL_NOT_SET 33
 #define UNACCEPTABLE 34
 
-int eval_error(int error_type);
+int eval_error(int error_type, const char *p);
 #endif
