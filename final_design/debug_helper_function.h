@@ -15,5 +15,6 @@ void print_error(const char x[]);
 void print_verbose(const char x[]);
 
 void test_const();
+void test_cond();
 
 #endif // DEBUG_HELPER_FUNCTION_H_INCLUDED

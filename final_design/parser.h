@@ -2,6 +2,7 @@
 #define PARSER_H_INCLUDED
 
 void parse_const();
+void parse_cond();
 
 void parse_term();
 void parse_terms();

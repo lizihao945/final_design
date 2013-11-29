@@ -26,6 +26,36 @@ void parse_const() {
 	print_verbose("a const parsed");
 }
 
+void parse_cond() {
+	int i = idx;
+	parse_expression();
+	switch (token.sy) {
+		case LSS:
+			get_token_with_history();
+			break;
+		case LEQ:
+			get_token_with_history();
+			break;
+		case GRE:
+			get_token_with_history();
+			break;
+		case GEQ:
+			get_token_with_history();
+			break;
+		case EQL:
+			get_token_with_history();
+			break;
+		case NEQ:
+			get_token_with_history();
+			break;
+		default:
+			break;
+	}
+	parse_expression();
+	describe_token_history(i, idx);
+	print_verbose("a cond parsed");
+}
+
 void parse_str() {
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
@@ -208,6 +238,6 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_const();
+	test_cond();
 	return 0;
 }
