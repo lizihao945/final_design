@@ -181,11 +181,11 @@ int get_token(FILE *fp, struct token_sy *token) {
                 token->val.intVal = ch;
                 return CHARCON;
 			} else {
-				eval_error(QMARK_MISSED);
+				eval_error(QMARK_MISSED, "");
 				return -1;
 			}
 		} else {
-            eval_error(DQMARK_MISSED);
+            eval_error(DQMARK_MISSED, "");
 			return -1;
 		}
     case '"':

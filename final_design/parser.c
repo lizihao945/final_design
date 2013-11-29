@@ -11,7 +11,7 @@ void parse_const() {
 		if (token.sy == INTCON) {
 			get_token_with_history();
 		} else {
-			eval_error(UNACCEPTABLE);
+			eval_error(UNACCEPTABLE, "+/- not followed by INTCON");
 			return;
 		}
 	} else if (token.sy == INTCON) {
@@ -19,7 +19,7 @@ void parse_const() {
 	} else if (token.sy == CHARCON) {
 		get_token_with_history();
 	} else {
-		eval_error(UNACCEPTABLE);
+		eval_error(UNACCEPTABLE, "invalid const");
 		return;
 	}
 	describe_token_history(i - 1, idx);
@@ -136,18 +136,21 @@ void parse_if_statement() {
 	get_token_with_history();
 	parse_statement();
 	get_token_with_history();
-	parse_else();
-	describe_token_history(i, idx);
-	print_verbose("a IF statement");
+	parse_else(i);
 }
 
-void parse_else() {
+/**
+ * arg 'i' is for debug
+ */
+void parse_else(int i) {
 	if (token.sy != ELSETK) {
-		print_verbose("a IF statement with ELSE");
+		describe_token_history(i, idx);
+		print_verbose("a IF statement without ELSE");
 		return;
 	}
 	get_token_with_history();
 	parse_statement();
+	describe_token_history(i, idx);
 	print_verbose("a IF statement with ELSE");
 }
 
@@ -244,6 +247,6 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_cond();
+	test_if_statement();
 	return 0;
 }

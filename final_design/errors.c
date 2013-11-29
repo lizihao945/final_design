@@ -6,7 +6,7 @@ int eval_error(int error_type, const char *p) {
 			print_error("QMARK appeared not in pairs or TOO MUCH characters in QMARK pair");
 			break;
 		case UNACCEPTABLE:
-			print_error("not acceptable tokens in sequence");
+			print_error(p);
 			break;
 	}
 	return 0;

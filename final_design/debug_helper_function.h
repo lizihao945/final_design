@@ -16,5 +16,6 @@ void print_verbose(const char x[]);
 
 void test_const();
 void test_cond();
+void test_if_statement();
 
 #endif // DEBUG_HELPER_FUNCTION_H_INCLUDED

@@ -2,6 +2,23 @@
 struct token_sy token_history[120];
 int idx = 0;
 
+void test_if_statement() {
+	char tmp;
+	FILE *inn = fopen("tests/test_if_statement.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != EOF)
+			fprintf(in, "%c", tmp);
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_if_statement();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
 void test_const() {
 	char tmp;
 	FILE *inn = fopen("tests/test_const.txt", "r");
