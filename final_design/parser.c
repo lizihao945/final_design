@@ -2,10 +2,15 @@
 #include"parser.h"
 #include "debug_helper_function.h"
 
-/**<常量>                   ::=    [+| -] <无符号整数>|<字符>
-*/
-void parse_const() {
+void parse_const_def() {
 	int i = idx;
+	if (token.sy != IDEN) {
+
+	}
+	get_token_with_history();
+	if (token.sy != EQL) {
+
+	}
 	if (token.sy == PLUS || token.sy == MINU) {
 		get_token_with_history();
 		if (token.sy == INTCON) {
@@ -57,6 +62,9 @@ void parse_cond() {
 }
 
 void parse_str() {
+	if (token.sy != STRCON) {
+		eval_error(UNACCEPTABLE, "not a string");
+	}
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
 	print_verbose("a string parsed");

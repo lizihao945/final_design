@@ -1,7 +1,7 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-void parse_const();
+void parse_const_def();
 void parse_cond();
 
 void parse_term();
