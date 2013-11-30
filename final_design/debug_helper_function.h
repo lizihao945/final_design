@@ -14,8 +14,10 @@ void describe_token_history(int st, int en);
 void print_error(const char x[]);
 void print_verbose(const char x[]);
 
-void test_const();
+void test_const_def();
 void test_cond();
 void test_if_statement();
+void test_argument();
+void test_expression();
 
 #endif // DEBUG_HELPER_FUNCTION_H_INCLUDED

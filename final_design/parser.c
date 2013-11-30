@@ -28,7 +28,7 @@ void parse_const_def() {
 		return;
 	}
 	describe_token_history(i - 1, idx);
-	print_verbose("a const parsed");
+	print_verbose("<const_def> parsed");
 }
 
 void parse_cond() {
@@ -58,7 +58,7 @@ void parse_cond() {
 	}
 	parse_expression();
 	describe_token_history(i, idx);
-	print_verbose("a cond parsed");
+	print_verbose("<cond> parsed");
 }
 
 void parse_str() {
@@ -67,7 +67,7 @@ void parse_str() {
 	}
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
-	print_verbose("a string parsed");
+	print_verbose("<str> parsed");
 }
 
 void parse_id() {
@@ -90,7 +90,7 @@ void parse_write() {
 		return;
 	get_token_with_history();
 	describe_token_history(i, idx);
-	print_verbose("a write parsed");
+	print_verbose("<write> parsed");
 }
 
 void parse_optwrite() {
@@ -119,7 +119,7 @@ void parse_read() {
 		return;
 	get_token_with_history();
 	describe_token_history(i, idx);
-	print_verbose("a read parsed");
+	print_verbose("<read> parsed");
 }
 
 void parse_optread() {
@@ -153,13 +153,13 @@ void parse_if_statement() {
 void parse_else(int i) {
 	if (token.sy != ELSETK) {
 		describe_token_history(i, idx);
-		print_verbose("a IF statement without ELSE");
+		print_verbose("<if_statement> parsed without <else>");
 		return;
 	}
 	get_token_with_history();
 	parse_statement();
 	describe_token_history(i, idx);
-	print_verbose("a IF statement with ELSE");
+	print_verbose("<if_statement> parsed with <else>");
 }
 
 void parse_statement() {
@@ -167,62 +167,42 @@ void parse_statement() {
 		parse_if_statement();
 	else
 		parse_var();
-	print_verbose("a statement");
+	print_verbose("<statement> parsed");
+}
+
+void parse_expression() {
+	int i = idx;
+	if (token.sy == PLUS || token.sy == MINU) {
+		get_token_with_history();
+	}
+	parse_term();
+	parse_optexpression();
+	describe_token_history(i, idx);
+	print_verbose("<expression> parsed");
+}
+
+void parse_optexpression() {
+	if (token.sy == PLUS || token.sy == MINU) {
+		get_token_with_history();
+		parse_term();
+		parse_optexpression();
+	}
 }
 
 void parse_term() {
 	int i = idx;
 	parse_factor();
-	parse_terms();
+	parse_optterm();
 	describe_token_history(i, idx);
-	print_verbose("a term");
+	print_verbose("<term> parsed");
 }
 
-void parse_terms() {
-	int i = idx;
-	if (token.sy == MULT) {
+void parse_optterm() {
+	if (token.sy == MULT || token.sy == DIV) {
 		get_token_with_history();
 		parse_factor();
-		parse_terms();
-		describe_token_history(i, idx);
-		print_verbose("a terms(not empty)");
-	} else {
-		print_verbose("a terms(empty)");
+		parse_optterm();
 	}
-}
-
-void parse_expression() {
-	int i = idx;
-	parse_term();
-	parse_expressions();
-	describe_token_history(i, idx);
-	print_verbose("a expression");
-}
-
-void parse_expressions() {
-	if (token.sy == PLUS || token.sy == MINU) {
-		get_token_with_history();
-		parse_term();
-		parse_expressions();
-	}
-}
-
-void parse_var() {
-	int i = idx;
-	parse_id();
-	if (token.sy == LBRACK) {
-		get_token_with_history();
-		parse_expression();
-		if (token.sy != RBRACK) {
-			print_error("no RBARSY found after LBRASY");
-		}
-		get_token_with_history();
-	} else {
-		// nothing to do anymore because
-		// a IDEN has been taken as a var()
-	}
-	describe_token_history(i, idx);
-	print_verbose("a var");
 }
 
 void parse_factor()  {
@@ -238,7 +218,7 @@ void parse_factor()  {
 		get_token_with_history();
 		parse_expression();
 		if (token.sy != RPARENT) {
-			print_error("no RPARSY found after LPARSY");
+			eval_error(RPARENT_MISSED, "parentheses should appear in pairs to represent a factor");
 		}
 		get_token_with_history();
 		break;
@@ -246,7 +226,50 @@ void parse_factor()  {
 		break;
 	}
 	describe_token_history(i, idx);
-	print_verbose("a factor");
+	print_verbose("<factor> parsed");
+}
+
+void parse_var() {
+	int i = idx;
+	parse_id();
+	if (token.sy == LBRACK) {
+		get_token_with_history();
+		parse_expression();
+		if (token.sy != RBRACK) {
+			print_error("no RBARSY found after LBRASY");
+		}
+		get_token_with_history();
+	} else if (token.sy == LPARENT) {
+		parse_argument();
+	} else {
+		// a IDEN has been taken as a var()
+	}
+	describe_token_history(i, idx);
+	print_verbose("<var> parsed");
+}
+
+void parse_argument() {
+	int i = idx;
+	if (token.sy != LPARENT) {
+
+	}
+	get_token_with_history();
+	parse_expression();
+	parse_optargument();
+	if (token.sy != RPARENT) {
+		eval_error(RPARENT_MISSED, "in a argument list");
+	}
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("<argument> parsed");
+}
+
+void parse_optargument() {
+	if (token.sy == COMMA) {
+		get_token_with_history();
+		parse_expression();
+		parse_optargument();
+	}
 }
 
 int main() {
@@ -255,6 +278,6 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_if_statement();
+	test_argument();
 	return 0;
 }

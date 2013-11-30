@@ -2,13 +2,53 @@
 struct token_sy token_history[120];
 int idx = 0;
 
+void test_expression() {
+	char tmp;
+	FILE *inn = fopen("tests/test_expression.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_expression();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_argument() {
+	char tmp;
+	FILE *inn = fopen("tests/test_argument.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_argument();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
 void test_if_statement() {
 	char tmp;
 	FILE *inn = fopen("tests/test_if_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp != EOF)
+		while ((tmp = fgetc(inn)) != '}' && tmp >31)
 			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
 		printf("******************\n");
@@ -19,18 +59,20 @@ void test_if_statement() {
 	}
 }
 
-void test_const() {
+void test_const_def() {
 	char tmp;
 	FILE *inn = fopen("tests/test_const.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp != EOF)
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
 			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
-		parse_const();
+		parse_const_def();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -41,8 +83,10 @@ void test_cond() {
 	FILE *inn = fopen("tests/test_cond.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp != EOF)
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
 			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
 		printf("******************\n");

@@ -4,12 +4,14 @@
 void parse_const_def();
 void parse_cond();
 
+void parse_expression();
+void parse_optexpression();
 void parse_term();
-void parse_terms();
+void parse_optterm();
 void parse_factor();
 void parse_var();
-void parse_expression();
-void parse_expressions();
+void parse_argument();
+void parse_optargument();
 
 void parse_str();
 
