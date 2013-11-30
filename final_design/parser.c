@@ -16,7 +16,7 @@ void parse_const_def() {
 		if (token.sy == INTCON) {
 			get_token_with_history();
 		} else {
-			eval_error(UNACCEPTABLE, "+/- not followed by INTCON");
+			eval_error(ERR_UNACCEPTABLE, "+/- not followed by INTCON");
 			return;
 		}
 	} else if (token.sy == INTCON) {
@@ -24,7 +24,7 @@ void parse_const_def() {
 	} else if (token.sy == CHARCON) {
 		get_token_with_history();
 	} else {
-		eval_error(UNACCEPTABLE, "invalid const");
+		eval_error(ERR_UNACCEPTABLE, "invalid const");
 		return;
 	}
 	describe_token_history(i - 1, idx);
@@ -63,7 +63,7 @@ void parse_cond() {
 
 void parse_str() {
 	if (token.sy != STRCON) {
-		eval_error(UNACCEPTABLE, "<str> not started with a string");
+		eval_error(ERR_UNACCEPTABLE, "<str> not started with a string");
 	}
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
@@ -201,7 +201,7 @@ void parse_factor()  {
 		get_token_with_history();
 		parse_expression();
 		if (token.sy != RPARENT) {
-			eval_error(RPARENT_MISSED, "parentheses should appear in pairs to represent a factor");
+			eval_error(ERR_RPARENT_MISSED, "parentheses should appear in pairs to represent a factor");
 		}
 		get_token_with_history();
 		break;
@@ -240,7 +240,7 @@ void parse_argument() {
 	parse_expression();
 	parse_optargument();
 	if (token.sy != RPARENT) {
-		eval_error(RPARENT_MISSED, "in a argument list");
+		eval_error(ERR_RPARENT_MISSED, "in a argument list");
 	}
 	get_token_with_history();
 	describe_token_history(i, idx);
@@ -258,13 +258,13 @@ void parse_optargument() {
 void parse_if_statement() {
 	int i = idx;
 	if (token.sy != IFTK) {
-		eval_error(UNACCEPTABLE, "<if_statement> not started with 'if'");
+		eval_error(ERR_UNACCEPTABLE, "<if_statement> not started with 'if'");
 		return;
 	}
 	get_token_with_history();
 	parse_cond();
 	if (token.sy != THENTK) {
-		eval_error(UNACCEPTABLE, "no 'then' found after 'if'");
+		eval_error(ERR_UNACCEPTABLE, "no 'then' found after 'if'");
 	}
 	get_token_with_history();
 	parse_statement();
@@ -275,12 +275,12 @@ void parse_if_statement() {
 void parse_while_statement() {
 	int i = idx;
 	if (token.sy != WHILETK) {
-		eval_error(UNACCEPTABLE, "<while_statement> not started with 'while'");
+		eval_error(ERR_UNACCEPTABLE, "<while_statement> not started with 'while'");
 	}
 	get_token_with_history();
 	parse_cond();
 	if (token.sy != DOTK) {
-		eval_error(UNACCEPTABLE, "missing 'do' in a <while_statement>");
+		eval_error(ERR_UNACCEPTABLE, "missing 'do' in a <while_statement>");
 	}
 	get_token_with_history();
 	parse_statement();
@@ -291,22 +291,22 @@ void parse_while_statement() {
 void parse_for_statement() {
 	int i = idx;
 	if (token.sy != FORTK) {
-		eval_error(UNACCEPTABLE, "<for_statement> not started with 'for'");
+		eval_error(ERR_UNACCEPTABLE, "<for_statement> not started with 'for'");
 	}
 	get_token_with_history();
 	parse_id();
 	if (token.sy != ASSIGN) {
-		eval_error(UNACCEPTABLE, "missing ':=' in a <for_statement>");
+		eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <for_statement>");
 	}
 	get_token_with_history();
 	parse_expression();
 	if (token.sy != DOWNTOTK && token.sy != TOTK) {
-		eval_error(UNACCEPTABLE, "missing 'downto | to' in a <for_statement>");
+		eval_error(ERR_UNACCEPTABLE, "missing 'downto | to' in a <for_statement>");
 	}
 	get_token_with_history();
 	parse_expression();
 	if (token.sy != DOWNTOTK && token.sy != DOTK) {
-		eval_error(UNACCEPTABLE, "missing 'do' in a <for_statement>");
+		eval_error(ERR_UNACCEPTABLE, "missing 'do' in a <for_statement>");
 	}
 	get_token_with_history();
 	parse_statement();
@@ -317,13 +317,13 @@ void parse_for_statement() {
 parse_compound_statement() {
 	int i = idx;
 	if (token.sy != BEGINTK) {
-		eval_error(UNACCEPTABLE, "<compound_statement> not started with 'begin'");
+		eval_error(ERR_UNACCEPTABLE, "<compound_statement> not started with 'begin'");
 	}
 	get_token_with_history();
 	parse_statement();
 	parse_optcompound_statement();
 	if (token.sy != ENDTK) {
-		eval_error(UNACCEPTABLE, "missing 'end' in a <compound_statement>");
+		eval_error(ERR_UNACCEPTABLE, "missing 'end' in a <compound_statement>");
 	}
 	describe_token_history(i, idx);
 	print_verbose("<compound_statement> parsed");
