@@ -20,10 +20,13 @@ void parse_optwrite();
 void parse_read();
 void parse_optread();
 
-void parse_if_statement();
-void parse_else();
 void parse_statement();
-
+void parse_if_statement();
+void parse_while_statement();
+void parse_for_statement();
+void parse_else();
+void pase_compound_statement();
+void parse_optcompound_statement();
 void print_error(const char x[]);
 void print_verbose(const char x[]);
 #endif // PARSER_H_INCLUDED

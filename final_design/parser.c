@@ -63,7 +63,7 @@ void parse_cond() {
 
 void parse_str() {
 	if (token.sy != STRCON) {
-		eval_error(UNACCEPTABLE, "not a string");
+		eval_error(UNACCEPTABLE, "<str> not started with a string");
 	}
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
@@ -128,23 +128,6 @@ void parse_optread() {
 		parse_id();
 		parse_optread();
 	}
-}
-
-void parse_if_statement() {
-	int i = idx;
-	if (token.sy != IFTK) {
-		eval_error(UNACCEPTABLE, "if_statement not started with IF");
-		return;
-	}
-	get_token_with_history();
-	parse_cond();
-	if (token.sy != THENTK) {
-		eval_error(UNACCEPTABLE, "no THEN found after IF");
-	}
-	get_token_with_history();
-	parse_statement();
-	get_token_with_history();
-	parse_else(i);
 }
 
 /**
@@ -269,6 +252,88 @@ void parse_optargument() {
 		get_token_with_history();
 		parse_expression();
 		parse_optargument();
+	}
+}
+
+void parse_if_statement() {
+	int i = idx;
+	if (token.sy != IFTK) {
+		eval_error(UNACCEPTABLE, "<if_statement> not started with 'if'");
+		return;
+	}
+	get_token_with_history();
+	parse_cond();
+	if (token.sy != THENTK) {
+		eval_error(UNACCEPTABLE, "no 'then' found after 'if'");
+	}
+	get_token_with_history();
+	parse_statement();
+	get_token_with_history();
+	parse_else(i);
+}
+
+void parse_while_statement() {
+	int i = idx;
+	if (token.sy != WHILETK) {
+		eval_error(UNACCEPTABLE, "<while_statement> not started with 'while'");
+	}
+	get_token_with_history();
+	parse_cond();
+	if (token.sy != DOTK) {
+		eval_error(UNACCEPTABLE, "missing 'do' in a <while_statement>");
+	}
+	get_token_with_history();
+	parse_statement();
+	describe_token_history(i, idx);
+	print_verbose("<while_statement> parsed");
+}
+
+void parse_for_statement() {
+	int i = idx;
+	if (token.sy != FORTK) {
+		eval_error(UNACCEPTABLE, "<for_statement> not started with 'for'");
+	}
+	get_token_with_history();
+	parse_id();
+	if (token.sy != ASSIGN) {
+		eval_error(UNACCEPTABLE, "missing ':=' in a <for_statement>");
+	}
+	get_token_with_history();
+	parse_expression();
+	if (token.sy != DOWNTOTK && token.sy != TOTK) {
+		eval_error(UNACCEPTABLE, "missing 'downto | to' in a <for_statement>");
+	}
+	get_token_with_history();
+	parse_expression();
+	if (token.sy != DOWNTOTK && token.sy != DOTK) {
+		eval_error(UNACCEPTABLE, "missing 'do' in a <for_statement>");
+	}
+	get_token_with_history();
+	parse_statement();
+	describe_token_history(i, idx);
+	print_verbose("<for_statement> parsed");
+}
+
+parse_compound_statement() {
+	int i = idx;
+	if (token.sy != BEGINTK) {
+		eval_error(UNACCEPTABLE, "<compound_statement> not started with 'begin'");
+	}
+	get_token_with_history();
+	parse_statement();
+	parse_optcompound_statement();
+	if (token.sy != ENDTK) {
+		eval_error(UNACCEPTABLE, "missing 'end' in a <compound_statement>");
+	}
+	describe_token_history(i, idx);
+	print_verbose("<compound_statement> parsed");
+}
+
+void parse_optcompound_statement() {
+	if (token.sy == SEMICN) {
+		get_token_with_history();
+		parse_statement();
+		parse_optcompound_statement();
 	}
 }
 
