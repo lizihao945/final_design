@@ -16,9 +16,11 @@ void print_verbose(const char x[]);
 
 void test_const_def();
 void test_cond();
-void test_if_statement();
 void test_argument();
 void test_expression();
+
+void test_statement();
+void test_if_statement();
 void test_while_statement();
 void test_for_statement();
 void test_compound_statement();

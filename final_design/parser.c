@@ -149,14 +149,24 @@ void parse_statement() {
 	int i = idx;
 	switch (token.sy) {
 		case IDEN:
+			get_token_with_history();
+			if (token.sy == ASSIGN || token.sy == LBRACK)
+				parse_assign_statement();
+			else {
+				if (token.sy == LPARENT) { // foo(1)
+					parse_argument();
+				} else { //foo
+				}
+			}
 			break;
 		case IFTK:
+			parse_if_statement();
 			break;
 		case WHILETK:
-			break;
-		case PROCETK:
+			parse_while_statement();
 			break;
 		case BEGINTK:
+			parse_compound_statement();
 			break;
 		case READTK:
 			parse_read();
@@ -165,6 +175,7 @@ void parse_statement() {
 			parse_write();
 			break;
 		case FORTK:
+			parse_for_statement();
 			break;
 		default:
 			// epsilon is allowed here
@@ -176,10 +187,6 @@ void parse_statement() {
 
 void parse_assign_statement() {
 	int i = idx;
-	if (token.sy != IDEN) {
-		eval_error(ERR_UNACCEPTABLE, "<assign_statement> not started with IDEN");
-	}
-	get_token_with_history();
 	if (token.sy == LBRACK) {
 		get_token_with_history();
 		parse_expression();
@@ -387,6 +394,6 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_assign_statement();
+	test_statement();
 	return 0;
 }
