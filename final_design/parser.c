@@ -9,6 +9,55 @@ void parse_id() {
 	get_token_with_history();
 }
 
+void parse_const_part() {
+	int i = idx;
+	if (token.sy != CONSTTK) {
+		eval_error(ERR_UNACCEPTABLE, "<const_part> not started with 'const'");
+	}
+	get_token_with_history();
+	parse_const_def();
+	while (token.sy == COMMA) {
+		get_token_with_history();
+		parse_const_def();
+	}
+	if (token.sy != SEMICN) {
+		eval_error(ERR_SEMICN_MISSED, "missing ';' int <const_part>");
+	}
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("<const_part> parsed");
+}
+
+void parse_const_def() {
+	int i = idx;
+	if (token.sy != IDEN) {
+		eval_error(ERR_UNACCEPTABLE, "<const_def> not started with IDEN");
+	}
+	get_token_with_history();
+	if (token.sy != EQL) {
+		eval_error(ERR_UNACCEPTABLE, "missing '=' in <const_def>");
+	}
+	get_token_with_history();
+	if (token.sy == PLUS || token.sy == MINU) {
+		get_token_with_history();
+		if (token.sy == INTCON) {
+			get_token_with_history();
+		} else {
+			eval_error(ERR_UNACCEPTABLE, "+/- not followed by INTCON");
+			return;
+		}
+	} else if (token.sy == INTCON) {
+		get_token_with_history();
+	} else if (token.sy == CHARCON) {
+		get_token_with_history();
+	} else {
+		eval_error(ERR_UNACCEPTABLE, "invalid const value");
+		return;
+	}
+	describe_token_history(i, idx);
+	print_verbose("<const_def> parsed");
+}
+
 void parse_var_part() {
 	int i = idx;
 	if (token.sy != VARTK) {
@@ -84,35 +133,6 @@ void parse_primitive_type() {
 	} else {
 		get_token_with_history();
 	}
-}
-
-void parse_const_def() {
-	int i = idx;
-	if (token.sy != IDEN) {
-
-	}
-	get_token_with_history();
-	if (token.sy != EQL) {
-
-	}
-	if (token.sy == PLUS || token.sy == MINU) {
-		get_token_with_history();
-		if (token.sy == INTCON) {
-			get_token_with_history();
-		} else {
-			eval_error(ERR_UNACCEPTABLE, "+/- not followed by INTCON");
-			return;
-		}
-	} else if (token.sy == INTCON) {
-		get_token_with_history();
-	} else if (token.sy == CHARCON) {
-		get_token_with_history();
-	} else {
-		eval_error(ERR_UNACCEPTABLE, "invalid const");
-		return;
-	}
-	describe_token_history(i - 1, idx);
-	print_verbose("<const_def> parsed");
 }
 
 void parse_cond() {
@@ -471,8 +491,7 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_var_def();
-	test_var_part();
+	test_const_part();
 
 	return 0;
 }

@@ -2,6 +2,44 @@
 struct token_sy token_history[120];
 int idx = 0;
 
+void test_const_part() {
+	char tmp;
+	FILE *inn = fopen("tests/test_const_part.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_const_part();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_const_def() {
+	char tmp;
+	FILE *inn = fopen("tests/test_const_def.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_const_def();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
 void test_var_part() {
 	char tmp;
 	FILE *inn = fopen("tests/test_var_part.txt", "r");
@@ -228,25 +266,6 @@ void test_if_statement() {
 	}
 }
 
-void test_const_def() {
-	char tmp;
-	FILE *inn = fopen("tests/test_const.txt", "r");
-	while (!feof(inn)) {
-		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
-			fprintf(in, "%c", tmp);
-		if (tmp == EOF) break;
-		if (tmp <= 31) continue;
-		fseek(in, 0, SEEK_SET);
-		idx = 0;
-		printf("******************\n");
-		get_token_with_history();
-		parse_const_def();
-		fclose(in);
-		remove("test.txt");
-	}
-}
-
 void test_cond() {
 	char tmp;
 	FILE *inn = fopen("tests/test_cond.txt", "r");
@@ -280,8 +299,11 @@ void print_tokens(FILE *in) {
 
 void get_token_with_history() {
 	// get_token should only be called here!
-	if (get_token(in, &token) == -1)
+	if (get_token(in, &token) == -1) {
+		token_history[idx].sy = 0;
+		strcpy(token_history[idx++].val.strVal, "#");
 		return;
+	}
 	token_history[idx++] = token;
 }
 
