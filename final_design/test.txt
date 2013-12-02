@@ -1,1 +1,0 @@
-begin read(x);write("hello") end

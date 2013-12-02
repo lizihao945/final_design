@@ -22,5 +22,6 @@ void test_expression();
 void test_while_statement();
 void test_for_statement();
 void test_compound_statement();
+void test_assign_statement();
 
 #endif // DEBUG_HELPER_FUNCTION_H_INCLUDED

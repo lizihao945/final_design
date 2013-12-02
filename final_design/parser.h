@@ -27,6 +27,8 @@ void parse_for_statement();
 void parse_else();
 void parse_compound_statement();
 void parse_optcompound_statement();
+void parse_assign_statement();
+
 void print_error(const char x[]);
 void print_verbose(const char x[]);
 #endif // PARSER_H_INCLUDED

@@ -174,6 +174,29 @@ void parse_statement() {
 	print_verbose("<statement> parsed");
 }
 
+void parse_assign_statement() {
+	int i = idx;
+	if (token.sy != IDEN) {
+		eval_error(ERR_UNACCEPTABLE, "<assign_statement> not started with IDEN");
+	}
+	get_token_with_history();
+	if (token.sy == LBRACK) {
+		get_token_with_history();
+		parse_expression();
+		if (token.sy != RBRACK) {
+			eval_error(ERR_RBRACK_MISSED, "square brackets should appear in pairs to indicate the index");
+		}
+		get_token_with_history();
+	}
+	if (token.sy != ASSIGN) {
+		eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <assign_statement>");
+	}
+	get_token_with_history();
+	parse_expression();
+	describe_token_history(i, idx);
+	print_verbose("<assign_statement> parsed");
+}
+
 void parse_expression() {
 	int i = idx;
 	if (token.sy == PLUS || token.sy == MINU) {
@@ -364,5 +387,6 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
+	test_assign_statement();
 	return 0;
 }
