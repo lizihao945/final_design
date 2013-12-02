@@ -19,5 +19,8 @@ void test_cond();
 void test_if_statement();
 void test_argument();
 void test_expression();
+void test_while_statement();
+void test_for_statement();
+void test_compound_statement();
 
 #endif // DEBUG_HELPER_FUNCTION_H_INCLUDED

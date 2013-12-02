@@ -146,10 +146,31 @@ void parse_else(int i) {
 }
 
 void parse_statement() {
-	if (token.sy == IFTK)
-		parse_if_statement();
-	else
-		parse_var();
+	int i = idx;
+	switch (token.sy) {
+		case IDEN:
+			break;
+		case IFTK:
+			break;
+		case WHILETK:
+			break;
+		case PROCETK:
+			break;
+		case BEGINTK:
+			break;
+		case READTK:
+			parse_read();
+			break;
+		case WRITETK:
+			parse_write();
+			break;
+		case FORTK:
+			break;
+		default:
+			// epsilon is allowed here
+			break;
+	}
+	describe_token_history(i, idx);
 	print_verbose("<statement> parsed");
 }
 
@@ -314,7 +335,7 @@ void parse_for_statement() {
 	print_verbose("<for_statement> parsed");
 }
 
-parse_compound_statement() {
+void parse_compound_statement() {
 	int i = idx;
 	if (token.sy != BEGINTK) {
 		eval_error(ERR_UNACCEPTABLE, "<compound_statement> not started with 'begin'");
@@ -343,6 +364,5 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_argument();
 	return 0;
 }

@@ -2,6 +2,63 @@
 struct token_sy token_history[120];
 int idx = 0;
 
+void test_compound_statement() {
+	char tmp;
+	FILE *inn = fopen("tests/test_compound_statement.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_compound_statement();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_for_statement() {
+	char tmp;
+	FILE *inn = fopen("tests/test_for_statement.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_for_statement();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_while_statement() {
+	char tmp;
+	FILE *inn = fopen("tests/test_while_statement.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_while_statement();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
 void test_expression() {
 	char tmp;
 	FILE *inn = fopen("tests/test_expression.txt", "r");
