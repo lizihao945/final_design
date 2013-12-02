@@ -14,6 +14,11 @@ void describe_token_history(int st, int en);
 void print_error(const char x[]);
 void print_verbose(const char x[]);
 
+void test_var_part();
+void test_var_def();
+void test_type();
+void test_primitive_type();
+
 void test_const_def();
 void test_cond();
 void test_argument();

@@ -2,6 +2,90 @@
 #include"parser.h"
 #include "debug_helper_function.h"
 
+void parse_id() {
+	if (token.sy != IDEN)
+		return;
+
+	get_token_with_history();
+}
+
+void parse_var_part() {
+	int i = idx;
+	if (token.sy != VARTK) {
+		eval_error(ERR_UNACCEPTABLE, "<var_part> not started with 'var'");
+	}
+	get_token_with_history();
+	parse_var_def();
+	if (token.sy != SEMICN) {
+		eval_error(ERR_SEMICN_MISSED, "missing ';' in <var_part>");
+	} 
+	get_token_with_history();
+	while (token.sy == IDEN) {
+		parse_var_def();
+		if (token.sy != SEMICN) {
+			eval_error(ERR_SEMICN_MISSED, "missing ';' in <var_part>");
+		}
+		get_token_with_history();
+	}
+	describe_token_history(i, idx);
+	print_verbose("<var_part> parsed");
+}
+
+void parse_var_def() {
+	int i = idx;
+	parse_id();
+	while (token.sy == COMMA) {
+		get_token_with_history();
+		parse_id();
+	}
+	if (token.sy != COLON) {
+		eval_error(ERR_COLON_MISSED, "missing ':' in <var_def>");
+	}
+	get_token_with_history();
+	parse_type();
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("<var_def> parsed");
+}
+
+void parse_type() {
+	int i = idx;
+	if (token.sy == ARRAYTK) {
+		get_token_with_history();
+		if (token.sy != LBRACK) {
+			eval_error(ERR_LBRACK_MISSED, "missing '[' in <type>");
+		}
+		get_token_with_history();
+		if (token.sy != INTCON) {
+			eval_error(ERR_INVALID_ARRAY_IDX, "array index should be INTCON");
+		}
+		get_token_with_history();
+		if (token.sy != RBRACK) {
+			eval_error(ERR_RBRACK_MISSED, "missing ']' in <type>");
+		}
+		get_token_with_history();
+		if (token.sy != OFTK) {
+			eval_error(ERR_UNACCEPTABLE, "missing 'of' in <type>");
+		}
+		get_token_with_history();
+		parse_primitive_type();
+	} else
+		parse_primitive_type();
+	describe_token_history(i, idx);
+	print_verbose("<type> parsed");
+}
+
+void parse_primitive_type() {
+	if (token.sy != INTTK && token.sy != CHARTK){
+		eval_error(ERR_UNACCEPTABLE, "<primitive_type> started with not a primitive type");
+	}
+	if (token.sy == INTTK) {
+		get_token_with_history();
+	} else {
+		get_token_with_history();
+	}
+}
+
 void parse_const_def() {
 	int i = idx;
 	if (token.sy != IDEN) {
@@ -68,13 +152,6 @@ void parse_str() {
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
 	print_verbose("<str> parsed");
-}
-
-void parse_id() {
-	if (token.sy != IDEN)
-		return;
-	
-	get_token_with_history();
 }
 
 void parse_write() {
@@ -394,6 +471,8 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_statement();
+	test_var_def();
+	test_var_part();
+
 	return 0;
 }

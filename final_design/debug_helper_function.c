@@ -2,6 +2,80 @@
 struct token_sy token_history[120];
 int idx = 0;
 
+void test_var_part() {
+	char tmp;
+	FILE *inn = fopen("tests/test_var_part.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_var_part();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_var_def() {
+	char tmp;
+	FILE *inn = fopen("tests/test_var_def.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_var_def();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_type() {
+	char tmp;
+	FILE *inn = fopen("tests/test_type.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_type();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+void test_primitive_type() {
+	char tmp;
+	FILE *inn = fopen("tests/test_primitive_type.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_primitive_type();
+		fclose(in);
+		remove("test.txt");
+	}
+}
 void test_statement() {
 	char tmp;
 	FILE *inn = fopen("tests/test_statement.txt", "r");
@@ -206,7 +280,7 @@ void print_tokens(FILE *in) {
 
 void get_token_with_history() {
 	// get_token should only be called here!
-	if (get_token(in, &token) ==- -1)
+	if (get_token(in, &token) == -1)
 		return;
 	token_history[idx++] = token;
 }

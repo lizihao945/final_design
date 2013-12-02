@@ -14,6 +14,7 @@
 #define ERR_ID_REDEFINED 24
 #define ERR_ID_NOT_DEFINED 25
 #define ERR_RPARENT_MISSED 26
+#define ERR_LBRACK_MISSED 271
 #define ERR_RBRACK_MISSED 27
 #define ERR_END_MISSED 28
 #define ERR_ARG_TYPE_MISSMATCH 29
@@ -22,6 +23,9 @@
 #define ERR_ASSIGN_TO_CONST 32
 #define ERR_RETURN_VAL_NOT_SET 33
 #define ERR_UNACCEPTABLE 34
+#define ERR_INVALID_ARRAY_IDX 35
+#define ERR_SEMICN_MISSED 36
+#define ERR_COLON_MISSED 37
 
 int eval_error(int error_type, const char *p);
 #endif

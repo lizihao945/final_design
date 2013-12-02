@@ -1,6 +1,13 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
+void parse_id();
+
+void parse_var_part();
+void parse_var_def();
+void parse_type();
+void parse_primitive_type();
+
 void parse_const_def();
 void parse_cond();
 

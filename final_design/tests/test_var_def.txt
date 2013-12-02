@@ -1,0 +1,3 @@
+a:integer}
+x,y:integer}
+a,b:char}
