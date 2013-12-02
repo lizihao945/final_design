@@ -1,0 +1,5 @@
+procedure bar(x:char);}
+procedure x;}
+procedure bar(x);}
+procedure x:integer;}
+procedure foo(var x: integer);}

@@ -26,6 +26,7 @@
 #define ERR_INVALID_ARRAY_IDX 35
 #define ERR_SEMICN_MISSED 36
 #define ERR_COLON_MISSED 37
+#define	 ERR_PARAMETER_MISSED 38
 
 int eval_error(int error_type, const char *p);
 #endif

@@ -22,6 +22,13 @@ void test_var_def();
 void test_type();
 void test_primitive_type();
 
+void test_procedure_part();
+void test_procedure_head();
+void test_function_part();
+void test_function_head();
+void test_parameter_list();
+void test_parameter();
+
 void test_cond();
 void test_argument();
 void test_expression();

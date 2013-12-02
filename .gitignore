@@ -1,4 +1,6 @@
 # custom
+*.idc
+final_design/test.txt
 debug/
 final_design/Debug/
 

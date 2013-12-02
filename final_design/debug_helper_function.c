@@ -2,12 +2,126 @@
 struct token_sy token_history[120];
 int idx = 0;
 
+void test_procedure_part() {
+	char tmp;
+	FILE *inn = fopen("tests/test_procedure_part.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_procedure_part();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_procedure_head() {
+	char tmp;
+	FILE *inn = fopen("tests/test_procedure_head.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_procedure_head();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_function_part()  {
+	char tmp;
+	FILE *inn = fopen("tests/test_function_part.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_function_part();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_function_head() {
+	char tmp;
+	FILE *inn = fopen("tests/test_function_head.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_function_head();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_parameter_list() {
+	char tmp;
+	FILE *inn = fopen("tests/test_parameter_list.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_parameter_list();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+
+void test_parameter() {
+	char tmp;
+	FILE *inn = fopen("tests/test_parameter.txt", "r");
+	while (!feof(inn)) {
+		in = fopen("test.txt", "w+");
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
+			fprintf(in, "%c", tmp);
+		if (tmp == EOF) break;
+		if (tmp <= 31) continue;
+		fseek(in, 0, SEEK_SET);
+		idx = 0;
+		printf("******************\n");
+		get_token_with_history();
+		parse_parameter();
+		fclose(in);
+		remove("test.txt");
+	}
+}
+//******
 void test_const_part() {
 	char tmp;
 	FILE *inn = fopen("tests/test_const_part.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -26,7 +140,7 @@ void test_const_def() {
 	FILE *inn = fopen("tests/test_const_def.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -45,7 +159,7 @@ void test_var_part() {
 	FILE *inn = fopen("tests/test_var_part.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -64,7 +178,7 @@ void test_var_def() {
 	FILE *inn = fopen("tests/test_var_def.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -83,7 +197,7 @@ void test_type() {
 	FILE *inn = fopen("tests/test_type.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -101,7 +215,7 @@ void test_primitive_type() {
 	FILE *inn = fopen("tests/test_primitive_type.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -119,7 +233,7 @@ void test_statement() {
 	FILE *inn = fopen("tests/test_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -138,7 +252,7 @@ void test_assign_statement() {
 	FILE *inn = fopen("tests/test_assign_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -157,7 +271,7 @@ void test_compound_statement() {
 	FILE *inn = fopen("tests/test_compound_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -176,7 +290,7 @@ void test_for_statement() {
 	FILE *inn = fopen("tests/test_for_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -195,7 +309,7 @@ void test_while_statement() {
 	FILE *inn = fopen("tests/test_while_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -214,7 +328,7 @@ void test_expression() {
 	FILE *inn = fopen("tests/test_expression.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -233,7 +347,7 @@ void test_argument() {
 	FILE *inn = fopen("tests/test_argument.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -252,7 +366,7 @@ void test_if_statement() {
 	FILE *inn = fopen("tests/test_if_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp >31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1 && tmp >31)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -271,7 +385,7 @@ void test_cond() {
 	FILE *inn = fopen("tests/test_cond.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp > 31)
+		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
 			fprintf(in, "%c", tmp);
 		if (tmp == EOF) break;
 		if (tmp <= 31) continue;
@@ -300,8 +414,9 @@ void print_tokens(FILE *in) {
 void get_token_with_history() {
 	// get_token should only be called here!
 	if (get_token(in, &token) == -1) {
-		token_history[idx].sy = 0;
-		strcpy(token_history[idx++].val.strVal, "#");
+		token.sy = 0;
+		strcpy(token.val.strVal, "#");
+		token_history[idx++] = token;
 		return;
 	}
 	token_history[idx++] = token;

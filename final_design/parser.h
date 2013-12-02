@@ -3,13 +3,23 @@
 
 void parse_id();
 
+void parse_program();
+void parse_sub_program();
+
+void parse_const_part();
+void parse_const_def();
+
 void parse_var_part();
 void parse_var_def();
 void parse_type();
 void parse_primitive_type();
 
-void parse_const_part();
-void parse_const_def();
+void parse_procedure_part();
+void parse_procedure_head();
+void parse_function_part();
+void parse_function_head();
+void parse_parameter_list();
+void parse_parameter();
 
 void parse_cond();
 void parse_expression();

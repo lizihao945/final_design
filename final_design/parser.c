@@ -2,6 +2,30 @@
 #include"parser.h"
 #include "debug_helper_function.h"
 
+void parse_program() {
+	parse_sub_program();
+	if (token.sy != PERIOD)
+		eval_error(ERR_UNACCEPTABLE, "missing '.'");
+	// get_token_with_history() is no longer needed
+}
+
+void parse_sub_program() {
+	if (token.sy == CONSTTK)
+		parse_const_part();
+	if (token.sy ==VARTK)
+			parse_var_part();
+	if (token.sy == PROCETK)
+			parse_procedure_part();
+	if (token.sy == FUNCTK)
+			parse_function_part();
+	if (token.sy != BEGINTK) {
+		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
+		return;
+	}
+	parse_compound_statement();
+	print_verbose("<sub_program> parsed");
+}
+
 void parse_id() {
 	if (token.sy != IDEN)
 		return;
@@ -135,6 +159,124 @@ void parse_primitive_type() {
 	}
 }
 
+void parse_procedure_part() {
+	int i = idx;
+	parse_procedure_head();
+	parse_sub_program();
+	while (token.sy == SEMICN) {
+		get_token_with_history();
+		parse_procedure_head();
+		parse_sub_program();
+	}
+	if (token.sy != SEMICN) {
+		eval_error(ERR_SEMICN_MISSED, "missing ';' in <procedure_part>");
+	}
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("<procedure_part> parsed");
+}
+
+void parse_procedure_head() {
+	int i = idx;
+	if (token.sy != PROCETK) {
+		eval_error(ERR_UNACCEPTABLE, "<procedure_head> not started with 'procedure'");
+	}
+	get_token_with_history();
+	parse_id();
+	if (token.sy == LPARENT)
+		parse_parameter_list();
+	if (token.sy == COLON) {
+		eval_error(ERR_UNACCEPTABLE, "procedure IDEN should not be specified with a type");
+		return;
+	}
+	if (token.sy != SEMICN) {
+		eval_error(ERR_SEMICN_MISSED, "missing ';' in <procedure_head>");
+		return;
+	}
+	describe_token_history(i, idx);
+	print_verbose("<procedure_head> parsed");
+}
+
+void parse_function_part() {
+	int i = idx;
+	parse_function_head();
+	parse_sub_program();
+	while (token.sy == SEMICN) {
+		get_token_with_history();
+		if (token.sy != FUNCTK) {
+			describe_token_history(i, idx);
+			print_verbose("<function_part> parsed");
+			return;
+		}
+		parse_function_head();
+		parse_sub_program();
+	}
+}
+
+void parse_function_head() {
+	int i = idx;
+	if (token.sy != FUNCTK) {
+		eval_error(ERR_UNACCEPTABLE, "<function_head> not started with 'function'");
+	}
+	get_token_with_history();
+	parse_id();
+	if (token.sy == LPARENT)
+		parse_parameter_list();
+	if (token.sy != COLON) {
+		eval_error(ERR_UNACCEPTABLE, "missing ':' in <function_head>");
+	}
+	get_token_with_history();
+	parse_primitive_type();
+	if (token.sy != SEMICN) {
+		eval_error(ERR_SEMICN_MISSED, "missing ';' in <function_head>");
+	}
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("<function_head> parsed");
+}
+
+void parse_parameter_list() {
+	int i = idx;
+	if (token.sy != LPARENT) {
+		eval_error(ERR_UNACCEPTABLE, "<parameter_list> not started with '('");
+	}
+	get_token_with_history();
+	if (token.sy == RPARENT) {
+		eval_error(ERR_PARAMETER_MISSED, "");
+	}
+	parse_parameter();
+	while (token.sy == SEMICN) {
+		get_token_with_history();
+		parse_parameter();
+	}
+	if (token.sy != RPARENT) {
+		eval_error(ERR_RPARENT_MISSED, "missing ')' in <parameter_list>");
+	}
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("<parameter_list> parsed");
+}
+
+void parse_parameter() {
+	int i = idx;
+	if (token.sy == VARTK) { // reference passed in
+		get_token_with_history();
+	}
+	parse_id();
+	while (token.sy == COMMA) {
+		get_token_with_history();
+		parse_id();
+	}
+	if (token.sy != COLON) {
+		eval_error(ERR_COLON_MISSED, "missing ':' to indicate the type of IDEN");
+		return;
+	}
+	get_token_with_history();
+	parse_primitive_type();
+	describe_token_history(i, idx);
+	print_verbose("<parameter> parsed");
+}
+
 void parse_cond() {
 	int i = idx;
 	parse_expression();
@@ -247,9 +389,9 @@ void parse_statement() {
 	switch (token.sy) {
 		case IDEN:
 			get_token_with_history();
-			if (token.sy == ASSIGN || token.sy == LBRACK)
+			if (token.sy == ASSIGN || token.sy == LBRACK) {
 				parse_assign_statement();
-			else {
+			} else {
 				if (token.sy == LPARENT) { // foo(1)
 					parse_argument();
 				} else { //foo
@@ -473,6 +615,7 @@ void parse_compound_statement() {
 	if (token.sy != ENDTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'end' in a <compound_statement>");
 	}
+	get_token_with_history();
 	describe_token_history(i, idx);
 	print_verbose("<compound_statement> parsed");
 }
@@ -491,7 +634,9 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_const_part();
+	/*test_procedure_part();
+	*/
+	test_procedure_head();
 
 	return 0;
 }

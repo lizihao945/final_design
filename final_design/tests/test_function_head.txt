@@ -1,0 +1,4 @@
+function bar(x):char;}
+function x:integer;}
+function foo(var x: integer):char;}
+function barr():char;}

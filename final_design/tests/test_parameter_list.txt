@@ -1,0 +1,2 @@
+(x: integer; x, y:integer)}
+(var x, y: char)}
