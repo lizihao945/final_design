@@ -27,7 +27,7 @@ void parse_sub_program() {
 void parse_id(const char *str) {
 	if (token.sy != IDEN)
 		return;
-	str = token.val.str_val;
+	strcpy(str, token.val.str_val);
 	get_token_with_history();
 }
 
@@ -648,9 +648,7 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	/*test_procedure_part();
-	*/
-	test_procedure_head();
+	test_const_def();
 
 	return 0;
 }
