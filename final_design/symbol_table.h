@@ -1,12 +1,12 @@
 #ifndef SYMBOL_TABLE_H
-#include <string.h>
-
 #define SYMBOL_TABLE_H
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <string.h>
 
 #define MAX_SYM_NUM 1024
 
 #define TYPE_CONST 511
-
 #define TYPE_ARGUMENT 512
 #define TYPE_ARRAY 513
 #define TYPE_VARIABLE 514
@@ -25,7 +25,7 @@ struct linked_ints {
 };
 
 struct symbol_item {
-	char name[32];
+	char name[256];
 	int category_code;
 	int type_code; // [array_of_] integer | char
 	int param_type_code; // var or not
@@ -63,7 +63,7 @@ extern struct symbol_item symbol_table[];
 extern int symbol_table_top;
 
 int lookup_id(const char *str);
-void push_item(int category_code, int type_code, const char *name, int val);
+int push_item(int category_code, int type_code, char name[], int val);
 void fill_up_item();
 
 #endif

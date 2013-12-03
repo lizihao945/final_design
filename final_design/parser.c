@@ -24,7 +24,7 @@ void parse_sub_program() {
 	print_verbose("<sub_program> parsed");
 }
 
-void parse_id(const char *str) {
+void parse_id(char str[256]) {
 	if (token.sy != IDEN)
 		return;
 	strcpy(str, token.val.str_val);
@@ -55,7 +55,6 @@ void parse_const_def() {
 	int const_type, flag = 0, val;
 	int i = idx;
 	parse_id(name);
-	get_token_with_history();
 	if (token.sy != EQL) {
 		eval_error(ERR_UNACCEPTABLE, "missing '=' in <const_def>");
 	}
@@ -111,26 +110,45 @@ void parse_var_part() {
 }
 
 void parse_var_def() {
+	struct linked_ints *stack, *top, *p;
 	char name[256];
+	int *category_type, *type_code, *upper_bound;
 	int i = idx;
 	parse_id(name);
+	stack = (struct linked_ints *) malloc(sizeof(struct linked_ints));
+	stack->val = push_item(0, 0, name, 0);
+	stack->next = NULL;
+	top = stack;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
+		p = (struct linked_ints *) malloc(sizeof(struct linked_ints));
+		p->val = push_item(0, 0, name, 0);
+		p->next = NULL;
+		top->next = p;
+		top = p;
 	}
 	if (token.sy != COLON) {
 		eval_error(ERR_COLON_MISSED, "missing ':' in <var_def>");
 	}
 	get_token_with_history();
-	parse_type();
+	category_type = (int *) malloc(sizeof(int));
+	type_code = (int *) malloc(sizeof(int));
+	upper_bound = (int *) malloc(sizeof(int));
+	parse_type(category_type, type_code, upper_bound);
+	while (stack != NULL) {
+		push_item(*category_type, *type_code, name, stack->val);
+		stack = stack->next;
+	}
 	get_token_with_history();
 	describe_token_history(i, idx);
 	print_verbose("<var_def> parsed");
 }
 
-void parse_type() {
+void parse_type(int *category_type, int *type_code, int *upper_bound) {
 	int i = idx;
 	if (token.sy == ARRAYTK) {
+		*category_type = TYPE_ARRAY;
 		get_token_with_history();
 		if (token.sy != LBRACK) {
 			eval_error(ERR_LBRACK_MISSED, "missing '[' in <type>");
@@ -139,6 +157,7 @@ void parse_type() {
 		if (token.sy != INTCON) {
 			eval_error(ERR_INVALID_ARRAY_IDX, "array index should be INTCON");
 		}
+		*upper_bound = token.val.int_val;
 		get_token_with_history();
 		if (token.sy != RBRACK) {
 			eval_error(ERR_RBRACK_MISSED, "missing ']' in <type>");
@@ -148,20 +167,22 @@ void parse_type() {
 			eval_error(ERR_UNACCEPTABLE, "missing 'of' in <type>");
 		}
 		get_token_with_history();
-		parse_primitive_type();
+		parse_primitive_type(type_code);
 	} else
-		parse_primitive_type();
+		parse_primitive_type(type_code);
 	describe_token_history(i, idx);
 	print_verbose("<type> parsed");
 }
 
-void parse_primitive_type() {
+void parse_primitive_type(int *type_code) {
 	if (token.sy != INTTK && token.sy != CHARTK){
 		eval_error(ERR_UNACCEPTABLE, "<primitive_type> started with not a primitive type");
 	}
 	if (token.sy == INTTK) {
+		*type_code = TYPE_INTEGER;
 		get_token_with_history();
 	} else {
+		*type_code = TYPE_CHAR;
 		get_token_with_history();
 	}
 }
@@ -224,6 +245,7 @@ void parse_function_part() {
 void parse_function_head() {
 	char name[256];
 	int i = idx;
+	int *type_code;
 	if (token.sy != FUNCTK) {
 		eval_error(ERR_UNACCEPTABLE, "<function_head> not started with 'function'");
 	}
@@ -235,7 +257,8 @@ void parse_function_head() {
 		eval_error(ERR_UNACCEPTABLE, "missing ':' in <function_head>");
 	}
 	get_token_with_history();
-	parse_primitive_type();
+	type_code = (int*) malloc(sizeof(int));
+	parse_primitive_type(type_code);
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <function_head>");
 	}
@@ -268,6 +291,7 @@ void parse_parameter_list() {
 
 void parse_parameter() {
 	char name[256];
+	int *type_code;
 	int i = idx;
 	if (token.sy == VARTK) { // reference passed in
 		get_token_with_history();
@@ -282,7 +306,8 @@ void parse_parameter() {
 		return;
 	}
 	get_token_with_history();
-	parse_primitive_type();
+	type_code = (int*) malloc(sizeof(int));
+	parse_primitive_type(type_code);
 	describe_token_history(i, idx);
 	print_verbose("<parameter> parsed");
 }
