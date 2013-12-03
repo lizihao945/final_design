@@ -6,6 +6,7 @@
 
 #define MAX_SYM_NUM 1024
 
+#define TYPE_TEMP 510
 #define TYPE_CONST 511
 #define TYPE_ARGUMENT 512
 #define TYPE_ARRAY 513

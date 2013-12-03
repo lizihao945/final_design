@@ -5,7 +5,7 @@
 */
 #include "lexer.h"
 FILE *in;
-struct token_sy token;
+struct token_st token;
 const char *map_sy_string[120];
 
 int get_char_type(char ch) {
@@ -32,7 +32,7 @@ int is_str_val(char ch) {
 	return (ch == 32 || ch == 33 || (35 <= ch && ch <= 126))? 1 : 0;
 }
 
-int get_token(FILE *fp, struct token_sy *token) {
+int get_token(FILE *fp, struct token_st *token) {
     int i, ch;
     char tmp[32];
     ch = fgetc(fp);
@@ -249,7 +249,7 @@ int get_token(FILE *fp, struct token_sy *token) {
 }
 
 int analyse_and_print(FILE *in, FILE *out) {
-    struct token_sy tmp;
+    struct token_st tmp;
     int token_count = 0;
     init_map_sy_string();
     while (get_token(in, &tmp) != 0) {

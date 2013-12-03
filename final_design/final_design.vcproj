@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\quadruple.c"
+				>
+			</File>
+			<File
 				RelativePath=".\symbol_table.c"
 				>
 			</File>
@@ -214,6 +218,10 @@
 			</File>
 			<File
 				RelativePath=".\parser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\quadruple.h"
 				>
 			</File>
 			<File

@@ -1,5 +1,5 @@
 #include "debug_helper_function.h"
-struct token_sy token_history[120];
+struct token_st token_history[120];
 int idx = 0;
 
 void test_procedure_part() {
@@ -326,6 +326,16 @@ void test_while_statement() {
 void test_expression() {
 	char tmp;
 	FILE *inn = fopen("tests/test_expression.txt", "r");
+	symbol_table[symbol_table_top].category_code = TYPE_VARIABLE;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	strcpy(symbol_table[symbol_table_top].name, "a");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
+	symbol_table[symbol_table_top].category_code = TYPE_VARIABLE;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	strcpy(symbol_table[symbol_table_top].name, "b");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
 		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
@@ -400,7 +410,7 @@ void test_cond() {
 }
 
 void print_tokens(FILE *in) {
-	struct token_sy tmp;
+	struct token_st tmp;
 	int token_count = 0;
 	init_map_sy_string();
 	while (get_token(in, &tmp) != 0) {
@@ -422,7 +432,7 @@ void get_token_with_history() {
 	token_history[idx++] = token;
 }
 
-void describe_token(struct token_sy token) {
+void describe_token(struct token_st token) {
     if (token.sy == INTCON) printf("%d\t", token.val.int_val);
     else printf("%s\t", token.val.str_val);
 }

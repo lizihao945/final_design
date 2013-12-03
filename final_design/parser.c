@@ -479,53 +479,63 @@ void parse_assign_statement() {
 	print_verbose("<assign_statement> parsed");
 }
 
-void parse_expression() {
+void parse_expression(int *r) {
 	int i = idx;
+	int p;
 	if (token.sy == PLUS || token.sy == MINU) {
 		get_token_with_history();
 	}
-	parse_term();
-	parse_optexpression();
+	parse_term(&p);
+	parse_optexpression(p, r);
 	describe_token_history(i, idx);
 	print_verbose("<expression> parsed");
 }
 
-void parse_optexpression() {
+void parse_optexpression(int p, int *r) {
+	int p1, q;
 	if (token.sy == PLUS || token.sy == MINU) {
 		get_token_with_history();
-		parse_term();
-		parse_optexpression();
+		parse_term(&q);
+		p1 = quadruple_add(p, q);
+		parse_optexpression(p1, r);
+	} else {
+		*r = p;
 	}
 }
 
-void parse_term() {
+void parse_term(int *r) {
 	int i = idx;
-	parse_factor();
-	parse_optterm();
+	int p;
+	parse_factor(&p);
+	parse_optterm(p, r);
 	describe_token_history(i, idx);
 	print_verbose("<term> parsed");
 }
 
-void parse_optterm() {
+void parse_optterm(int p, int *r) {
+	int p1, q;
 	if (token.sy == MULT || token.sy == DIV) {
 		get_token_with_history();
-		parse_factor();
-		parse_optterm();
+		parse_factor(&q);
+		p1 = quadruple_mult(p, q);
+		parse_optterm(p1, r);
+	} else {
+		*r = p;
 	}
 }
 
-void parse_factor()  {
+void parse_factor(int *p)  {
 	int i = idx;
 	switch (token.sy) {
 	case IDEN:
-		parse_var();
+		parse_var(p);
 		break;
 	case INTCON:
 		get_token_with_history();
 		break;
 	case LPARENT:
 		get_token_with_history();
-		parse_expression();
+		parse_expression(p);
 		if (token.sy != RPARENT) {
 			eval_error(ERR_RPARENT_MISSED, "parentheses should appear in pairs to represent a factor");
 		}
@@ -538,13 +548,16 @@ void parse_factor()  {
 	print_verbose("<factor> parsed");
 }
 
-void parse_var() {
+void parse_var(int *p) {
 	char name[256];
 	int i = idx;
+	int *r;
+	r = (int *) malloc(sizeof(int));
 	parse_id(name);
+	*p = lookup_id(name);
 	if (token.sy == LBRACK) {
 		get_token_with_history();
-		parse_expression();
+		parse_expression(r);
 		if (token.sy != RBRACK) {
 			print_error("no RBARSY found after LBRASY");
 		}
@@ -560,11 +573,13 @@ void parse_var() {
 
 void parse_argument() {
 	int i = idx;
+	int *r;
+	r = (int *) malloc(sizeof(int));
 	if (token.sy != LPARENT) {
 
 	}
 	get_token_with_history();
-	parse_expression();
+	parse_expression(r);
 	parse_optargument();
 	if (token.sy != RPARENT) {
 		eval_error(ERR_RPARENT_MISSED, "in a argument list");
@@ -575,9 +590,11 @@ void parse_argument() {
 }
 
 void parse_optargument() {
+	int *r;
+	r = (int *) malloc(sizeof(int));
 	if (token.sy == COMMA) {
 		get_token_with_history();
-		parse_expression();
+		parse_expression(r);
 		parse_optargument();
 	}
 }
@@ -618,6 +635,8 @@ void parse_while_statement() {
 void parse_for_statement() {
 	char name[256];
 	int i = idx;
+	int *r;
+	r = (int *) malloc(sizeof(int));
 	if (token.sy != FORTK) {
 		eval_error(ERR_UNACCEPTABLE, "<for_statement> not started with 'for'");
 	}
@@ -627,12 +646,12 @@ void parse_for_statement() {
 		eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <for_statement>");
 	}
 	get_token_with_history();
-	parse_expression();
+	parse_expression(r);
 	if (token.sy != DOWNTOTK && token.sy != TOTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'downto | to' in a <for_statement>");
 	}
 	get_token_with_history();
-	parse_expression();
+	parse_expression(r);
 	if (token.sy != DOWNTOTK && token.sy != DOTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'do' in a <for_statement>");
 	}
@@ -672,7 +691,7 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_var_def();
+	test_expression();
 
 	return 0;
 }

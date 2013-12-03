@@ -57,10 +57,10 @@
 #define DIGIT           113
 
 extern FILE *in;
-extern struct token_sy token;
+extern struct token_st token;
 extern const char *map_sy_string[120];
 
-struct token_sy {
+struct token_st {
     int sy;
     union {
         char str_val[256];
@@ -68,7 +68,7 @@ struct token_sy {
     } val;
 };
 
-int get_token(FILE *fp, struct token_sy *token);
+int get_token(FILE *fp, struct token_st *token);
 int analyse_and_print(FILE *in, FILE *out);
 int init_map_sy_string();
 #endif // LEXER_FIRST_H_INCLUDED

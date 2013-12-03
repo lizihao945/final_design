@@ -3,6 +3,7 @@
 #include"lexer.h"
 #include "symbol_table.h"
 #include "debug_helper_function.h"
+#include "quadruple.h"
 
 void parse_id();
 
