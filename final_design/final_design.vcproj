@@ -190,6 +190,10 @@
 				RelativePath=".\parser.c"
 				>
 			</File>
+			<File
+				RelativePath=".\symbol_table.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -210,6 +214,10 @@
 			</File>
 			<File
 				RelativePath=".\parser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\symbol_table.h"
 				>
 			</File>
 		</Filter>

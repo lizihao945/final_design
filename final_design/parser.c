@@ -1,11 +1,9 @@
-#include"lexer.h"
-#include"parser.h"
-#include "debug_helper_function.h"
+#include "parser.h"
 
 void parse_program() {
 	parse_sub_program();
 	if (token.sy != PERIOD)
-		eval_error(ERR_UNACCEPTABLE, "missing '.'");
+		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
 	// get_token_with_history() is no longer needed
 }
 
@@ -26,10 +24,10 @@ void parse_sub_program() {
 	print_verbose("<sub_program> parsed");
 }
 
-void parse_id() {
+void parse_id(const char *str) {
 	if (token.sy != IDEN)
 		return;
-
+	str = token.val.str_val;
 	get_token_with_history();
 }
 
@@ -53,31 +51,39 @@ void parse_const_part() {
 }
 
 void parse_const_def() {
+	char name[256];
+	int const_type, flag = 0, val;
 	int i = idx;
-	if (token.sy != IDEN) {
-		eval_error(ERR_UNACCEPTABLE, "<const_def> not started with IDEN");
-	}
+	parse_id(name);
 	get_token_with_history();
 	if (token.sy != EQL) {
 		eval_error(ERR_UNACCEPTABLE, "missing '=' in <const_def>");
 	}
 	get_token_with_history();
 	if (token.sy == PLUS || token.sy == MINU) {
+		if (token.sy == MINU) flag = 1;
 		get_token_with_history();
 		if (token.sy == INTCON) {
+			const_type = TYPE_INTEGER;
+			val = flag ? -token.val.int_val : token.val.int_val;
 			get_token_with_history();
 		} else {
 			eval_error(ERR_UNACCEPTABLE, "+/- not followed by INTCON");
 			return;
 		}
 	} else if (token.sy == INTCON) {
+		const_type = TYPE_INTEGER;
+		val = token.val.int_val;
 		get_token_with_history();
 	} else if (token.sy == CHARCON) {
+		const_type = TYPE_CHAR;
+		val = token.val.int_val;
 		get_token_with_history();
 	} else {
 		eval_error(ERR_UNACCEPTABLE, "invalid const value");
 		return;
 	}
+	push_item(TYPE_CONST, const_type, name, val);
 	describe_token_history(i, idx);
 	print_verbose("<const_def> parsed");
 }
@@ -105,11 +111,12 @@ void parse_var_part() {
 }
 
 void parse_var_def() {
+	char name[256];
 	int i = idx;
-	parse_id();
+	parse_id(name);
 	while (token.sy == COMMA) {
 		get_token_with_history();
-		parse_id();
+		parse_id(name);
 	}
 	if (token.sy != COLON) {
 		eval_error(ERR_COLON_MISSED, "missing ':' in <var_def>");
@@ -177,12 +184,13 @@ void parse_procedure_part() {
 }
 
 void parse_procedure_head() {
+	char name[256];
 	int i = idx;
 	if (token.sy != PROCETK) {
 		eval_error(ERR_UNACCEPTABLE, "<procedure_head> not started with 'procedure'");
 	}
 	get_token_with_history();
-	parse_id();
+	parse_id(name);
 	if (token.sy == LPARENT)
 		parse_parameter_list();
 	if (token.sy == COLON) {
@@ -214,12 +222,13 @@ void parse_function_part() {
 }
 
 void parse_function_head() {
+	char name[256];
 	int i = idx;
 	if (token.sy != FUNCTK) {
 		eval_error(ERR_UNACCEPTABLE, "<function_head> not started with 'function'");
 	}
 	get_token_with_history();
-	parse_id();
+	parse_id(name);
 	if (token.sy == LPARENT)
 		parse_parameter_list();
 	if (token.sy != COLON) {
@@ -258,14 +267,15 @@ void parse_parameter_list() {
 }
 
 void parse_parameter() {
+	char name[256];
 	int i = idx;
 	if (token.sy == VARTK) { // reference passed in
 		get_token_with_history();
 	}
-	parse_id();
+	parse_id(name);
 	while (token.sy == COMMA) {
 		get_token_with_history();
-		parse_id();
+		parse_id(name);
 	}
 	if (token.sy != COLON) {
 		eval_error(ERR_COLON_MISSED, "missing ':' to indicate the type of IDEN");
@@ -345,6 +355,7 @@ void parse_optwrite() {
 }
 
 void parse_read() {
+	char name[256];
 	int i = idx;
 	if (token.sy != READTK)
 		return;
@@ -352,7 +363,7 @@ void parse_read() {
 	if (token.sy != LPARENT)
 		return;
 	get_token_with_history();
-	parse_id();
+	parse_id(name);
 	parse_optread();
 	if (token.sy != RPARENT)
 		return;
@@ -362,9 +373,10 @@ void parse_read() {
 }
 
 void parse_optread() {
+	char name[256];
 	if (token.sy == COMMA) {
 		get_token_with_history();
-		parse_id();
+		parse_id(name);
 		parse_optread();
 	}
 }
@@ -503,8 +515,9 @@ void parse_factor()  {
 }
 
 void parse_var() {
+	char name[256];
 	int i = idx;
-	parse_id();
+	parse_id(name);
 	if (token.sy == LBRACK) {
 		get_token_with_history();
 		parse_expression();
@@ -579,12 +592,13 @@ void parse_while_statement() {
 }
 
 void parse_for_statement() {
+	char name[256];
 	int i = idx;
 	if (token.sy != FORTK) {
 		eval_error(ERR_UNACCEPTABLE, "<for_statement> not started with 'for'");
 	}
 	get_token_with_history();
-	parse_id();
+	parse_id(name);
 	if (token.sy != ASSIGN) {
 		eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <for_statement>");
 	}

@@ -1,5 +1,8 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
+#include"lexer.h"
+#include "symbol_table.h"
+#include "debug_helper_function.h"
 
 void parse_id();
 

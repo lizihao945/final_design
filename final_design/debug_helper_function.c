@@ -406,8 +406,8 @@ void print_tokens(FILE *in) {
 	while (get_token(in, &tmp) != 0) {
 		printf("%d ", ++token_count);
 		printf("%s ", map_sy_string[tmp.sy]);
-		if (tmp.sy == INTCON) printf("%d\n", tmp.val.intVal);
-		else printf("%s\n", tmp.val.strVal);
+		if (tmp.sy == INTCON) printf("%d\n", tmp.val.int_val);
+		else printf("%s\n", tmp.val.str_val);
 	}
 }
 
@@ -415,7 +415,7 @@ void get_token_with_history() {
 	// get_token should only be called here!
 	if (get_token(in, &token) == -1) {
 		token.sy = 0;
-		strcpy(token.val.strVal, "#");
+		strcpy(token.val.str_val, "#");
 		token_history[idx++] = token;
 		return;
 	}
@@ -423,8 +423,8 @@ void get_token_with_history() {
 }
 
 void describe_token(struct token_sy token) {
-    if (token.sy == INTCON) printf("%d\t", token.val.intVal);
-    else printf("%s\t", token.val.strVal);
+    if (token.sy == INTCON) printf("%d\t", token.val.int_val);
+    else printf("%s\t", token.val.str_val);
 }
 
 void print_action(char * const str, int * const vals) {

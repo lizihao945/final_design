@@ -63,9 +63,8 @@ extern const char *map_sy_string[120];
 struct token_sy {
     int sy;
     union {
-        char strVal[256];
-        int intVal;
-        double doubleVal;
+        char str_val[256];
+        int int_val;
     } val;
 };
 
