@@ -62,7 +62,7 @@ struct proc_symbol {
 extern struct symbol_item symbol_table[];
 extern int symbol_table_top;
 
-int lookup_id(const char *str);
+int lookup_id(char name[]);
 int push_item(int category_code, int type_code, char name[], int val);
 void fill_up_item();
 

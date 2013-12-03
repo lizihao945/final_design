@@ -2,8 +2,12 @@
 struct symbol_item symbol_table[MAX_SYM_NUM];
 int symbol_table_top = 0;
 
-int lookup_id(const char *str) {
-	return -1; // if error occurs
+int lookup_id(char name[256]) {
+	int i = symbol_table_top - 1;
+	while (i--)
+		if (!strcmp(symbol_table[symbol_table_top].name, name))
+			return i;
+	return -1; // if not found
 }
 
 int push_item(int category_code, int type_code, char name[256], int val) {
