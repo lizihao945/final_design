@@ -18,6 +18,8 @@ int push_item(int category_code, int type_code, char name[256], int val) {
 	return symbol_table_top++;
 }
 
-void fill_up_item() {
-
+void fill_up_item(int item_idx, int category_code, int type_code, int val) {
+	symbol_table[item_idx].category_code = category_code;
+	symbol_table[item_idx].type_code = type_code;
+	symbol_table[item_idx].val.int_val = val;	
 }

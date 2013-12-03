@@ -64,6 +64,6 @@ extern int symbol_table_top;
 
 int lookup_id(char name[]);
 int push_item(int category_code, int type_code, char name[], int val);
-void fill_up_item();
+void fill_up_item(int item_idx, int category_code, int type_code, int val);
 
 #endif

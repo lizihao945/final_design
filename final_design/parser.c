@@ -137,10 +137,9 @@ void parse_var_def() {
 	upper_bound = (int *) malloc(sizeof(int));
 	parse_type(category_type, type_code, upper_bound);
 	while (stack != NULL) {
-		push_item(*category_type, *type_code, name, stack->val);
+		fill_up_item(stack->val, *category_type, *type_code, stack->val);
 		stack = stack->next;
 	}
-	get_token_with_history();
 	describe_token_history(i, idx);
 	print_verbose("<var_def> parsed");
 }
@@ -673,7 +672,7 @@ int main() {
 	//    scanf("%s", tmp);
 	init_map_sy_string();
 	//print_tokens(in);
-	test_const_def();
+	test_var_def();
 
 	return 0;
 }
