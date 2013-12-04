@@ -34,12 +34,14 @@
 #define MINU        113
 #define MULT        14
 #define DIV         24
-#define LSS         34
-#define LEQ         44
-#define GRE         54
-#define GEQ         64
-#define EQL         74
-#define NEQ         84
+
+#define LSS         1024
+#define LEQ         2048
+#define GRE         4096
+#define GEQ         8192
+#define EQL         16384
+#define NEQ         32768
+
 #define ASSIGN      94
 #define SEMICN      104
 #define COMMA       114

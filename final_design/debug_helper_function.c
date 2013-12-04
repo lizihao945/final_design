@@ -293,16 +293,6 @@ void test_expression() {
 	char tmp;
 	FILE *inn = fopen("tests/test_expression.txt", "r");
 	t_quad_arg result;
-	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
-	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
-	strcpy(symbol_table[symbol_table_top].name, "a");
-	symbol_table[symbol_table_top].val.int_val = 1;
-	symbol_table_top++;
-	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
-	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
-	strcpy(symbol_table[symbol_table_top].name, "b");
-	symbol_table[symbol_table_top].val.int_val = 1;
-	symbol_table_top++;
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
 		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
@@ -378,7 +368,7 @@ void test_cond() {
 	}
 }
 
-void describe_quad_arg(struct quad_arg_st arg) {
+void describe_quad_arg(t_quad_arg arg) {
 	if (arg.arg_code == ARG_SYMBOL_IDX)
 		printf("%s\t", symbol_table[arg.val.idx].name);
 	else if (arg.arg_code == ARG_IMMEDIATE)

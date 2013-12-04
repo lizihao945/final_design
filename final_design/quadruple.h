@@ -43,19 +43,25 @@ typedef struct quad_arg_st {
 } t_quad_arg;
 
 typedef struct linked_quad_args_st {
-	struct quad_arg_st val;
+	t_quad_arg val;
 	struct linked_quad_args_st *next;
 } t_linked_quad_args;
 
 typedef struct quadruple_st {
 	int op, result;
-	struct quad_arg_st arg1, arg2;
+	t_quad_arg arg1, arg2;
 } t_quadruple;
 
 extern t_quadruple quadruple[MAX_QUAD_NUM];
 extern int quadruple_top;
-struct quad_arg_st quadruple_add(struct quad_arg_st arg1, struct quad_arg_st arg2);
-struct quad_arg_st quadruple_sub(struct quad_arg_st arg1, struct quad_arg_st arg2);
-struct quad_arg_st quadruple_mult(struct quad_arg_st arg1, struct quad_arg_st arg2);
-struct quad_arg_st quadruple_div(struct quad_arg_st arg1, struct quad_arg_st arg2);
+t_quad_arg quadruple_add(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_sub(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_mult(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_div(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_les(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_leq(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_gtr(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_geq(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_eql(t_quad_arg arg1, t_quad_arg arg2);
+t_quad_arg quadruple_neql(t_quad_arg arg1, t_quad_arg arg2);
 #endif

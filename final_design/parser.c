@@ -316,30 +316,37 @@ void parse_parameter() {
 
 void parse_cond() {
 	int i = idx;
-	parse_expression();
-	switch (token.sy) {
+	int tmp;
+	t_quad_arg p, q;
+	parse_expression(&p);
+	tmp = token.sy;
+	if (!(tmp & (LSS | LEQ | GRE | GEQ | EQL | NEQ)))
+		eval_error(ERR_UNACCEPTABLE, "invalid operator");
+	get_token_with_history();
+	parse_expression(&q);
+	switch (tmp) {
 		case LSS:
-			get_token_with_history();
+			quadruple_les(p, q);
 			break;
 		case LEQ:
-			get_token_with_history();
+			quadruple_leq(p, q);
 			break;
 		case GRE:
-			get_token_with_history();
+			quadruple_gtr(p, q);
 			break;
 		case GEQ:
-			get_token_with_history();
+			quadruple_geq(p, q);
 			break;
 		case EQL:
-			get_token_with_history();
+			quadruple_eql(p, q);
 			break;
 		case NEQ:
-			get_token_with_history();
+			quadruple_neql(p, q);
 			break;
 		default:
+			eval_error(ERR_UNACCEPTABLE, "invalid operator");
 			break;
 	}
-	parse_expression();
 	describe_token_history(i, idx);
 	print_verbose("<cond> parsed");
 }
@@ -718,9 +725,24 @@ int main() {
 	//symbol_table_top = 0;
 	//print_tokens(in);
 
-	//verbose_off = 1;
-	//describe_token_off = 1;
-	test_var_def();
-	//test_for_statement();
+	verbose_off = 1;
+	describe_token_off = 1;
+
+	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	strcpy(symbol_table[symbol_table_top].name, "a");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
+	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	strcpy(symbol_table[symbol_table_top].name, "b");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
+	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	strcpy(symbol_table[symbol_table_top].name, "c");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
+	test_cond();
 	return 0;
 }
