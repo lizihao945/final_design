@@ -1,17 +1,18 @@
 #include "parser.h"
 
 void parse_program() {
-	parse_sub_program();
+	int depth = 1;
+	parse_sub_program(depth);
 	if (token.sy != PERIOD)
 		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
 	// get_token_with_history() is no longer needed
 }
 
-void parse_sub_program() {
+void parse_sub_program(int depth) {
 	if (token.sy == CONSTTK)
 		parse_const_part();
 	if (token.sy ==VARTK)
-			parse_var_part();
+			parse_var_part(depth);
 	if (token.sy == PROCETK)
 			parse_procedure_part();
 	if (token.sy == FUNCTK)
@@ -24,10 +25,10 @@ void parse_sub_program() {
 	print_verbose("<sub_program> parsed");
 }
 
-void parse_id(char str[256]) {
+void parse_id(char name[MAX_NAME]) {
 	if (token.sy != IDEN)
 		return;
-	strcpy(str, token.val.str_val);
+	strcpy(name, token.val.str_val);
 	get_token_with_history();
 }
 
@@ -82,24 +83,24 @@ void parse_const_def() {
 		eval_error(ERR_UNACCEPTABLE, "invalid const value");
 		return;
 	}
-	push_symbol(CATEGORY_CONST, const_type, name, val);
+	push_symbol(CATEGORY_CONST, const_type, name, val, 0);
 	describe_token_history(i, idx);
 	print_verbose("<const_def> parsed");
 }
 
-void parse_var_part() {
+void parse_var_part(int depth) {
 	int i = idx;
 	if (token.sy != VARTK) {
 		eval_error(ERR_UNACCEPTABLE, "<var_part> not started with 'var'");
 	}
 	get_token_with_history();
-	parse_var_def();
+	parse_var_def(depth);
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <var_part>");
 	} 
 	get_token_with_history();
 	while (token.sy == IDEN) {
-		parse_var_def();
+		parse_var_def(depth);
 		if (token.sy != SEMICN) {
 			eval_error(ERR_SEMICN_MISSED, "missing ';' in <var_part>");
 		}
@@ -109,21 +110,21 @@ void parse_var_part() {
 	print_verbose("<var_part> parsed");
 }
 
-void parse_var_def() {
+void parse_var_def(int depth) {
 	struct linked_ints_st *stack, *top, *p;
 	char name[256];
 	int *category_type, *type_code, *upper_bound;
 	int i = idx;
 	parse_id(name);
 	stack = (struct linked_ints_st *) malloc(sizeof(struct linked_ints_st));
-	stack->val = push_symbol(0, 0, name, 0);
+	stack->val = push_symbol(0, 0, name, 0, depth);
 	stack->next = NULL;
 	top = stack;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
 		p = (struct linked_ints_st *) malloc(sizeof(struct linked_ints_st));
-		p->val = push_symbol(0, 0, name, 0);
+		p->val = push_symbol(0, 0, name, 0, depth);
 		p->next = NULL;
 		top->next = p;
 		top = p;
@@ -189,14 +190,14 @@ void parse_primitive_type(int *type_code) {
 	}
 }
 
-void parse_procedure_part() {
+void parse_procedure_part(int depth) {
 	int i = idx;
 	parse_procedure_head();
-	parse_sub_program();
+	parse_sub_program(depth);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		parse_procedure_head();
-		parse_sub_program();
+		parse_sub_program(depth);
 	}
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <procedure_part>");
@@ -228,10 +229,10 @@ void parse_procedure_head() {
 	print_verbose("<procedure_head> parsed");
 }
 
-void parse_function_part() {
+void parse_function_part(int depth) {
 	int i = idx;
 	parse_function_head();
-	parse_sub_program();
+	parse_sub_program(depth);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		if (token.sy != FUNCTK) {
@@ -240,7 +241,7 @@ void parse_function_part() {
 			return;
 		}
 		parse_function_head();
-		parse_sub_program();
+		parse_sub_program(depth);
 	}
 }
 
@@ -415,28 +416,19 @@ void parse_optread() {
 	}
 }
 
-/**
- * arg 'i' is for debug
- */
-void parse_else(int i) {
-	if (token.sy != ELSETK) {
-		describe_token_history(i, idx);
-		print_verbose("<if_statement> parsed without <else>");
-		return;
-	}
-	get_token_with_history();
-	parse_statement();
-	describe_token_history(i, idx);
-	print_verbose("<if_statement> parsed with <else>");
-}
-
 void parse_statement() {
 	int i = idx;
+	char name[MAX_NAME];
+	t_quad_arg *p;
 	switch (token.sy) {
 		case IDEN:
+			parse_id(name);
+			p = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+			p->arg_code = ARG_SYMBOL_IDX;
+			p->val.idx = lookup_id(name);
 			get_token_with_history();
 			if (token.sy == ASSIGN || token.sy == LBRACK) {
-				parse_assign_statement();
+				parse_assign_statement(p);
 			} else {
 				if (token.sy == LPARENT) { // foo(1)
 					parse_argument();
@@ -470,21 +462,36 @@ void parse_statement() {
 	print_verbose("<statement> parsed");
 }
 
-void parse_assign_statement() {
+void parse_assign_statement(t_quad_arg p) {
 	int i = idx;
+	t_quad_arg *q, *idx_val;
 	if (token.sy == LBRACK) {
 		get_token_with_history();
-		parse_expression();
+		idx_val = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+		// the index value of array
+		parse_expression(idx_val);
 		if (token.sy != RBRACK) {
 			eval_error(ERR_RBRACK_MISSED, "square brackets should appear in pairs to indicate the index");
 		}
 		get_token_with_history();
+		if (token.sy != ASSIGN) {
+			eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <assign_statement>");
+		}
+		get_token_with_history();
+		q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+		parse_expression(q);
+		quadruple_setarray(p, *idx_val, *q);
+		describe_token_history(i, idx);
+		print_verbose("<assign_statement> parsed");
+		return;
 	}
 	if (token.sy != ASSIGN) {
 		eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <assign_statement>");
 	}
 	get_token_with_history();
-	parse_expression();
+	q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	parse_expression(q);
+	quadruple_assign(p, *q);
 	describe_token_history(i, idx);
 	print_verbose("<assign_statement> parsed");
 }
@@ -581,14 +588,15 @@ void parse_factor(t_quad_arg *p)  {
 void parse_var(t_quad_arg *p) {
 	char name[256];
 	int i = idx;
-	t_quad_arg *r;
-	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
+	t_quad_arg *q;
+	q = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
 	parse_id(name);
 	p->arg_code = ARG_SYMBOL_IDX;
 	p->val.idx = lookup_id(name);
 	if (token.sy == LBRACK) {
 		get_token_with_history();
-		parse_expression(r);
+		parse_expression(q);
+		*p = quadruple_getarray(*p, *q);
 		if (token.sy != RBRACK) {
 			print_error("no RBARSY found after LBRASY");
 		}
@@ -632,19 +640,32 @@ void parse_optargument() {
 
 void parse_if_statement() {
 	int i = idx;
+	int jmpf_idx, jmp_idx;
 	if (token.sy != IFTK) {
 		eval_error(ERR_UNACCEPTABLE, "<if_statement> not started with 'if'");
 		return;
 	}
 	get_token_with_history();
 	parse_cond();
+	jmpf_idx = quadruple_jmpf();
 	if (token.sy != THENTK) {
 		eval_error(ERR_UNACCEPTABLE, "no 'then' found after 'if'");
 	}
 	get_token_with_history();
 	parse_statement();
+	jmp_idx = quadruple_jmp();
+	if (token.sy != ELSETK) {
+		quadruple[jmpf_idx].arg1.val.idx = quadruple_lable(); // label_a
+		describe_token_history(i, idx);
+		print_verbose("<if_statement> parsed without 'else'");
+		return;
+	}
 	get_token_with_history();
-	parse_else(i);
+	quadruple[jmpf_idx].arg1.val.idx = quadruple_lable();
+	parse_statement();
+	quadruple[jmp_idx].arg1.val.idx = quadruple_lable();
+	describe_token_history(i, idx);
+	print_verbose("<if_statement> parsed with 'else'");
 }
 
 void parse_while_statement() {
@@ -725,9 +746,6 @@ int main() {
 	//symbol_table_top = 0;
 	//print_tokens(in);
 
-	verbose_off = 1;
-	describe_token_off = 1;
-
 	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
 	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
 	strcpy(symbol_table[symbol_table_top].name, "a");
@@ -738,11 +756,16 @@ int main() {
 	strcpy(symbol_table[symbol_table_top].name, "b");
 	symbol_table[symbol_table_top].val.int_val = 1;
 	symbol_table_top++;
-	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
+	symbol_table[symbol_table_top].category_code = CATEGORY_ARRAY;
 	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	symbol_table[symbol_table_top].upper_bound = 10;
 	strcpy(symbol_table[symbol_table_top].name, "c");
 	symbol_table[symbol_table_top].val.int_val = 1;
 	symbol_table_top++;
-	test_cond();
+	verbose_off = 1;
+	describe_token_off = 1;
+
+	test_assign_statement();
+	//test_if_statement();
 	return 0;
 }

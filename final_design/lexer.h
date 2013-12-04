@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "errors.h"
+#include "env.h"
 
 #define IDEN        11
 #define INTCON      21
@@ -65,7 +66,7 @@ extern const char *map_sy_string[120];
 struct token_st {
     int sy;
     union {
-        char str_val[256];
+        char str_val[MAX_NAME];
         int int_val;
     } val;
 };

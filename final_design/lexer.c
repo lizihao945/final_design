@@ -68,9 +68,12 @@ int get_token(FILE *fp, struct token_st *token) {
         } else if (!strcmp(token->val.str_val, "array")) {
             token->sy = ARRAYTK;
             return ARRAYTK;
-        } else if (!strcmp(token->val.str_val, "of")) {//
+        } else if (!strcmp(token->val.str_val, "of")) {
             token->sy = OFTK;
             return OFTK;
+		} else if(!strcmp(token->val.str_val, "if")) {
+			token->sy = IFTK;
+			return IFTK;
         } else if (!strcmp(token->val.str_val, "then")) {
             token->sy = THENTK;
             return THENTK;

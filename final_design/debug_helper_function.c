@@ -3,6 +3,7 @@ struct token_st token_history[MAX_TOKEN_NUM];
 int idx = 0;
 int verbose_off = 0;
 int describe_token_off = 0;
+const char * map_quad_string[1024];
 
 void test_procedure_part() {
 	char tmp;
@@ -215,6 +216,7 @@ void test_statement() {
 
 void test_assign_statement() {
 	char tmp;
+	t_quad_arg p;
 	FILE *inn = fopen("tests/test_assign_statement.txt", "r");
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
@@ -226,7 +228,13 @@ void test_assign_statement() {
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
-		parse_assign_statement();
+		p.arg_code = ARG_SYMBOL_IDX;
+		p.val.idx = 1;
+		label_top = 0;
+		temp_table_top = 0;
+		quadruple_top = 0;
+		parse_assign_statement(p);
+		print_quadruples();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -303,9 +311,11 @@ void test_expression() {
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
+		label_top = 0;
 		temp_table_top = 0;
 		quadruple_top = 0;
 		parse_expression(&result);
+		print_quadruples();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -343,7 +353,11 @@ void test_if_statement() {
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
+		label_top = 0;
+		temp_table_top = 0;
+		quadruple_top = 0;
 		parse_if_statement();
+		print_quadruples();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -366,15 +380,6 @@ void test_cond() {
 		fclose(in);
 		remove("test.txt");
 	}
-}
-
-void describe_quad_arg(t_quad_arg arg) {
-	if (arg.arg_code == ARG_SYMBOL_IDX)
-		printf("%s\t", symbol_table[arg.val.idx].name);
-	else if (arg.arg_code == ARG_IMMEDIATE)
-		printf("%d\t", arg.val.int_val);
-	else if (arg.arg_code == ARG_TEMP_IDX)
-		printf("t%d\t", arg.val.int_val);
 }
 
 void print_tokens(FILE *in) {
@@ -434,4 +439,63 @@ void print_verbose(const char x[]) {
 //        printf("%d\n", token.val.intVal);
 //    else
 //        printf("%s\n", token.val.strVal);
+}
+
+void print_quadruples() {
+	int i;
+	init_map_quad_string();
+	for (i = 0; i < quadruple_top; i++) {
+		if (quadruple[i].has_label)
+			printf("%d\t", quadruple[i].label);
+		else
+			printf("N/A\t");
+		if (strlen(map_quad_string[quadruple[i].op]) <= 8)
+			printf("%s\t\t", map_quad_string[quadruple[i].op]);
+		else
+			printf("%s\t", map_quad_string[quadruple[i].op]);
+		describe_quad_arg(quadruple[i].arg1);
+		describe_quad_arg(quadruple[i].arg2);
+		describe_quad_arg(quadruple[i].result);
+		printf("\n");
+	}
+}
+
+void describe_quad_arg(t_quad_arg arg) {
+	if (arg.arg_code == ARG_SYMBOL_IDX)
+		printf("%s\t", symbol_table[arg.val.idx].name);
+	else if (arg.arg_code == ARG_IMMEDIATE)
+		printf("%d\t", arg.val.int_val);
+	else if (arg.arg_code == ARG_LABEL)
+		printf("%d\t", arg.val.int_val);
+	else if (arg.arg_code == ARG_TEMP_IDX)
+		printf("t%d\t", arg.val.int_val);
+	else
+		printf("N/A\t");
+}
+
+void init_map_quad_string() {
+	map_quad_string[515] = "LEQ<=";
+	map_quad_string[516] = "GEQ>=";
+	map_quad_string[517] = "ADD+";
+	map_quad_string[518] = "SUB-";
+	map_quad_string[519] = "MULT*";
+	map_quad_string[520] = "DIV/";
+	map_quad_string[521] = "EQL=";
+	map_quad_string[522] = "NEQL<>";
+	map_quad_string[523] = "GTR>";
+	map_quad_string[524] = "LES<";
+	map_quad_string[525] = "DEF";
+	map_quad_string[526] = "PARAMVAL";
+	map_quad_string[527] = "PARAMREF";
+	map_quad_string[528] = "ARGU";
+	map_quad_string[529] = "CALL";
+	map_quad_string[530] = "RET";
+	map_quad_string[531] = "ASSIGN";
+	map_quad_string[532] ="GETARRAY=[]";
+	map_quad_string[533] ="SETARRAY[]=";
+	map_quad_string[534] = "LABEL";
+	map_quad_string[535] = "JMP";
+	map_quad_string[536] = "JMPF";
+	map_quad_string[537] = "CTOI";
+	map_quad_string[538] = "ITOC";
 }

@@ -3,9 +3,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <string.h>
-
-#define MAX_SYM_NUM 1024
-#define MAX_TEMP_NUM 1024
+#include "env.h"
 
 #define CATEGORY_CONST 511
 #define CATEGORY_ARGUMENT 512
@@ -21,17 +19,17 @@
 #define TYPE_NON_VAR_PARAMETER 520
 
 struct symbol_item_st {
-	char name[256];
+	char name[MAX_NAME];
 	int category_code;
 	int type_code; // [array_of_] integer | char
 	int param_type_code; // var or not
 	union {
-		char str_val[256];
+		char str_val[MAX_NAME];
 		int int_val;
 	} val;
 	int offset_byte;
 	int size_byte;// count of bytes
-	int depth_val; // start from 1 as the very out layer
+	int depth; // start from 1 as the very out layer
 	int decl_line_num; // line number of declaration
 	struct linked_ints_st *refs_line_num_list; // line numbers of references
 	int upper_bound; // in case it's array
@@ -54,7 +52,7 @@ extern struct symbol_item_st symbol_table[];
 extern int symbol_table_top;
 extern int temp_table_top;
 int lookup_id(char name[]);
-int push_symbol(int category_code, int type_code, char name[], int val);
+int push_symbol(int category_code, int type_code, char name[], int val, int depth);
 int push_temp();
 void fill_up_info(int item_idx, int category_code, int type_code, int upper_bound);
 

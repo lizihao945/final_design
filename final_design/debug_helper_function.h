@@ -6,13 +6,17 @@
 #include "lexer.h"
 #include "parser.h"
 #include "quadruple.h"
+#include "env.h"
 
 extern int verbose_off;
 extern int describe_token_off;
 extern struct token_st token_history[];
 extern int idx;
+extern const char * map_quad_string[];
 
 void describe_quad_arg(struct quad_arg_st arg);
+void print_quadruples();
+void init_map_quad_string();
 
 void print_tokens(FILE *in);
 void get_token_with_history();

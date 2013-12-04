@@ -4,6 +4,7 @@
 #include "symbol_table.h"
 #include "debug_helper_function.h"
 #include "quadruple.h"
+#include "env.h"
 
 struct linked_ints_st {
 	int val;
@@ -51,7 +52,6 @@ void parse_statement();
 void parse_if_statement();
 void parse_while_statement();
 void parse_for_statement();
-void parse_else();
 void parse_compound_statement();
 void parse_optcompound_statement();
 void parse_assign_statement();
