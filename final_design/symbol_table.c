@@ -23,8 +23,8 @@ int push_temp() {
 	return temp_table_top++;
 }
 
-void fill_up_item(int item_idx, int category_code, int type_code, int val) {
+void fill_up_info(int item_idx, int category_code, int type_code, int upper_bound) {
 	symbol_table[item_idx].category_code = category_code;
 	symbol_table[item_idx].type_code = type_code;
-	symbol_table[item_idx].val.int_val = val;	
+	symbol_table[item_idx].upper_bound = upper_bound;
 }

@@ -1,4 +1,0 @@
-integer}
-char}
-array[100] of integer}
-array[100] of char}

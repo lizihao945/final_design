@@ -137,7 +137,7 @@ void parse_var_def() {
 	upper_bound = (int *) malloc(sizeof(int *));
 	parse_type(category_type, type_code, upper_bound);
 	while (stack != NULL) {
-		fill_up_item(stack->val, *category_type, *type_code, stack->val);
+		fill_up_info(stack->val, *category_type, *type_code, *upper_bound);
 		stack = stack->next;
 	}
 	describe_token_history(i, idx);
@@ -167,8 +167,11 @@ void parse_type(int *category_type, int *type_code, int *upper_bound) {
 		}
 		get_token_with_history();
 		parse_primitive_type(type_code);
-	} else
+	} else {
 		parse_primitive_type(type_code);
+		*category_type = CATEGORY_VARIABLE;
+		*upper_bound = 0;
+	}
 	describe_token_history(i, idx);
 	print_verbose("<type> parsed");
 }
@@ -715,9 +718,9 @@ int main() {
 	//symbol_table_top = 0;
 	//print_tokens(in);
 
-	verbose_off = 1;
-	describe_token_off = 1;
-	test_expression();
+	//verbose_off = 1;
+	//describe_token_off = 1;
+	test_var_def();
 	//test_for_statement();
 	return 0;
 }

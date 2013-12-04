@@ -194,42 +194,6 @@ void test_var_def() {
 	}
 }
 
-void test_type() {
-	char tmp;
-	FILE *inn = fopen("tests/test_type.txt", "r");
-	while (!feof(inn)) {
-		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
-			fprintf(in, "%c", tmp);
-		if (tmp == EOF) break;
-		if (tmp <= 31) continue;
-		fseek(in, 0, SEEK_SET);
-		idx = 0;
-		printf("******************\n");
-		get_token_with_history();
-		parse_type();
-		fclose(in);
-		remove("test.txt");
-	}
-}
-void test_primitive_type() {
-	char tmp;
-	FILE *inn = fopen("tests/test_primitive_type.txt", "r");
-	while (!feof(inn)) {
-		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
-			fprintf(in, "%c", tmp);
-		if (tmp == EOF) break;
-		if (tmp <= 31) continue;
-		fseek(in, 0, SEEK_SET);
-		idx = 0;
-		printf("******************\n");
-		get_token_with_history();
-		parse_primitive_type();
-		fclose(in);
-		remove("test.txt");
-	}
-}
 void test_statement() {
 	char tmp;
 	FILE *inn = fopen("tests/test_statement.txt", "r");

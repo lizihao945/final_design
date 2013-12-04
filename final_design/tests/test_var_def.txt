@@ -1,3 +1,3 @@
-a:integer}
 x,y:integer}
+a:array[100] of integer}
 a,b,c:char}

@@ -26,8 +26,6 @@ void test_const_def();
 
 void test_var_part();
 void test_var_def();
-void test_type();
-void test_primitive_type();
 
 void test_procedure_part();
 void test_procedure_head();
