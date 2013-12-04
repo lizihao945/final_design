@@ -1,6 +1,8 @@
 #include "debug_helper_function.h"
-struct token_st token_history[120];
+struct token_st token_history[MAX_TOKEN_NUM];
 int idx = 0;
+int verbose_off = 0;
+int describe_token_off = 0;
 
 void test_procedure_part() {
 	char tmp;
@@ -326,12 +328,13 @@ void test_while_statement() {
 void test_expression() {
 	char tmp;
 	FILE *inn = fopen("tests/test_expression.txt", "r");
-	symbol_table[symbol_table_top].category_code = TYPE_VARIABLE;
+	t_quad_arg result;
+	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
 	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
 	strcpy(symbol_table[symbol_table_top].name, "a");
 	symbol_table[symbol_table_top].val.int_val = 1;
 	symbol_table_top++;
-	symbol_table[symbol_table_top].category_code = TYPE_VARIABLE;
+	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
 	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
 	strcpy(symbol_table[symbol_table_top].name, "b");
 	symbol_table[symbol_table_top].val.int_val = 1;
@@ -346,7 +349,9 @@ void test_expression() {
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
-		parse_expression();
+		temp_table_top = 0;
+		quadruple_top = 0;
+		parse_expression(&result);
 		fclose(in);
 		remove("test.txt");
 	}
@@ -409,6 +414,15 @@ void test_cond() {
 	}
 }
 
+void describe_quad_arg(struct quad_arg_st arg) {
+	if (arg.arg_code == ARG_SYMBOL_IDX)
+		printf("%s\t", symbol_table[arg.val.idx].name);
+	else if (arg.arg_code == ARG_IMMEDIATE)
+		printf("%d\t", arg.val.int_val);
+	else if (arg.arg_code == ARG_TEMP_IDX)
+		printf("t%d\t", arg.val.int_val);
+}
+
 void print_tokens(FILE *in) {
 	struct token_st tmp;
 	int token_count = 0;
@@ -437,12 +451,9 @@ void describe_token(struct token_st token) {
     else printf("%s\t", token.val.str_val);
 }
 
-void print_action(char * const str, int * const vals) {
-    printf("%s\t%d\t%d\t%d\n", str, vals[0], vals[1], vals[2]);
-}
-
 void describe_token_history(int st, int en) {
     int i;
+	if (describe_token_off) return;
     //since idx is ++ed every time a token is read,
     //the real index of last token should always - 1
     //and because of the pre-getting of token,
@@ -462,6 +473,7 @@ void print_error(const char x[]) {
 }
 
 void print_verbose(const char x[]) {
+	if (verbose_off) return;
     printf("Verbose\t%s!\n", x);
 //    printf("Verbose\t%s.\t Next token:\t%s\t", x, map_sy_string[token.sy]);
 //    if (token.sy == INTCON)

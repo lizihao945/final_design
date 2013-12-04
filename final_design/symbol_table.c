@@ -1,6 +1,7 @@
 #include "symbol_table.h"
-struct symbol_item symbol_table[MAX_SYM_NUM];
+struct symbol_item_st symbol_table[MAX_SYM_NUM];
 int symbol_table_top = 0;
+int temp_table_top = 0;
 
 int lookup_id(char name[256]) {
 	int i = symbol_table_top;
@@ -10,12 +11,16 @@ int lookup_id(char name[256]) {
 	return -1; // if not found
 }
 
-int push_item(int category_code, int type_code, char name[256], int val) {
+int push_symbol(int category_code, int type_code, char name[256], int val) {
 	symbol_table[symbol_table_top].category_code = category_code;
 	symbol_table[symbol_table_top].type_code = type_code;
 	strcpy(symbol_table[symbol_table_top].name, name);
 	symbol_table[symbol_table_top].val.int_val = val;
 	return symbol_table_top++;
+}
+
+int push_temp() {
+	return temp_table_top++;
 }
 
 void fill_up_item(int item_idx, int category_code, int type_code, int val) {

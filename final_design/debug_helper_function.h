@@ -1,15 +1,22 @@
 #ifndef DEBUG_HELPER_FUNCTION_H_INCLUDED
 #define DEBUG_HELPER_FUNCTION_H_INCLUDED
 
+#define MAX_TOKEN_NUM 1024
+
 #include "lexer.h"
 #include "parser.h"
-extern struct token_st token_history[120];
+#include "quadruple.h"
+
+extern int verbose_off;
+extern int describe_token_off;
+extern struct token_st token_history[];
 extern int idx;
+
+void describe_quad_arg(struct quad_arg_st arg);
 
 void print_tokens(FILE *in);
 void get_token_with_history();
 void describe_token(struct token_st token);
-void print_action(char * const str, int * const vals);
 void describe_token_history(int st, int en);
 void print_error(const char x[]);
 void print_verbose(const char x[]);

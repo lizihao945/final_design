@@ -82,7 +82,7 @@ void parse_const_def() {
 		eval_error(ERR_UNACCEPTABLE, "invalid const value");
 		return;
 	}
-	push_item(TYPE_CONST, const_type, name, val);
+	push_symbol(CATEGORY_CONST, const_type, name, val);
 	describe_token_history(i, idx);
 	print_verbose("<const_def> parsed");
 }
@@ -110,20 +110,20 @@ void parse_var_part() {
 }
 
 void parse_var_def() {
-	struct linked_ints *stack, *top, *p;
+	struct linked_ints_st *stack, *top, *p;
 	char name[256];
 	int *category_type, *type_code, *upper_bound;
 	int i = idx;
 	parse_id(name);
-	stack = (struct linked_ints *) malloc(sizeof(struct linked_ints));
-	stack->val = push_item(0, 0, name, 0);
+	stack = (struct linked_ints_st *) malloc(sizeof(struct linked_ints_st));
+	stack->val = push_symbol(0, 0, name, 0);
 	stack->next = NULL;
 	top = stack;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
-		p = (struct linked_ints *) malloc(sizeof(struct linked_ints));
-		p->val = push_item(0, 0, name, 0);
+		p = (struct linked_ints_st *) malloc(sizeof(struct linked_ints_st));
+		p->val = push_symbol(0, 0, name, 0);
 		p->next = NULL;
 		top->next = p;
 		top = p;
@@ -132,9 +132,9 @@ void parse_var_def() {
 		eval_error(ERR_COLON_MISSED, "missing ':' in <var_def>");
 	}
 	get_token_with_history();
-	category_type = (int *) malloc(sizeof(int));
-	type_code = (int *) malloc(sizeof(int));
-	upper_bound = (int *) malloc(sizeof(int));
+	category_type = (int *) malloc(sizeof(int *));
+	type_code = (int *) malloc(sizeof(int *));
+	upper_bound = (int *) malloc(sizeof(int *));
 	parse_type(category_type, type_code, upper_bound);
 	while (stack != NULL) {
 		fill_up_item(stack->val, *category_type, *type_code, stack->val);
@@ -147,7 +147,7 @@ void parse_var_def() {
 void parse_type(int *category_type, int *type_code, int *upper_bound) {
 	int i = idx;
 	if (token.sy == ARRAYTK) {
-		*category_type = TYPE_ARRAY;
+		*category_type = CATEGORY_ARRAY;
 		get_token_with_history();
 		if (token.sy != LBRACK) {
 			eval_error(ERR_LBRACK_MISSED, "missing '[' in <type>");
@@ -479,58 +479,78 @@ void parse_assign_statement() {
 	print_verbose("<assign_statement> parsed");
 }
 
-void parse_expression(int *r) {
+void parse_expression(t_quad_arg *r) {
 	int i = idx;
-	int p;
+	int flag = 0;
+	t_quad_arg p, zero;
 	if (token.sy == PLUS || token.sy == MINU) {
+		if (token.sy == MINU)
+			flag = 1;
 		get_token_with_history();
 	}
 	parse_term(&p);
 	parse_optexpression(p, r);
+	if (flag == 1) {
+		zero.arg_code = ARG_IMMEDIATE;
+		zero.val.int_val = 0;
+		quadruple_sub(zero, *r);
+	}
 	describe_token_history(i, idx);
 	print_verbose("<expression> parsed");
 }
 
-void parse_optexpression(int p, int *r) {
-	int p1, q;
+void parse_optexpression(t_quad_arg p, t_quad_arg *r) {
+	int flag;
+	t_quad_arg p1, q;
 	if (token.sy == PLUS || token.sy == MINU) {
+		flag = token.sy;
 		get_token_with_history();
 		parse_term(&q);
-		p1 = quadruple_add(p, q);
+		if (flag == PLUS)
+			p1 = quadruple_add(p, q);
+		else
+			p1 = quadruple_sub(p, q);
 		parse_optexpression(p1, r);
 	} else {
 		*r = p;
 	}
 }
 
-void parse_term(int *r) {
+void parse_term(t_quad_arg *r) {
 	int i = idx;
-	int p;
+	t_quad_arg p;
 	parse_factor(&p);
 	parse_optterm(p, r);
 	describe_token_history(i, idx);
 	print_verbose("<term> parsed");
 }
 
-void parse_optterm(int p, int *r) {
-	int p1, q;
+void parse_optterm(t_quad_arg p, t_quad_arg *r) {
+	int flag;
+	t_quad_arg p1, q;
 	if (token.sy == MULT || token.sy == DIV) {
+		flag = token.sy;
 		get_token_with_history();
 		parse_factor(&q);
-		p1 = quadruple_mult(p, q);
+		if (flag == MULT)
+			p1 = quadruple_mult(p, q);
+		else
+			p1 = quadruple_div(p, q);
 		parse_optterm(p1, r);
 	} else {
 		*r = p;
 	}
 }
 
-void parse_factor(int *p)  {
+void parse_factor(t_quad_arg *p)  {
 	int i = idx;
 	switch (token.sy) {
 	case IDEN:
 		parse_var(p);
 		break;
 	case INTCON:
+		p->arg_code = ARG_IMMEDIATE;
+		p->val.int_val = token.val.int_val;
 		get_token_with_history();
 		break;
 	case LPARENT:
@@ -548,13 +568,14 @@ void parse_factor(int *p)  {
 	print_verbose("<factor> parsed");
 }
 
-void parse_var(int *p) {
+void parse_var(t_quad_arg *p) {
 	char name[256];
 	int i = idx;
-	int *r;
-	r = (int *) malloc(sizeof(int));
+	t_quad_arg *r;
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
 	parse_id(name);
-	*p = lookup_id(name);
+	p->arg_code = ARG_SYMBOL_IDX;
+	p->val.idx = lookup_id(name);
 	if (token.sy == LBRACK) {
 		get_token_with_history();
 		parse_expression(r);
@@ -573,8 +594,8 @@ void parse_var(int *p) {
 
 void parse_argument() {
 	int i = idx;
-	int *r;
-	r = (int *) malloc(sizeof(int));
+	t_quad_arg *r;
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
 	if (token.sy != LPARENT) {
 
 	}
@@ -590,8 +611,8 @@ void parse_argument() {
 }
 
 void parse_optargument() {
-	int *r;
-	r = (int *) malloc(sizeof(int));
+	t_quad_arg *r;
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
 	if (token.sy == COMMA) {
 		get_token_with_history();
 		parse_expression(r);
@@ -635,8 +656,8 @@ void parse_while_statement() {
 void parse_for_statement() {
 	char name[256];
 	int i = idx;
-	int *r;
-	r = (int *) malloc(sizeof(int));
+	t_quad_arg *r;
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
 	if (token.sy != FORTK) {
 		eval_error(ERR_UNACCEPTABLE, "<for_statement> not started with 'for'");
 	}
@@ -690,8 +711,13 @@ int main() {
 	//    printf("Input your source file name:\n");
 	//    scanf("%s", tmp);
 	init_map_sy_string();
+	//quadruple_top = 0;
+	//symbol_table_top = 0;
 	//print_tokens(in);
-	test_expression();
 
+	verbose_off = 1;
+	describe_token_off = 1;
+	test_expression();
+	//test_for_statement();
 	return 0;
 }

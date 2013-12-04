@@ -5,6 +5,11 @@
 #include "debug_helper_function.h"
 #include "quadruple.h"
 
+struct linked_ints_st {
+	int val;
+	struct linked_ints_st *next;
+};
+
 void parse_id();
 
 void parse_program();
