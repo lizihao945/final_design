@@ -1,14 +1,19 @@
 #include "parser.h"
 
 void parse_program() {
-	int depth = 1;
-	parse_sub_program(depth);
+	// sub_table_idx[0] is useless
+	parse_sub_program(1);
 	if (token.sy != PERIOD)
 		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
 	// get_token_with_history() is no longer needed
 }
 
 void parse_sub_program(int depth) {
+	sub_table_idx[depth] = symbol_table_top;
+	if (depth > MAX_SUB_DEPTH) {
+		eval_error(ERR_STACK_OVERFLOW, "");
+		return;
+	}
 	if (token.sy == CONSTTK)
 		parse_const_part();
 	if (token.sy ==VARTK)
@@ -193,11 +198,11 @@ void parse_primitive_type(int *type_code) {
 void parse_procedure_part(int depth) {
 	int i = idx;
 	parse_procedure_head();
-	parse_sub_program(depth);
+	parse_sub_program(depth + 1);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		parse_procedure_head();
-		parse_sub_program(depth);
+		parse_sub_program(depth + 1);
 	}
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <procedure_part>");
@@ -232,7 +237,7 @@ void parse_procedure_head() {
 void parse_function_part(int depth) {
 	int i = idx;
 	parse_function_head();
-	parse_sub_program(depth);
+	parse_sub_program(depth + 1);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		if (token.sy != FUNCTK) {
@@ -241,7 +246,7 @@ void parse_function_part(int depth) {
 			return;
 		}
 		parse_function_head();
-		parse_sub_program(depth);
+		parse_sub_program(depth + 1);
 	}
 }
 
@@ -499,7 +504,7 @@ void parse_assign_statement(t_quad_arg p) {
 void parse_expression(t_quad_arg *r) {
 	int i = idx;
 	int flag = 0;
-	t_quad_arg p, zero;
+	t_quad_arg p, zero_arg;
 	if (token.sy == PLUS || token.sy == MINU) {
 		if (token.sy == MINU)
 			flag = 1;
@@ -508,9 +513,9 @@ void parse_expression(t_quad_arg *r) {
 	parse_term(&p);
 	parse_optexpression(p, r);
 	if (flag == 1) {
-		zero.arg_code = ARG_IMMEDIATE;
-		zero.val.int_val = 0;
-		quadruple_sub(zero, *r);
+		zero_arg.arg_code = ARG_IMMEDIATE;
+		zero_arg.val.int_val = 0;
+		quadruple_sub(zero_arg, *r);
 	}
 	describe_token_history(i, idx);
 	print_verbose("<expression> parsed");
@@ -589,7 +594,7 @@ void parse_var(t_quad_arg *p) {
 	char name[256];
 	int i = idx;
 	t_quad_arg *q;
-	q = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
+	q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	parse_id(name);
 	p->arg_code = ARG_SYMBOL_IDX;
 	p->val.idx = lookup_id(name);
@@ -613,7 +618,7 @@ void parse_var(t_quad_arg *p) {
 void parse_argument() {
 	int i = idx;
 	t_quad_arg *r;
-	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy != LPARENT) {
 
 	}
@@ -630,7 +635,7 @@ void parse_argument() {
 
 void parse_optargument() {
 	t_quad_arg *r;
-	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy == COMMA) {
 		get_token_with_history();
 		parse_expression(r);
@@ -649,14 +654,13 @@ void parse_if_statement() {
 	get_token_with_history();
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	parse_cond(r);
-	jmpf_idx = quadruple_jmpf();
+	jmpf_idx = quadruple_jmpf(*r);
 	if (token.sy != THENTK) {
 		eval_error(ERR_UNACCEPTABLE, "no 'then' found after 'if'");
 	}
 	get_token_with_history();
 	parse_statement();
 	if (token.sy != ELSETK) {
-		quadruple[jmpf_idx].arg2 = *r;
 		quadruple[jmpf_idx].arg1.val.idx = quadruple_lable(); // label_a
 		describe_token_history(i, idx);
 		print_verbose("<if_statement> parsed without 'else'");
@@ -694,30 +698,58 @@ void parse_while_statement() {
 }
 
 void parse_for_statement() {
-	char name[256];
 	int i = idx;
-	t_quad_arg *r;
-	r = (t_quad_arg *) malloc(sizeof(t_quad_arg *));
+	int tmp;
+	int label_start, label_end, jmpf_idx;
+	t_quad_arg p, *st, *ed, one_arg;
 	if (token.sy != FORTK) {
 		eval_error(ERR_UNACCEPTABLE, "<for_statement> not started with 'for'");
 	}
 	get_token_with_history();
-	parse_id(name);
+	p.arg_code = ARG_SYMBOL_IDX;
+	p.val.idx = lookup_id(token.val.str_val);
+	get_token_with_history();
 	if (token.sy != ASSIGN) {
 		eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <for_statement>");
 	}
 	get_token_with_history();
-	parse_expression(r);
+	// loop variable start value
+	st = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	parse_expression(st);
+
+	// assign the initial value to loop variable
+	quadruple_assign(p, *st);
+
+	// label_start
+	label_start = quadruple_lable();
 	if (token.sy != DOWNTOTK && token.sy != TOTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'downto | to' in a <for_statement>");
 	}
+	tmp = token.sy;
 	get_token_with_history();
-	parse_expression(r);
-	if (token.sy != DOWNTOTK && token.sy != DOTK) {
-		eval_error(ERR_UNACCEPTABLE, "missing 'do' in a <for_statement>");
-	}
+	// loop variable start value
+	ed = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	parse_expression(ed);
+
+	// check loop variable before loop body
+	one_arg.arg_code = ARG_IMMEDIATE;
+	one_arg.val.int_val = 1;
+	if (tmp == TOTK)
+		jmpf_idx = quadruple_jmpf(quadruple_leq(p, *ed));
+	else
+		jmpf_idx = quadruple_jmpf(quadruple_geq(p, *ed));
 	get_token_with_history();
+	
+	// loop body (<statement> and loop variable modification)
 	parse_statement();
+	if (token.sy == DOTK)
+		quadruple_add(p, one_arg);
+	else
+		quadruple_sub(p, one_arg);
+	quadruple[quadruple_jmp()].arg1.val.int_val = label_start;
+
+	// label end
+	quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable();
 	describe_token_history(i, idx);
 	print_verbose("<for_statement> parsed");
 }
@@ -751,30 +783,16 @@ int main() {
 	//    printf("Input your source file name:\n");
 	//    scanf("%s", tmp);
 	init_map_sy_string();
+	init_map_type_string();
+	init_map_quad_string();
 	//quadruple_top = 0;
 	//symbol_table_top = 0;
 	//print_tokens(in);
-
-	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
-	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
-	strcpy(symbol_table[symbol_table_top].name, "a");
-	symbol_table[symbol_table_top].val.int_val = 1;
-	symbol_table_top++;
-	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
-	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
-	strcpy(symbol_table[symbol_table_top].name, "b");
-	symbol_table[symbol_table_top].val.int_val = 1;
-	symbol_table_top++;
-	symbol_table[symbol_table_top].category_code = CATEGORY_ARRAY;
-	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
-	symbol_table[symbol_table_top].upper_bound = 10;
-	strcpy(symbol_table[symbol_table_top].name, "c");
-	symbol_table[symbol_table_top].val.int_val = 1;
-	symbol_table_top++;
+	
 	verbose_off = 1;
 	describe_token_off = 1;
-
-	//test_assign_statement();
-	test_if_statement();
+	test_for_statement();
+	//test_cond();
+	//test_var_part();
 	return 0;
 }

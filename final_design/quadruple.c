@@ -147,9 +147,10 @@ int quadruple_lable() {
 /**
  * jump to label arg1, arg2 left for condition value
  */
-int quadruple_jmpf() {
+int quadruple_jmpf(t_quad_arg arg2) {
 	quadruple[quadruple_top].op = QUAD_JMPF;
 	quadruple[quadruple_top].arg1.arg_code = ARG_LABEL;
+	quadruple[quadruple_top].arg2 = arg2;
 	quadruple[quadruple_top].result.arg_code = 0;
 	return quadruple_top++;
 }

@@ -51,6 +51,9 @@ struct proc_symbol_st {
 extern struct symbol_item_st symbol_table[];
 extern int symbol_table_top;
 extern int temp_table_top;
+extern int sub_table_idx[];
+
+// interfaces
 int lookup_id(char name[]);
 int push_symbol(int category_code, int type_code, char name[], int val, int depth);
 int push_temp();

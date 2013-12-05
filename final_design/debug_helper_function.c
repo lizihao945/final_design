@@ -4,6 +4,7 @@ int idx = 0;
 int verbose_off = 0;
 int describe_token_off = 0;
 const char * map_quad_string[1024];
+const char * map_type_string[4];
 
 void test_procedure_part() {
 	char tmp;
@@ -170,7 +171,8 @@ void test_var_part() {
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
-		parse_var_part();
+		parse_var_part(2);
+		print_symbol_table();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -189,7 +191,8 @@ void test_var_def() {
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
-		parse_var_def();
+		parse_var_def(2);
+		print_symbol_table();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -262,6 +265,7 @@ void test_compound_statement() {
 void test_for_statement() {
 	char tmp;
 	FILE *inn = fopen("tests/test_for_statement.txt", "r");
+	init_fake_symbol_table();
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
 		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
@@ -271,8 +275,12 @@ void test_for_statement() {
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
 		printf("******************\n");
+		label_top = 0;
+		temp_table_top = 0;
+		quadruple_top = 0;
 		get_token_with_history();
 		parse_for_statement();
+		print_quadruples();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -310,10 +318,10 @@ void test_expression() {
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
 		printf("******************\n");
-		get_token_with_history();
 		label_top = 0;
 		temp_table_top = 0;
 		quadruple_top = 0;
+		get_token_with_history();
 		parse_expression(&result);
 		print_quadruples();
 		fclose(in);
@@ -343,6 +351,7 @@ void test_argument() {
 void test_if_statement() {
 	char tmp;
 	FILE *inn = fopen("tests/test_if_statement.txt", "r");
+	init_fake_symbol_table();
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
 		while ((tmp = fgetc(inn)) != '}' && tmp != -1 && tmp >31)
@@ -365,7 +374,9 @@ void test_if_statement() {
 
 void test_cond() {
 	char tmp;
+	t_quad_arg *r;
 	FILE *inn = fopen("tests/test_cond.txt", "r");
+	init_fake_symbol_table();
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
 		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
@@ -376,7 +387,9 @@ void test_cond() {
 		idx = 0;
 		printf("******************\n");
 		get_token_with_history();
-		parse_cond();
+		r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+		parse_cond(r);
+		print_quadruples();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -443,7 +456,6 @@ void print_verbose(const char x[]) {
 
 void print_quadruples() {
 	int i;
-	init_map_quad_string();
 	for (i = 0; i < quadruple_top; i++) {
 		if (strlen(map_quad_string[quadruple[i].op]) <= 8)
 			printf("%s\t\t", map_quad_string[quadruple[i].op]);
@@ -469,6 +481,24 @@ void describe_quad_arg(t_quad_arg arg) {
 		printf("N/A\t");
 }
 
+void init_fake_symbol_table() {
+	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	strcpy(symbol_table[symbol_table_top].name, "a");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
+	symbol_table[symbol_table_top].category_code = CATEGORY_VARIABLE;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	strcpy(symbol_table[symbol_table_top].name, "b");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
+	symbol_table[symbol_table_top].category_code = CATEGORY_ARRAY;
+	symbol_table[symbol_table_top].type_code = TYPE_INTEGER;
+	symbol_table[symbol_table_top].upper_bound = 10;
+	strcpy(symbol_table[symbol_table_top].name, "c");
+	symbol_table[symbol_table_top].val.int_val = 1;
+	symbol_table_top++;
+}
 void init_map_quad_string() {
 	map_quad_string[515] = "LEQ<=";
 	map_quad_string[516] = "GEQ>=";
@@ -494,4 +524,18 @@ void init_map_quad_string() {
 	map_quad_string[536] = "JMPF";
 	map_quad_string[537] = "CTOI";
 	map_quad_string[538] = "ITOC";
+}
+
+void print_symbol_table() {
+	int i;
+	for (i = 0; i < symbol_table_top; i++) {
+		printf("name:%s\ttype:%s\tdepth:%d\n", symbol_table[i].name, map_type_string[symbol_table[i].type_code - 517], symbol_table[i].depth);
+	}
+}
+
+void init_map_type_string() {
+	map_type_string[TYPE_INTEGER - 517] = "integer";
+	map_type_string[TYPE_CHAR - 517] = "char";
+	map_type_string[TYPE_VAR_PARAMETER - 517] = "var_parameter";
+	map_type_string[TYPE_NON_VAR_PARAMETER - 517] = "non_var_parameter";
 }

@@ -8,11 +8,20 @@
 #include "quadruple.h"
 #include "env.h"
 
+// global variables
 extern int verbose_off;
 extern int describe_token_off;
 extern struct token_st token_history[];
 extern int idx;
 extern const char * map_quad_string[];
+extern const char * map_type_string[];
+
+// interfaces
+
+void init_fake_symbol_table();
+
+void print_symbol_table();
+void init_map_type_string();
 
 void describe_quad_arg(struct quad_arg_st arg);
 void print_quadruples();

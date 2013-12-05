@@ -30,6 +30,9 @@ int eval_error(int error_type, const char *p) {
 		case ERR_PARAMETER_MISSED:
 			print_error("missing parameter, add parameter list or remove the parentheses");
 			break;
+		case ERR_STACK_OVERFLOW:
+			print_error("the max stack depth is set to MAX_SUB_DEPTH");
+			break;
 		default:
 			print_error(p);
 			break;

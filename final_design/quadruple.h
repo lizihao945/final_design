@@ -69,7 +69,7 @@ t_quad_arg quadruple_eql(t_quad_arg arg1, t_quad_arg arg2);
 t_quad_arg quadruple_neql(t_quad_arg arg1, t_quad_arg arg2);
 void quadruple_assign(t_quad_arg  arg1, t_quad_arg  arg2);
 int quadruple_lable();
-int quadruple_jmpf();
+int quadruple_jmpf(t_quad_arg arg2);
 int quadruple_jmp();
 t_quad_arg quadruple_getarray(t_quad_arg  arg1, t_quad_arg  arg2);
 void quadruple_setarray(t_quad_arg  arg1, t_quad_arg  arg2, t_quad_arg  result);
