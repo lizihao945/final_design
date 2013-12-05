@@ -1,1 +1,1 @@
-while a + b >= c do read(x)}
+while a >= 1 do write("hello")}

@@ -696,18 +696,27 @@ void parse_if_statement() {
 
 void parse_while_statement() {
 	int i = idx;
+	int label_start, jmpf_idx;
 	t_quad_arg *r;
 	if (token.sy != WHILETK) {
 		eval_error(ERR_UNACCEPTABLE, "<while_statement> not started with 'while'");
 	}
 	get_token_with_history();
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	// label_start
+	label_start = quadruple_lable();
 	parse_cond(r);
+	// if not satisfied, jump to the end
+	jmpf_idx = quadruple_jmpf(*r);
 	if (token.sy != DOTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'do' in a <while_statement>");
 	}
 	get_token_with_history();
 	parse_statement();
+	// loop
+	quadruple[quadruple_jmp()].arg1.val.int_val = label_start;
+	// label end
+	quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable();
 	describe_token_history(i, idx);
 	print_verbose("<while_statement> parsed");
 }
@@ -806,7 +815,8 @@ int main() {
 	
 	verbose_off = 1;
 	describe_token_off = 1;
-	test_program();
+	//test_program();
+	test_while_statement();
 	//test_cond();
 	//test_var_part();
 	return 0;

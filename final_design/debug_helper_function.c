@@ -312,6 +312,7 @@ void test_for_statement() {
 void test_while_statement() {
 	char tmp;
 	FILE *inn = fopen("tests/test_while_statement.txt", "r");
+	init_fake_symbol_table();
 	while (!feof(inn)) {
 		in = fopen("test.txt", "w+");
 		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
@@ -321,8 +322,12 @@ void test_while_statement() {
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
 		printf("******************\n");
+		label_top = 0;
+		temp_table_top = 0;
+		quadruple_top = 0;
 		get_token_with_history();
 		parse_while_statement();
+		print_quadruples();
 		fclose(in);
 		remove("test.txt");
 	}
