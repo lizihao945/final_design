@@ -445,10 +445,6 @@ void print_quadruples() {
 	int i;
 	init_map_quad_string();
 	for (i = 0; i < quadruple_top; i++) {
-		if (quadruple[i].has_label)
-			printf("%d\t", quadruple[i].label);
-		else
-			printf("N/A\t");
 		if (strlen(map_quad_string[quadruple[i].op]) <= 8)
 			printf("%s\t\t", map_quad_string[quadruple[i].op]);
 		else

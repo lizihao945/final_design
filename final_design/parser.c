@@ -315,7 +315,7 @@ void parse_parameter() {
 	print_verbose("<parameter> parsed");
 }
 
-void parse_cond() {
+void parse_cond(t_quad_arg *r) {
 	int i = idx;
 	int tmp;
 	t_quad_arg p, q;
@@ -327,22 +327,22 @@ void parse_cond() {
 	parse_expression(&q);
 	switch (tmp) {
 		case LSS:
-			quadruple_les(p, q);
+			*r = quadruple_les(p, q);
 			break;
 		case LEQ:
-			quadruple_leq(p, q);
+			*r = quadruple_leq(p, q);
 			break;
 		case GRE:
-			quadruple_gtr(p, q);
+			*r = quadruple_gtr(p, q);
 			break;
 		case GEQ:
-			quadruple_geq(p, q);
+			*r = quadruple_geq(p, q);
 			break;
 		case EQL:
-			quadruple_eql(p, q);
+			*r = quadruple_eql(p, q);
 			break;
 		case NEQ:
-			quadruple_neql(p, q);
+			*r = quadruple_neql(p, q);
 			break;
 		default:
 			eval_error(ERR_UNACCEPTABLE, "invalid operator");
@@ -426,13 +426,13 @@ void parse_statement() {
 			p = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 			p->arg_code = ARG_SYMBOL_IDX;
 			p->val.idx = lookup_id(name);
-			get_token_with_history();
 			if (token.sy == ASSIGN || token.sy == LBRACK) {
-				parse_assign_statement(p);
+				parse_assign_statement(*p);
 			} else {
 				if (token.sy == LPARENT) { // foo(1)
 					parse_argument();
 				} else { //foo
+					quadruple_call(*p, 0); // procedure call without return value
 				}
 			}
 			break;
@@ -641,26 +641,33 @@ void parse_optargument() {
 void parse_if_statement() {
 	int i = idx;
 	int jmpf_idx, jmp_idx;
+	t_quad_arg *r;
 	if (token.sy != IFTK) {
 		eval_error(ERR_UNACCEPTABLE, "<if_statement> not started with 'if'");
 		return;
 	}
 	get_token_with_history();
-	parse_cond();
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	parse_cond(r);
 	jmpf_idx = quadruple_jmpf();
 	if (token.sy != THENTK) {
 		eval_error(ERR_UNACCEPTABLE, "no 'then' found after 'if'");
 	}
 	get_token_with_history();
 	parse_statement();
-	jmp_idx = quadruple_jmp();
 	if (token.sy != ELSETK) {
+		quadruple[jmpf_idx].arg2 = *r;
 		quadruple[jmpf_idx].arg1.val.idx = quadruple_lable(); // label_a
 		describe_token_history(i, idx);
 		print_verbose("<if_statement> parsed without 'else'");
 		return;
 	}
 	get_token_with_history();
+	// return the index of QUAD_JMP
+	jmp_idx = quadruple_jmp();
+	quadruple[jmpf_idx].arg2 = *r;
+	// set QUAD_JMPF result to label value(returned)
+	// next quadruple should be labeled
 	quadruple[jmpf_idx].arg1.val.idx = quadruple_lable();
 	parse_statement();
 	quadruple[jmp_idx].arg1.val.idx = quadruple_lable();
@@ -670,11 +677,13 @@ void parse_if_statement() {
 
 void parse_while_statement() {
 	int i = idx;
+	t_quad_arg *r;
 	if (token.sy != WHILETK) {
 		eval_error(ERR_UNACCEPTABLE, "<while_statement> not started with 'while'");
 	}
 	get_token_with_history();
-	parse_cond();
+	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	parse_cond(r);
 	if (token.sy != DOTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'do' in a <while_statement>");
 	}
@@ -765,7 +774,7 @@ int main() {
 	verbose_off = 1;
 	describe_token_off = 1;
 
-	test_assign_statement();
-	//test_if_statement();
+	//test_assign_statement();
+	test_if_statement();
 	return 0;
 }

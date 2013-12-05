@@ -50,8 +50,7 @@ typedef struct linked_quad_args_st {
 } t_linked_quad_args;
 
 typedef struct quadruple_st {
-	int has_label;
-	int label, op;
+	int op;
 	t_quad_arg arg1, arg2, result;
 } t_quadruple;
 
@@ -74,4 +73,5 @@ int quadruple_jmpf();
 int quadruple_jmp();
 t_quad_arg quadruple_getarray(t_quad_arg  arg1, t_quad_arg  arg2);
 void quadruple_setarray(t_quad_arg  arg1, t_quad_arg  arg2, t_quad_arg  result);
+t_quad_arg quadruple_call(t_quad_arg  arg1, int ct);
 #endif

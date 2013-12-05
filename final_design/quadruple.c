@@ -116,7 +116,6 @@ t_quad_arg  quadruple_eql(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -129,7 +128,6 @@ t_quad_arg  quadruple_neql(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -137,13 +135,18 @@ t_quad_arg  quadruple_neql(t_quad_arg  arg1, t_quad_arg  arg2) {
  * label is set to next quadruple
  */
 int quadruple_lable() {
-	quadruple[quadruple_top].has_label = 1;
-	quadruple[quadruple_top].label = label_top;
+	quadruple[quadruple_top].op = QUAD_LABEL;
+	quadruple[quadruple_top].arg1.arg_code = ARG_LABEL;
+	quadruple[quadruple_top].arg1.val.int_val = label_top;
+	quadruple[quadruple_top].arg2.arg_code = 0;
 	quadruple[quadruple_top].result.arg_code = 0;
-	label[label_top] = quadruple_top;
+	label[label_top] = quadruple_top++;
 	return label_top++;
 }
 
+/**
+ * jump to label arg1, arg2 left for condition value
+ */
 int quadruple_jmpf() {
 	quadruple[quadruple_top].op = QUAD_JMPF;
 	quadruple[quadruple_top].arg1.arg_code = ARG_LABEL;
@@ -154,6 +157,7 @@ int quadruple_jmpf() {
 int quadruple_jmp() {
 	quadruple[quadruple_top].op = QUAD_JMP;
 	quadruple[quadruple_top].arg1.arg_code = ARG_LABEL;
+	quadruple[quadruple_top].arg2.arg_code = 0;
 	quadruple[quadruple_top].result.arg_code = 0;
 	return quadruple_top++;
 }
@@ -184,4 +188,18 @@ void quadruple_setarray(t_quad_arg  arg1, t_quad_arg  arg2, t_quad_arg  result) 
 	quadruple[quadruple_top].arg2 = arg2;
 	quadruple[quadruple_top].result = result;
 	quadruple_top++;
+}
+
+// call arg1() with ct arguments and put return value in result
+t_quad_arg quadruple_call(t_quad_arg  arg1, int ct) {
+	t_quad_arg rt;
+	quadruple[quadruple_top].op = QUAD_CALL;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = ARG_IMMEDIATE;
+	quadruple[quadruple_top].arg2.val.int_val = ct;
+	rt.arg_code = ARG_TEMP_IDX;
+	rt.val.idx = push_temp();
+	quadruple[quadruple_top].result = rt;
+	quadruple_top++;
+	return rt;
 }
