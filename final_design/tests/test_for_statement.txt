@@ -1,2 +1,2 @@
-for b:=10 downto 1 do a:=a+1;
-for a:=1 to 10 do write(a)}
+for b:=10 downto 1 do a:=1}
+for a:=1 to 10 do write("hello", a + 1)}

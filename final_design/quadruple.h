@@ -10,6 +10,7 @@
 #define ARG_IMMEDIATE 905
 #define ARG_SYMBOL_IDX 906
 #define ARG_TEMP_IDX 907
+#define ARG_STRING 908
 
 #define QUAD_LEQ 515 // <=
 #define QUAD_GEQ 516 // >=
@@ -35,12 +36,15 @@
 #define QUAD_JMPF 536
 #define QUAD_CTOI 537
 #define QUAD_ITOC 538
+#define QUAD_WRITE 539
+#define QUAD_READ 540
 
 typedef struct quad_arg_st {
 	int arg_code;
 	union {
 		int idx;
 		int int_val;
+		char *str_val;
 	} val;
 } t_quad_arg;
 
@@ -74,4 +78,5 @@ int quadruple_jmp();
 t_quad_arg quadruple_getarray(t_quad_arg  arg1, t_quad_arg  arg2);
 void quadruple_setarray(t_quad_arg  arg1, t_quad_arg  arg2, t_quad_arg  result);
 t_quad_arg quadruple_call(t_quad_arg  arg1, int ct);
+void quadruple_write(t_quad_arg arg1);
 #endif

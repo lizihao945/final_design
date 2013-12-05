@@ -357,10 +357,13 @@ void parse_cond(t_quad_arg *r) {
 	print_verbose("<cond> parsed");
 }
 
-void parse_str() {
+void parse_str(t_quad_arg *r) {
 	if (token.sy != STRCON) {
 		eval_error(ERR_UNACCEPTABLE, "<str> not started with a string");
 	}
+	r->arg_code = ARG_STRING;
+	r->val.str_val = (char *) malloc(sizeof(char) * strlen(token.val.str_val));
+	strcpy(r->val.str_val, token.val.str_val);
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
 	print_verbose("<str> parsed");
@@ -368,30 +371,36 @@ void parse_str() {
 
 void parse_write() {
 	int i = idx;
+	t_quad_arg *r;
 	if (token.sy != WRITETK)
 		return;
 	get_token_with_history();
 	if (token.sy != LPARENT)
 		return;
 	get_token_with_history();
-	parse_optwrite();
+	// opt write
+	if (token.sy == STRCON) {
+		r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+		parse_str(r);
+		quadruple_write(*r);
+		if (token.sy == COMMA) {
+			get_token_with_history();
+			r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+			parse_expression(r);
+			quadruple_write(*r);
+		} else {
+		}
+	} else {
+		r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+		parse_expression(r);
+		quadruple_write(*r);
+	}
+	// opt write over
 	if (token.sy != RPARENT)
 		return;
 	get_token_with_history();
 	describe_token_history(i, idx);
 	print_verbose("<write> parsed");
-}
-
-void parse_optwrite() {
-	if (token.sy == STRCON) {
-		parse_str();
-		if (token.sy == COMMA) {
-			get_token_with_history();
-			parse_expression();
-		} else {
-		}
-	} else
-		parse_expression();
 }
 
 void parse_read() {
@@ -700,7 +709,7 @@ void parse_while_statement() {
 void parse_for_statement() {
 	int i = idx;
 	int tmp;
-	int label_start, label_end, jmpf_idx;
+	int label_start, jmpf_idx;
 	t_quad_arg p, *st, *ed, one_arg;
 	if (token.sy != FORTK) {
 		eval_error(ERR_UNACCEPTABLE, "<for_statement> not started with 'for'");

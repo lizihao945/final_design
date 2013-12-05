@@ -419,39 +419,39 @@ void get_token_with_history() {
 }
 
 void describe_token(struct token_st token) {
-    if (token.sy == INTCON) printf("%d\t", token.val.int_val);
-    else printf("%s\t", token.val.str_val);
+	if (token.sy == INTCON) printf("%d\t", token.val.int_val);
+	else printf("%s\t", token.val.str_val);
 }
 
 void describe_token_history(int st, int en) {
-    int i;
+	int i;
 	if (describe_token_off) return;
-    //since idx is ++ed every time a token is read,
-    //the real index of last token should always - 1
-    //and because of the pre-getting of token,
-    //the end index should always - 1
-    for(i = st - 1; i <= en - 2; i++)
-        describe_token(token_history[i]);
-    printf("\n");
+	//since idx is ++ed every time a token is read,
+	//the real index of last token should always - 1
+	//and because of the pre-getting of token,
+	//the end index should always - 1
+	for(i = st - 1; i <= en - 2; i++)
+		describe_token(token_history[i]);
+	printf("\n");
 }
 
 void print_error(const char x[]) {
-    printf("Error\t%s!\n", x);
-//    printf("Error\t%s!\t Next token:\t%s\t", x, map_sy_string[token.sy]);
-//    if (token.sy == INTCON)
-//        printf("%d\n", token.val.intVal);
-//    else
-//        printf("%s\n", token.val.strVal);
+	printf("Error\t%s!\n", x);
+	//    printf("Error\t%s!\t Next token:\t%s\t", x, map_sy_string[token.sy]);
+	//    if (token.sy == INTCON)
+	//        printf("%d\n", token.val.intVal);
+	//    else
+	//        printf("%s\n", token.val.strVal);
 }
 
 void print_verbose(const char x[]) {
 	if (verbose_off) return;
-    printf("Verbose\t%s!\n", x);
-//    printf("Verbose\t%s.\t Next token:\t%s\t", x, map_sy_string[token.sy]);
-//    if (token.sy == INTCON)
-//        printf("%d\n", token.val.intVal);
-//    else
-//        printf("%s\n", token.val.strVal);
+	printf("Verbose\t%s!\n", x);
+	//    printf("Verbose\t%s.\t Next token:\t%s\t", x, map_sy_string[token.sy]);
+	//    if (token.sy == INTCON)
+	//        printf("%d\n", token.val.intVal);
+	//    else
+	//        printf("%s\n", token.val.strVal);
 }
 
 void print_quadruples() {
@@ -469,16 +469,25 @@ void print_quadruples() {
 }
 
 void describe_quad_arg(t_quad_arg arg) {
-	if (arg.arg_code == ARG_SYMBOL_IDX)
-		printf("%s\t", symbol_table[arg.val.idx].name);
-	else if (arg.arg_code == ARG_IMMEDIATE)
-		printf("%d\t", arg.val.int_val);
-	else if (arg.arg_code == ARG_LABEL)
-		printf("%d\t", arg.val.int_val);
-	else if (arg.arg_code == ARG_TEMP_IDX)
-		printf("t%d\t", arg.val.int_val);
-	else
-		printf("N/A\t");
+	switch (arg.arg_code) {
+		case ARG_SYMBOL_IDX:
+			printf("%s\t", symbol_table[arg.val.idx].name);
+			break;
+		case ARG_IMMEDIATE:
+			printf("%d\t", arg.val.int_val);
+			break;
+		case ARG_LABEL:
+			printf("%d\t", arg.val.int_val);
+			break;
+		case ARG_TEMP_IDX:
+			printf("t%d\t", arg.val.int_val);
+			break;
+		case ARG_STRING:
+			printf("%s\t", arg.val.str_val);
+			break;
+		default:
+			printf("N/A\t");
+	}
 }
 
 void init_fake_symbol_table() {
@@ -500,30 +509,32 @@ void init_fake_symbol_table() {
 	symbol_table_top++;
 }
 void init_map_quad_string() {
-	map_quad_string[515] = "LEQ<=";
-	map_quad_string[516] = "GEQ>=";
-	map_quad_string[517] = "ADD+";
-	map_quad_string[518] = "SUB-";
-	map_quad_string[519] = "MULT*";
-	map_quad_string[520] = "DIV/";
-	map_quad_string[521] = "EQL=";
-	map_quad_string[522] = "NEQL<>";
-	map_quad_string[523] = "GTR>";
-	map_quad_string[524] = "LES<";
-	map_quad_string[525] = "DEF";
-	map_quad_string[526] = "PARAMVAL";
-	map_quad_string[527] = "PARAMREF";
-	map_quad_string[528] = "ARGU";
-	map_quad_string[529] = "CALL";
-	map_quad_string[530] = "RET";
-	map_quad_string[531] = "ASSIGN";
-	map_quad_string[532] ="GETARRAY=[]";
-	map_quad_string[533] ="SETARRAY[]=";
-	map_quad_string[534] = "LABEL";
-	map_quad_string[535] = "JMP";
-	map_quad_string[536] = "JMPF";
-	map_quad_string[537] = "CTOI";
-	map_quad_string[538] = "ITOC";
+	map_quad_string[QUAD_LEQ] = "LEQ<=";
+	map_quad_string[QUAD_GEQ] = "GEQ>=";
+	map_quad_string[QUAD_ADD] = "ADD+";
+	map_quad_string[QUAD_SUB] = "SUB-";
+	map_quad_string[QUAD_MULT] = "MULT*";
+	map_quad_string[QUAD_DIV] = "DIV/";
+	map_quad_string[QUAD_EQL] = "EQL=";
+	map_quad_string[QUAD_NEQL] = "NEQL<>";
+	map_quad_string[QUAD_GTR] = "GTR>";
+	map_quad_string[QUAD_LES] = "LES<";
+	map_quad_string[QUAD_DEF] = "DEF";
+	map_quad_string[QUAD_PARAMVAL] = "PARAMVAL";
+	map_quad_string[QUAD_PARAMREF] = "PARAMREF";
+	map_quad_string[QUAD_ARGU] = "ARGU";
+	map_quad_string[QUAD_CALL] = "CALL";
+	map_quad_string[QUAD_RET] = "RET";
+	map_quad_string[QUAD_ASSIGN] = "ASSIGN";
+	map_quad_string[QUAD_GETARRAY] ="GETARRAY=[]";
+	map_quad_string[QUAD_SETARRAY] ="SETARRAY[]=";
+	map_quad_string[QUAD_LABEL] = "LABEL";
+	map_quad_string[QUAD_JMP] = "JMP";
+	map_quad_string[QUAD_JMPF] = "JMPF";
+	map_quad_string[QUAD_CTOI] = "CTOI";
+	map_quad_string[QUAD_ITOC] = "ITOC";
+	map_quad_string[QUAD_WRITE] = "WRITE";
+	map_quad_string[QUAD_READ] = "READ";
 }
 
 void print_symbol_table() {

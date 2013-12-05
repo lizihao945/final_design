@@ -204,3 +204,19 @@ t_quad_arg quadruple_call(t_quad_arg  arg1, int ct) {
 	quadruple_top++;
 	return rt;
 }
+
+void quadruple_write(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_WRITE;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}
+
+void quadruple_read(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_READ;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}

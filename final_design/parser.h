@@ -44,7 +44,6 @@ void parse_optargument();
 void parse_str();
 
 void parse_write();
-void parse_optwrite();
 void parse_read();
 void parse_optread();
 
