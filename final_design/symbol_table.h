@@ -5,6 +5,8 @@
 #include <string.h>
 #include "env.h"
 
+#define CATEGORY_PARAMREF 509
+#define CATEGORY_PARAMVAL 510
 #define CATEGORY_CONST 511
 #define CATEGORY_ARGUMENT 512
 #define CATEGORY_ARRAY 513
@@ -33,16 +35,11 @@ struct symbol_item_st {
 	int decl_line_num; // line number of declaration
 	struct linked_ints_st *refs_line_num_list; // line numbers of references
 	int upper_bound; // in case it's array
-	struct func_symbol_st *func_extra;
 	struct proc_symbol_st *proc_extra;
 };
 
-struct func_symbol_st {
-	int param_num;
-	int size_byte;
-};
-
 struct proc_symbol_st {
+	struct symbol_item_st proc_table[MAX_SYM_NUM];
 	int param_num;
 	int size_byte;
 };
@@ -55,8 +52,8 @@ extern int sub_table_idx[];
 
 // interfaces
 int lookup_id(char name[]);
-int push_symbol(int category_code, int type_code, char name[], int val, int depth);
+int push_symbol(int category_code, int type_code, char name[], int depth);
+int push_param_symbol(int proc_idx, int category_code, char name[256]);
 int push_temp();
-void fill_up_info(int item_idx, int category_code, int type_code, int upper_bound);
 
 #endif

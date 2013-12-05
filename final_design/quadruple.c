@@ -220,3 +220,35 @@ void quadruple_read(t_quad_arg arg1) {
 	quadruple[quadruple_top].result.arg_code = 0;
 	quadruple_top++;
 }
+
+void quadruple_paramref(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_PARAMREF;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}
+
+void quadruple_paramval(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_PARAMVAL;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}
+
+void quadruple_procmark(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_PROCMARK;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}
+
+void quadruple_procend(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_PROCEND;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}

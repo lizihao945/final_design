@@ -24,6 +24,8 @@ void test_program() {
 		quadruple_top = 0;
 		parse_program();
 		print_symbol_table();
+		printf("******************\n");
+		print_quadruples();
 		fclose(in);
 		remove("test.txt");
 	}
@@ -485,7 +487,7 @@ void print_verbose(const char x[]) {
 void print_quadruples() {
 	int i;
 	for (i = 0; i < quadruple_top; i++) {
-		if (strlen(map_quad_string[quadruple[i].op]) <= 8)
+		if (strlen(map_quad_string[quadruple[i].op]) <= 7)
 			printf("%s\t\t", map_quad_string[quadruple[i].op]);
 		else
 			printf("%s\t", map_quad_string[quadruple[i].op]);
@@ -537,6 +539,8 @@ void init_fake_symbol_table() {
 	symbol_table_top++;
 }
 void init_map_quad_string() {
+	map_quad_string[QUAD_PROCEND] = "PROCEND";
+	map_quad_string[QUAD_PROCMARK] = "PROCMARK";
 	map_quad_string[QUAD_LEQ] = "LEQ<=";
 	map_quad_string[QUAD_GEQ] = "GEQ>=";
 	map_quad_string[QUAD_ADD] = "ADD+";
@@ -568,7 +572,7 @@ void init_map_quad_string() {
 void print_symbol_table() {
 	int i;
 	for (i = 0; i < symbol_table_top; i++) {
-		printf("name:%s\ttype:%s\tdepth:%d\n", symbol_table[i].name, map_type_string[symbol_table[i].type_code - 517], symbol_table[i].depth);
+		printf("name:%s\tcategory:%d\ttype:%s\tdepth:%d\n", symbol_table[i].name, symbol_table[i].category_code, map_type_string[symbol_table[i].type_code - 517], symbol_table[i].depth);
 	}
 }
 

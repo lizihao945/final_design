@@ -12,6 +12,8 @@
 #define ARG_TEMP_IDX 907
 #define ARG_STRING 908
 
+#define QUAD_PROCEND 513
+#define QUAD_PROCMARK 514
 #define QUAD_LEQ 515 // <=
 #define QUAD_GEQ 516 // >=
 #define QUAD_ADD 517
@@ -44,7 +46,7 @@ typedef struct quad_arg_st {
 	union {
 		int idx;
 		int int_val;
-		char *str_val;
+		char str_val[MAX_NAME];
 	} val;
 } t_quad_arg;
 
@@ -79,4 +81,8 @@ t_quad_arg quadruple_getarray(t_quad_arg  arg1, t_quad_arg  arg2);
 void quadruple_setarray(t_quad_arg  arg1, t_quad_arg  arg2, t_quad_arg  result);
 t_quad_arg quadruple_call(t_quad_arg  arg1, int ct);
 void quadruple_write(t_quad_arg arg1);
+void quadruple_paramref(t_quad_arg arg1);
+void quadruple_paramval(t_quad_arg arg1);
+void quadruple_procmark(t_quad_arg arg1);
+void quadruple_procend(t_quad_arg arg1);
 #endif

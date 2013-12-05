@@ -1,14 +1,18 @@
 #include "parser.h"
 
 void parse_program() {
-	// sub_table_idx[0] is useless
-	parse_sub_program(1);
+	sub_table_idx[0] = -1;
+	parse_sub_program(1, -1);
 	if (token.sy != PERIOD)
 		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
 	// get_token_with_history() is no longer needed
 }
 
-void parse_sub_program(int depth) {
+/**
+ * symbol_idx shuold be the index of the proc symbol or -1 for "main"
+ */
+void parse_sub_program(int depth, int symbol_idx) {
+	t_quad_arg r;
 	sub_table_idx[depth] = symbol_table_top;
 	if (depth > MAX_SUB_DEPTH) {
 		eval_error(ERR_STACK_OVERFLOW, "");
@@ -21,12 +25,27 @@ void parse_sub_program(int depth) {
 	if (token.sy == PROCETK)
 		parse_procedure_part(depth);
 	if (token.sy == FUNCTK)
-		parse_function_part();
+		parse_function_part(depth);
 	if (token.sy != BEGINTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
 		return;
 	}
+	// start of the proc
+	r.arg_code = ARG_STRING;
+	if (symbol_idx < 0)
+		strcpy(r.val.str_val, "main");
+	else
+		strcpy(r.val.str_val, symbol_table[symbol_idx].name);
+
+	quadruple_procmark(r);
 	parse_compound_statement();
+	// end of the proc
+	r.arg_code = ARG_STRING;
+	if (symbol_idx < 0)
+		strcpy(r.val.str_val, "main");
+	else
+		strcpy(r.val.str_val, symbol_table[symbol_idx].name);
+	quadruple_procend(r);
 	print_verbose("<sub_program> parsed");
 }
 
@@ -88,7 +107,8 @@ void parse_const_def() {
 		eval_error(ERR_UNACCEPTABLE, "invalid const value");
 		return;
 	}
-	push_symbol(CATEGORY_CONST, const_type, name, val, 0);
+	push_symbol(CATEGORY_CONST, const_type, name, 0);
+	symbol_table[symbol_table_top - 1].val.int_val = val;
 	describe_token_history(i, idx);
 	print_verbose("<const_def> parsed");
 }
@@ -122,14 +142,14 @@ void parse_var_def(int depth) {
 	int i = idx;
 	parse_id(name);
 	stack = (struct linked_ints_st *) malloc(sizeof(struct linked_ints_st));
-	stack->val = push_symbol(0, 0, name, 0, depth);
+	stack->val = push_symbol(0, 0, name, depth);
 	stack->next = NULL;
 	top = stack;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
 		p = (struct linked_ints_st *) malloc(sizeof(struct linked_ints_st));
-		p->val = push_symbol(0, 0, name, 0, depth);
+		p->val = push_symbol(0, 0, name, depth);
 		p->next = NULL;
 		top->next = p;
 		top = p;
@@ -143,7 +163,9 @@ void parse_var_def(int depth) {
 	upper_bound = (int *) malloc(sizeof(int *));
 	parse_type(category_type, type_code, upper_bound);
 	while (stack != NULL) {
-		fill_up_info(stack->val, *category_type, *type_code, *upper_bound);
+		symbol_table[stack->val].category_code = *category_type;
+		symbol_table[stack->val].type_code = *type_code;
+		symbol_table[stack->val].upper_bound = *upper_bound;
 		stack = stack->next;
 	}
 	describe_token_history(i, idx);
@@ -197,8 +219,10 @@ void parse_primitive_type(int *type_code) {
 
 void parse_procedure_part(int depth) {
 	int i = idx;
-	parse_procedure_head();
-	parse_sub_program(depth + 1);
+	int *symbol_idx;
+	symbol_idx = (int *) malloc(sizeof(int));
+	parse_procedure_head(depth, symbol_idx);
+	parse_sub_program(depth + 1, *symbol_idx);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		if (token.sy != PROCETK) {
@@ -206,8 +230,8 @@ void parse_procedure_part(int depth) {
 			print_verbose("<function_part> parsed");
 			return;
 		}
-		parse_procedure_head();
-		parse_sub_program(depth + 1);
+		parse_procedure_head(depth, symbol_idx);
+		parse_sub_program(depth + 1, *symbol_idx);
 	}
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <procedure_part>");
@@ -217,7 +241,7 @@ void parse_procedure_part(int depth) {
 	print_verbose("<procedure_part> parsed");
 }
 
-void parse_procedure_head() {
+void parse_procedure_head(int depth, int *symbol_idx) {
 	char name[256];
 	int i = idx;
 	if (token.sy != PROCETK) {
@@ -225,8 +249,9 @@ void parse_procedure_head() {
 	}
 	get_token_with_history();
 	parse_id(name);
+	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, name, depth);
 	if (token.sy == LPARENT)
-		parse_parameter_list();
+		parse_parameter_list(depth, *symbol_idx);
 	if (token.sy == COLON) {
 		eval_error(ERR_UNACCEPTABLE, "procedure IDEN should not be specified with a type");
 		return;
@@ -242,8 +267,10 @@ void parse_procedure_head() {
 
 void parse_function_part(int depth) {
 	int i = idx;
-	parse_function_head();
-	parse_sub_program(depth + 1);
+	int *symbol_idx;
+	symbol_idx = (int *) malloc(sizeof(int));
+	parse_function_head(depth, symbol_idx);
+	parse_sub_program(depth + 1, *symbol_idx);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		if (token.sy != FUNCTK) {
@@ -252,11 +279,11 @@ void parse_function_part(int depth) {
 			return;
 		}
 		parse_function_head();
-		parse_sub_program(depth + 1);
+		parse_sub_program(depth + 1, *symbol_idx);
 	}
 }
 
-void parse_function_head() {
+void parse_function_head(int depth, int *symbol_idx) {
 	char name[256];
 	int i = idx;
 	int *type_code;
@@ -265,8 +292,9 @@ void parse_function_head() {
 	}
 	get_token_with_history();
 	parse_id(name);
+	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, name, depth);
 	if (token.sy == LPARENT)
-		parse_parameter_list();
+		parse_parameter_list(depth, *symbol_idx);
 	if (token.sy != COLON) {
 		eval_error(ERR_UNACCEPTABLE, "missing ':' in <function_head>");
 	}
@@ -281,19 +309,22 @@ void parse_function_head() {
 	print_verbose("<function_head> parsed");
 }
 
-void parse_parameter_list() {
+void parse_parameter_list(int depth, int symbol_idx) {
 	int i = idx;
 	if (token.sy != LPARENT) {
 		eval_error(ERR_UNACCEPTABLE, "<parameter_list> not started with '('");
 	}
 	get_token_with_history();
 	if (token.sy == RPARENT) {
-		eval_error(ERR_PARAMETER_MISSED, "");
+		eval_error(ERR_PARAMETER_MISSED, "use foo instead of foo()");
 	}
-	parse_parameter();
+	// make a symbol table for the procedure itself
+	symbol_table[symbol_idx].proc_extra = (struct proc_symbol_st *) malloc(sizeof(struct proc_symbol_st));
+	symbol_table[symbol_idx].proc_extra->param_num = 0;
+	parse_parameter(depth, symbol_idx);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
-		parse_parameter();
+		parse_parameter(depth, symbol_idx);
 	}
 	if (token.sy != RPARENT) {
 		eval_error(ERR_RPARENT_MISSED, "missing ')' in <parameter_list>");
@@ -303,17 +334,30 @@ void parse_parameter_list() {
 	print_verbose("<parameter_list> parsed");
 }
 
-void parse_parameter() {
-	char name[256];
+void parse_parameter(int depth, int symbol_idx) {
+	char name[MAX_NAME];
 	int *type_code;
 	int i = idx;
-	if (token.sy == VARTK) { // reference passed in
+	int flag = 0, st, ed;
+	if (token.sy == VARTK) {
+		flag = 1;
 		get_token_with_history();
 	}
+	// start index of the symbol table of the procedure
+	st = symbol_table[symbol_idx].proc_extra->param_num;
 	parse_id(name);
+	if (flag)
+		push_param_symbol(symbol_idx, CATEGORY_PARAMVAL, name);
+	else
+		push_param_symbol(symbol_idx, CATEGORY_PARAMREF, name);
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
+		if (flag) {
+			push_param_symbol(symbol_idx, CATEGORY_PARAMVAL, name);
+		} else {
+			push_param_symbol(symbol_idx, CATEGORY_PARAMREF, name);
+		}
 	}
 	if (token.sy != COLON) {
 		eval_error(ERR_COLON_MISSED, "missing ':' to indicate the type of IDEN");
@@ -321,7 +365,11 @@ void parse_parameter() {
 	}
 	get_token_with_history();
 	type_code = (int*) malloc(sizeof(int));
+	// fill back the type info
 	parse_primitive_type(type_code);
+	ed = symbol_table[symbol_idx].proc_extra->param_num;
+	for (i = st; i < ed; i++)
+		symbol_table[symbol_idx].proc_extra->proc_table[i].type_code = *type_code;
 	describe_token_history(i, idx);
 	print_verbose("<parameter> parsed");
 }
@@ -368,7 +416,6 @@ void parse_str(t_quad_arg *r) {
 		eval_error(ERR_UNACCEPTABLE, "<str> not started with a string");
 	}
 	r->arg_code = ARG_STRING;
-	r->val.str_val = (char *) malloc(sizeof(char) * strlen(token.val.str_val));
 	strcpy(r->val.str_val, token.val.str_val);
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
@@ -434,52 +481,6 @@ void parse_optread() {
 		parse_id(name);
 		parse_optread();
 	}
-}
-
-void parse_statement() {
-	int i = idx;
-	char name[MAX_NAME];
-	t_quad_arg *p;
-	switch (token.sy) {
-		case IDEN:
-			parse_id(name);
-			p = (t_quad_arg *) malloc(sizeof(t_quad_arg));
-			p->arg_code = ARG_SYMBOL_IDX;
-			p->val.idx = lookup_id(name);
-			if (token.sy == ASSIGN || token.sy == LBRACK) {
-				parse_assign_statement(*p);
-			} else {
-				if (token.sy == LPARENT) { // foo(1)
-					parse_argument();
-				} else { //foo
-					quadruple_call(*p, 0); // procedure call without return value
-				}
-			}
-			break;
-		case IFTK:
-			parse_if_statement();
-			break;
-		case WHILETK:
-			parse_while_statement();
-			break;
-		case BEGINTK:
-			parse_compound_statement();
-			break;
-		case READTK:
-			parse_read();
-			break;
-		case WRITETK:
-			parse_write();
-			break;
-		case FORTK:
-			parse_for_statement();
-			break;
-		default:
-			// epsilon is allowed here
-			break;
-	}
-	describe_token_history(i, idx);
-	print_verbose("<statement> parsed");
 }
 
 void parse_assign_statement(t_quad_arg p) {
@@ -606,13 +607,15 @@ void parse_factor(t_quad_arg *p)  {
 }
 
 void parse_var(t_quad_arg *p) {
-	char name[256];
+	char name[MAX_NAME];
 	int i = idx;
+	int *ct, symbol_idx;
 	t_quad_arg *q;
 	q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	parse_id(name);
 	p->arg_code = ARG_SYMBOL_IDX;
 	p->val.idx = lookup_id(name);
+	symbol_idx = p->val.idx;
 	if (token.sy == LBRACK) {
 		get_token_with_history();
 		parse_expression(q);
@@ -622,7 +625,9 @@ void parse_var(t_quad_arg *p) {
 		}
 		get_token_with_history();
 	} else if (token.sy == LPARENT) {
-		parse_argument();
+		ct = (int *) malloc(sizeof(int));
+		parse_argument(ct, symbol_idx);
+		quadruple_call(*p, (*ct)+1);
 	} else {
 		// a IDEN has been taken as a var()
 	}
@@ -630,16 +635,22 @@ void parse_var(t_quad_arg *p) {
 	print_verbose("<var> parsed");
 }
 
-void parse_argument() {
+void parse_argument(int *ct, int symbol_idx) {
 	int i = idx;
 	t_quad_arg *r;
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy != LPARENT) {
-
+		eval_error(ERR_UNACCEPTABLE, "<argument> started with not a '('");
 	}
 	get_token_with_history();
+	// here is the first argument
+	*ct = 0;
 	parse_expression(r);
-	parse_optargument();
+	if (symbol_table[symbol_idx].proc_extra->proc_table[*ct].category_code == CATEGORY_PARAMVAL)
+		quadruple_paramval(*r);
+	else
+		quadruple_paramref(*r);
+	parse_optargument(ct, symbol_idx);
 	if (token.sy != RPARENT) {
 		eval_error(ERR_RPARENT_MISSED, "in a argument list");
 	}
@@ -648,14 +659,69 @@ void parse_argument() {
 	print_verbose("<argument> parsed");
 }
 
-void parse_optargument() {
+void parse_optargument(int *ct, int symbol_idx) {
 	t_quad_arg *r;
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy == COMMA) {
+		(*ct)++;
 		get_token_with_history();
 		parse_expression(r);
-		parse_optargument();
+		if (symbol_table[symbol_idx].proc_extra->proc_table[*ct].category_code == CATEGORY_PARAMVAL)
+			quadruple_paramval(*r);
+		else
+			quadruple_paramref(*r);
+		parse_optargument(ct, symbol_idx);
 	}
+}
+
+void parse_statement() {
+	int i = idx;
+	int *ct, symbol_idx;
+	char name[MAX_NAME];
+	t_quad_arg *p;
+	switch (token.sy) {
+		case IDEN:
+			parse_id(name);
+			symbol_idx = lookup_id(name);
+			p = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+			p->arg_code = ARG_SYMBOL_IDX;
+			p->val.idx = lookup_id(name);
+			if (token.sy == ASSIGN || token.sy == LBRACK) {
+				parse_assign_statement(*p);
+			} else {
+				if (token.sy == LPARENT) { // foo(1)
+					ct = (int *) malloc(sizeof(int));
+					parse_argument(ct, symbol_idx);
+					quadruple_call(*p, (*ct)+1);
+				} else { //foo
+					quadruple_call(*p, 0); // procedure call without return value
+				}
+			}
+			break;
+		case IFTK:
+			parse_if_statement();
+			break;
+		case WHILETK:
+			parse_while_statement();
+			break;
+		case BEGINTK:
+			parse_compound_statement();
+			break;
+		case READTK:
+			parse_read();
+			break;
+		case WRITETK:
+			parse_write();
+			break;
+		case FORTK:
+			parse_for_statement();
+			break;
+		default:
+			// epsilon is allowed here
+			break;
+	}
+	describe_token_history(i, idx);
+	print_verbose("<statement> parsed");
 }
 
 void parse_if_statement() {
@@ -815,8 +881,7 @@ int main() {
 	
 	verbose_off = 1;
 	describe_token_off = 1;
-	//test_program();
-	test_while_statement();
+	test_program();
 	//test_cond();
 	//test_var_part();
 	return 0;

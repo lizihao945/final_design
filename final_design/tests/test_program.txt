@@ -1,10 +1,23 @@
-	var x:integer; y:char;
-	procedure foo;
-		var x:integer; b:char;
+ 	var x, y, bar: integer;
+ 	function foo(var a, b:integer;c:integer): integer;
+ 		var tmp: char;
 		begin
-			x:=y
+			a:=c;
+			b:=c;
+			foo:=a+b
 		end
 	;
 	begin
-		x:=1
+		bar:=foo(x, y, 1)
+	end.}
+	var a, b:integer;
+ 	procedure foo(var a, b:integer;c:integer);
+		begin
+			a:=c;
+			b:=c
+		end
+	;
+	begin
+		write("mainbody");
+		foo(a, b, 1)
 	end.}
