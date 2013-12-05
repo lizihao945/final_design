@@ -1,0 +1,10 @@
+	var x:integer; y:char;
+	procedure foo;
+		var x:integer; b:char;
+		begin
+			x:=y
+		end
+	;
+	begin
+		x:=1
+	end.}

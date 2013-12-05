@@ -17,11 +17,11 @@ void parse_sub_program(int depth) {
 	if (token.sy == CONSTTK)
 		parse_const_part();
 	if (token.sy ==VARTK)
-			parse_var_part(depth);
+		parse_var_part(depth);
 	if (token.sy == PROCETK)
-			parse_procedure_part();
+		parse_procedure_part(depth);
 	if (token.sy == FUNCTK)
-			parse_function_part();
+		parse_function_part();
 	if (token.sy != BEGINTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
 		return;
@@ -201,6 +201,11 @@ void parse_procedure_part(int depth) {
 	parse_sub_program(depth + 1);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
+		if (token.sy != PROCETK) {
+			describe_token_history(i, idx);
+			print_verbose("<function_part> parsed");
+			return;
+		}
 		parse_procedure_head();
 		parse_sub_program(depth + 1);
 	}
@@ -230,6 +235,7 @@ void parse_procedure_head() {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <procedure_head>");
 		return;
 	}
+	get_token_with_history();
 	describe_token_history(i, idx);
 	print_verbose("<procedure_head> parsed");
 }
@@ -800,7 +806,7 @@ int main() {
 	
 	verbose_off = 1;
 	describe_token_off = 1;
-	test_for_statement();
+	test_program();
 	//test_cond();
 	//test_var_part();
 	return 0;

@@ -34,6 +34,7 @@ void describe_token_history(int st, int en);
 void print_error(const char x[]);
 void print_verbose(const char x[]);
 
+void test_program();
 void test_const_part();
 void test_const_def();
 
