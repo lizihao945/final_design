@@ -20,13 +20,6 @@ int push_symbol(int category_code, int type_code, char name[256], int depth) {
 	return symbol_table_top++;
 }
 
-int push_param_symbol(int proc_idx, int category_code, char name[256]) {
-	int ct = symbol_table[proc_idx].proc_extra->param_num;
-	symbol_table[proc_idx].proc_extra->proc_table[ct].category_code = category_code;
-	strcpy(symbol_table[proc_idx].proc_extra->proc_table[ct].name, name);
-	return (symbol_table[proc_idx].proc_extra->param_num)++;
-}
-
 int push_temp() {
 	return temp_table_top++;
 }

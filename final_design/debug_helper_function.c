@@ -1,8 +1,8 @@
 #include "debug_helper_function.h"
 struct token_st token_history[MAX_TOKEN_NUM];
-int idx = 0;
-int verbose_off = 0;
-int describe_token_off = 0;
+int idx = 0; // index of the token
+int verbose_off = 0; // turn off verbose printing
+int describe_token_off = 0; // turn off tokens of a N-T printing
 const char * map_quad_string[1024];
 const char * map_type_string[4];
 
@@ -17,13 +17,11 @@ void test_program() {
 		if (tmp <= 31) continue;
 		fseek(in, 0, SEEK_SET);
 		idx = 0;
-		printf("******************\n");
 		get_token_with_history();
 		label_top = 0;
 		temp_table_top = 0;
 		quadruple_top = 0;
 		parse_program();
-		print_symbol_table();
 		printf("******************\n");
 		print_quadruples();
 		fclose(in);
