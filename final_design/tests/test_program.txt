@@ -8,5 +8,6 @@ function foo(var a, b:integer;c:integer): integer;
 	end
 ;
 begin
-	bar:=foo(x, y, 1)
+	for x:= 1 to 10 do write(x)
+	;bar:=foo(x, y, 1)
 end.}

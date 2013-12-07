@@ -485,6 +485,11 @@ void print_verbose(const char x[]) {
 void print_quadruples() {
 	int i;
 	for (i = 0; i < quadruple_top; i++) {
+		if (quadruple[i].op == QUAD_LABEL) {
+			printf("LABEL: %d\n", quadruple[i].arg1.val.int_val);
+			continue;
+		}
+		printf("\t");
 		if (strlen(map_quad_string[quadruple[i].op]) <= 7)
 			printf("%s\t\t", map_quad_string[quadruple[i].op]);
 		else
