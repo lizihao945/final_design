@@ -13,7 +13,6 @@ t_quad_arg  quadruple_add(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -26,7 +25,6 @@ t_quad_arg  quadruple_sub(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -39,7 +37,6 @@ t_quad_arg  quadruple_mult(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -52,7 +49,6 @@ t_quad_arg  quadruple_div(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -65,7 +61,6 @@ t_quad_arg  quadruple_les(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -78,7 +73,6 @@ t_quad_arg  quadruple_leq(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 
@@ -91,7 +85,6 @@ t_quad_arg  quadruple_gtr(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 t_quad_arg  quadruple_geq(t_quad_arg  arg1, t_quad_arg  arg2) {
@@ -103,7 +96,6 @@ t_quad_arg  quadruple_geq(t_quad_arg  arg1, t_quad_arg  arg2) {
 	rt.val.idx = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
-	printf("\n");
 	return rt;
 }
 

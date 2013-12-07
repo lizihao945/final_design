@@ -897,20 +897,21 @@ void parse_optcompound_statement() {
 }
 
 int main() {
-	//    char tmp[32], tmp2[32];
-	//    printf("Input your source file name:\n");
-	//    scanf("%s", tmp);
+	char tmp[32];
+	printf("Input your source file name:\n");
+	scanf("%s", tmp);
 	init_map_sy_string();
 	init_map_type_string();
 	init_map_quad_string();
-	//quadruple_top = 0;
-	//symbol_table_top = 0;
-	//print_tokens(in);
-	
+	quadruple_top = 0;
+	symbol_table_top = 0;
+
 	verbose_off = 1;
 	describe_token_off = 1;
-	test_program();
-	//test_cond();
-	//test_var_part();
+	in = fopen(tmp, "r");
+	get_token_with_history();
+	parse_program();
+	print_quadruples();
+	//print_tokens(in);
 	return 0;
 }
