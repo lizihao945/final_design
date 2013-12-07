@@ -585,3 +585,15 @@ void init_map_type_string() {
 	map_type_string[TYPE_VAR_PARAMETER - 517] = "var_parameter";
 	map_type_string[TYPE_NON_VAR_PARAMETER - 517] = "non_var_parameter";
 }
+
+void do_compile_job() {
+	char tmp[32];
+	//printf("Input your source file name:\n");
+	//scanf("%s", tmp);
+	in = fopen("input.txt", "r");
+	verbose_off = 1;
+	describe_token_off = 1;
+	get_token_with_history();
+	parse_program();
+	print_quadruples();
+}

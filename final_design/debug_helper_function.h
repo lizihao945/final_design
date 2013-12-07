@@ -59,4 +59,5 @@ void test_for_statement();
 void test_compound_statement();
 void test_assign_statement();
 
+void do_compile_job();
 #endif // DEBUG_HELPER_FUNCTION_H_INCLUDED
