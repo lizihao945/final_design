@@ -5,6 +5,7 @@
 #include "symbol_table.h"
 #include "debug_helper_function.h"
 #include "env.h"
+#include "gen_asm.h"
 
 #define ARG_LABEL 904
 #define ARG_IMMEDIATE 905

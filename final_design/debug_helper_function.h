@@ -7,6 +7,7 @@
 #include "parser.h"
 #include "quadruple.h"
 #include "env.h"
+#include "gen_asm.h"
 
 // global variables
 extern int verbose_off;

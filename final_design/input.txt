@@ -1,13 +1,5 @@
-var x, y, bar: integer;
-function foo(var a, b:integer;c:integer): integer;
-	var tmp: char;
-	begin
-		a:=c;
-		b:=c;
-		foo:=a+b
-	end
-;
+var a, x, y: integer;
 begin
-	for x:= 1 to 10 do write(x)
-	;bar:=foo(x, y, 1)
+	x := 100 * 5;
+	y := x / 100;
 end.
