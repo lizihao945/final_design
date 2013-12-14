@@ -902,6 +902,8 @@ void parse_compound_statement() {
 void parse_optcompound_statement() {
 	if (token.sy == SEMICN) {
 		get_token_with_history();
+		if (token.sy == ENDTK)
+			eval_error(ERR_UNACCEPTABLE, "the last <statement> before 'end' followed with ';'");
 		parse_statement();
 		parse_optcompound_statement();
 	}
@@ -914,7 +916,6 @@ int main() {
 	quadruple_top = 0;
 	symbol_table_top = 0;
 	//do_compile_job();
-	test_expression();
-	//print_tokens(in);
+	test_compound_statement();
 	return 0;
 }

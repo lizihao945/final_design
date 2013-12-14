@@ -54,11 +54,11 @@ void gen_asm() {
 					printf(".CODE\n");
 				}
 				printf("PUBLIC _%s\n", quadruple[i].arg1.val.str_val);
-				printf("_%s PROC\n", quadruple[i].arg1.val.str_val);
+				printf("_%s\tPROC\n", quadruple[i].arg1.val.str_val);
 				printf("; *** standard subroutine prologue ***\n");
 				printf("\tpush\tebp\n");
 				printf("\tmov ebp, esp\n");
-				printf("\tsub esp, %d\n", 4); // 4 should be replaced with real size
+				printf("\tsub esp, %d\n", quadruple[i].arg2.val.int_val * 4);
 				printf("\tpush\tedi\n");
 				printf("\tpush\tesi\n");
 				printf("; *** subroutine body ***\n");

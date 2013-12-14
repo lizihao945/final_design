@@ -1,1 +1,2 @@
+begin write(x); end}
 begin read(x);write("hello") end}
