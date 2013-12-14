@@ -566,12 +566,12 @@ void parse_expression(t_quad_arg *r) {
 		get_token_with_history();
 	}
 	parse_term(&p);
-	parse_optexpression(p, r);
-	if (flag == 1) {
+	if (flag) {
 		zero_arg.arg_code = ARG_IMMEDIATE;
 		zero_arg.val.int_val = 0;
-		quadruple_sub(zero_arg, *r);
-	}
+		parse_optexpression(quadruple_sub(zero_arg, p), r);
+	} else
+		parse_optexpression(p, r);
 	describe_token_history(i, idx);
 	print_verbose("<expression> parsed");
 }
