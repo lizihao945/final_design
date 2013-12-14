@@ -229,10 +229,11 @@ void quadruple_paramval(t_quad_arg arg1) {
 	quadruple_top++;
 }
 
-void quadruple_procmark(t_quad_arg arg1) {
+void quadruple_procmark(t_quad_arg arg1, int count) {
 	quadruple[quadruple_top].op = QUAD_PROCMARK;
 	quadruple[quadruple_top].arg1 = arg1;
-	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].arg2.arg_code = ARG_IMMEDIATE;
+	quadruple[quadruple_top].arg2.val.int_val = count;
 	quadruple[quadruple_top].result.arg_code = 0;
 	quadruple_top++;
 }

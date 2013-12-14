@@ -84,6 +84,6 @@ t_quad_arg quadruple_call(t_quad_arg  arg1, int ct);
 void quadruple_write(t_quad_arg arg1);
 void quadruple_paramref(t_quad_arg arg1);
 void quadruple_paramval(t_quad_arg arg1);
-void quadruple_procmark(t_quad_arg arg1);
+void quadruple_procmark(t_quad_arg arg1, int count);
 void quadruple_procend(t_quad_arg arg1);
 #endif

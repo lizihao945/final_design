@@ -16,18 +16,21 @@ void parse_program() {
  */
 void parse_sub_program(int symbol_idx) {
 	t_quad_arg r;
+	int *count; // the number of local variables, including temps
 	if (cur_depth > MAX_SUB_DEPTH) {
 		eval_error(ERR_STACK_OVERFLOW, "");
 		return;
 	}
+	count = (int *) malloc(sizeof(int));
+	*count = 0;
 	if (token.sy == CONSTTK)
-		parse_const_part();
+		parse_const_part(count);
 	if (token.sy ==VARTK)
-		parse_var_part();
+		parse_var_part(count);
 	// a deeper layer start from the parameter_list
 	if (token.sy == PROCETK) {
-		parse_procedure_part();
-		//
+		parse_procedure_part(count);
+		// symbol table state before a procedure
 		printf("~~~~~~~~~~~~~~~~~~\n");
 		print_symbol_table();
 		printf("******************\n");
@@ -37,8 +40,8 @@ void parse_sub_program(int symbol_idx) {
 	}
 	if (token.sy == FUNCTK) {
 		// the modify of sub_table_idx is done in header
-		parse_function_part();
-		//
+		parse_function_part(count);
+		// symbol table state before a function
 		printf("~~~~~~~~~~~~~~~~~~\n");
 		print_symbol_table();
 		printf("******************\n");
@@ -56,8 +59,9 @@ void parse_sub_program(int symbol_idx) {
 		strcpy(r.val.str_val, "main");
 	else
 		strcpy(r.val.str_val, symbol_table[symbol_idx].name);
-
-	quadruple_procmark(r);
+	// procedure begins here, it should indicate 
+	// the number of local variables, including temps
+	quadruple_procmark(r, *count);
 	parse_compound_statement();
 	// end of the proc
 	r.arg_code = ARG_STRING;
@@ -76,16 +80,18 @@ void parse_id(char name[MAX_NAME]) {
 	get_token_with_history();
 }
 
-void parse_const_part() {
+void parse_const_part(int *count) {
 	int i = idx;
 	if (token.sy != CONSTTK) {
 		eval_error(ERR_UNACCEPTABLE, "<const_part> not started with 'const'");
 	}
 	get_token_with_history();
 	parse_const_def();
+	(*count)++;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_const_def();
+		(*count)++;
 	}
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' int <const_part>");
@@ -133,19 +139,19 @@ void parse_const_def() {
 	print_verbose("<const_def> parsed");
 }
 
-void parse_var_part() {
+void parse_var_part(int *count) {
 	int i = idx;
 	if (token.sy != VARTK) {
 		eval_error(ERR_UNACCEPTABLE, "<var_part> not started with 'var'");
 	}
 	get_token_with_history();
-	parse_var_def();
+	parse_var_def(count);
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <var_part>");
 	} 
 	get_token_with_history();
 	while (token.sy == IDEN) {
-		parse_var_def();
+		parse_var_def(count);
 		if (token.sy != SEMICN) {
 			eval_error(ERR_SEMICN_MISSED, "missing ';' in <var_part>");
 		}
@@ -155,7 +161,7 @@ void parse_var_part() {
 	print_verbose("<var_part> parsed");
 }
 
-void parse_var_def() {
+void parse_var_def(int *count) {
 	struct linked_ints_st *stack, *top, *p;
 	char name[256];
 	int *category_type, *type_code, *upper_bound;
@@ -183,6 +189,7 @@ void parse_var_def() {
 	upper_bound = (int *) malloc(sizeof(int *));
 	parse_type(category_type, type_code, upper_bound);
 	while (stack != NULL) {
+		(*count)++;
 		symbol_table[stack->val].category_code = *category_type;
 		symbol_table[stack->val].type_code = *type_code;
 		symbol_table[stack->val].upper_bound = *upper_bound;
@@ -237,11 +244,12 @@ void parse_primitive_type(int *type_code) {
 	}
 }
 
-void parse_procedure_part() {
+void parse_procedure_part(int *count) {
 	int i = idx;
 	int *symbol_idx;
 	symbol_idx = (int *) malloc(sizeof(int));
 	parse_procedure_head(symbol_idx);
+	(*count)++;
 	parse_sub_program(*symbol_idx);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
@@ -251,6 +259,7 @@ void parse_procedure_part() {
 			return;
 		}
 		parse_procedure_head(symbol_idx);
+		(*count)++;
 		parse_sub_program(*symbol_idx);
 	}
 	if (token.sy != SEMICN) {
@@ -288,11 +297,12 @@ void parse_procedure_head(int *symbol_idx) {
 	print_verbose("<procedure_head> parsed");
 }
 
-void parse_function_part() {
+void parse_function_part(int *count) {
 	int i = idx;
 	int *symbol_idx;
 	symbol_idx = (int *) malloc(sizeof(int));
 	parse_function_head(symbol_idx);
+	(*count)++;
 	parse_sub_program(*symbol_idx);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
@@ -302,6 +312,7 @@ void parse_function_part() {
 			return;
 		}
 		parse_function_head();
+		(*count)++;
 		parse_sub_program(*symbol_idx);
 	}
 }
@@ -902,7 +913,8 @@ int main() {
 	init_map_quad_string();
 	quadruple_top = 0;
 	symbol_table_top = 0;
-	do_compile_job();
+	//do_compile_job();
+	test_expression();
 	//print_tokens(in);
 	return 0;
 }
