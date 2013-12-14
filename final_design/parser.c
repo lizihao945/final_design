@@ -12,7 +12,7 @@ void parse_program() {
 }
 
 /**
- * symbol_idx shuold be the index of the proc symbol or -1 for "main"
+ * symbol_idx shuold be the index of the proc symbol or -1 for "start"
  */
 void parse_sub_program(int symbol_idx) {
 	t_quad_arg r;
@@ -21,8 +21,11 @@ void parse_sub_program(int symbol_idx) {
 		eval_error(ERR_STACK_OVERFLOW, "");
 		return;
 	}
+	// count the variables and consts
 	count = (int *) malloc(sizeof(int));
 	*count = 0;
+	// reset temp table
+	temp_table_top = 0;
 	if (token.sy == CONSTTK)
 		parse_const_part(count);
 	if (token.sy ==VARTK)
@@ -56,7 +59,7 @@ void parse_sub_program(int symbol_idx) {
 	// start of the proc
 	r.arg_code = ARG_STRING;
 	if (symbol_idx < 0)
-		strcpy(r.val.str_val, "main");
+		strcpy(r.val.str_val, "start");
 	else
 		strcpy(r.val.str_val, symbol_table[symbol_idx].name);
 	// procedure begins here, it should indicate 
@@ -66,7 +69,7 @@ void parse_sub_program(int symbol_idx) {
 	// end of the proc
 	r.arg_code = ARG_STRING;
 	if (symbol_idx < 0)
-		strcpy(r.val.str_val, "main");
+		strcpy(r.val.str_val, "start");
 	else
 		strcpy(r.val.str_val, symbol_table[symbol_idx].name);
 	quadruple_procend(r);
@@ -190,6 +193,7 @@ void parse_var_def(int *count) {
 	parse_type(category_type, type_code, upper_bound);
 	while (stack != NULL) {
 		(*count)++;
+		symbol_table[stack->val].offset_byte = *count;
 		symbol_table[stack->val].category_code = *category_type;
 		symbol_table[stack->val].type_code = *type_code;
 		symbol_table[stack->val].upper_bound = *upper_bound;
@@ -915,7 +919,6 @@ int main() {
 	init_map_quad_string();
 	quadruple_top = 0;
 	symbol_table_top = 0;
-	//do_compile_job();
-	test_compound_statement();
+	do_compile_job();
 	return 0;
 }

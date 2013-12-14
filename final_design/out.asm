@@ -1,34 +1,49 @@
 .386
-.MODEL FLAT
-.DATA
-	_a	DD ?
-	_x	DD ?
-	_y	DD ?
-	_t0	DD ?
-	_t1	DD ?
+.model flat, stdcall
+
+include \masm32\include\kernel32.inc
+include \masm32\include\msvcrt.inc
+includelib \masm32\lib\msvcrt.lib
+includelib \masm32\lib\kernel32.lib
+
+.data
+OneInt db "%d", 0ah, 0
+; PROCMARK	start	3	
 .CODE
-PUBLIC _main
-_main PROC
+PUBLIC start
+start	PROC
 ; *** standard subroutine prologue ***
 	push	ebp
 	mov ebp, esp
-	sub esp, 4
+	sub esp, 12
 	push	edi
 	push	esi
 ; *** subroutine body ***
+; MULT*	100	5	
 	mov eax, 100
 	mov ebx, 5
 	mul	ebx
-	mov _t0, eax
-	mov _x, _t0
-	mov eax, _x
+	mov [ebp-16], eax
+; ASSIGN	x	t0	
+	mov eax, [ebp-16]
+	mov [ebp-8], eax
+; DIV/	x	100	
+	mov eax, [ebp-8]
 	mov ebx, 100
 	div	ebx
-	mov _t1, eax
-	mov _y, _t1
+	mov [ebp-20], eax
+; ASSIGN	y	t1	
+	mov eax, [ebp-20]
+	mov [ebp-12], eax
+; WRITE	y	N/A	
+	push [ebp-12]
+	push offset OneInt
+	call crt_printf
+; PROCEND	start	N/A	
 ; *** standard subroutine epilogue ***
 	pop esi
 	pop edi
 	mov esp, ebp
-_main	ENDP
+	call ExitProcess
+start	ENDP
 END

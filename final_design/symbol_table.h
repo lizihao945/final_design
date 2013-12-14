@@ -32,7 +32,6 @@ struct symbol_item_st {
 	int size_byte;// count of bytes
 	int depth; // start from 1 as the very out layer
 	int decl_line_num; // line number of declaration
-	struct linked_ints_st *refs_line_num_list; // line numbers of references
 	int upper_bound; // in case it's array
 	int param_num; // parameters are the first several symbols in the layer
 };

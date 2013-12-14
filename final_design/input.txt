@@ -2,5 +2,5 @@ var a, x, y: integer;
 begin
 	x := 100 * 5;
 	y := x / 100;
-	write(y);
+	write(y)
 end.
