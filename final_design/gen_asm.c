@@ -1,5 +1,4 @@
 #include "gen_asm.h"
-#define _CRT_SECURE_NO_WARNINGS
 int flag = 0;
 
 void asm_arg_str(t_quad_arg arg, char *s) {
@@ -43,7 +42,6 @@ void gen_asm() {
 		asm_arg_str(quadruple[i].result, s3);
 		switch(quadruple[i].op) {
 			case QUAD_PROCMARK:
-				flag = 0;
 				flag = 1;
 				if (!strcmp(quadruple[i].arg1.val.str_val, "main")) {
 					// global variables
