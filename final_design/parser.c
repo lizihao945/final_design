@@ -1,10 +1,14 @@
 #include "parser.h"
 
+char last_proc_name[256];
+
 int cur_depth;
 
 void parse_program() {
 	sub_table_idx[0] = -1;
+	sub_table_idx[1] = 0;
 	cur_depth = 1;
+	strcpy(last_proc_name, "start");
 	parse_sub_program(-1);
 	if (token.sy != PERIOD)
 		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
@@ -16,6 +20,7 @@ void parse_program() {
  */
 void parse_sub_program(int symbol_idx) {
 	t_quad_arg r;
+	int i;
 	int *count; // the number of local variables, including temps
 	if (cur_depth > MAX_SUB_DEPTH) {
 		eval_error(ERR_STACK_OVERFLOW, "");
@@ -33,30 +38,15 @@ void parse_sub_program(int symbol_idx) {
 	// a deeper layer start from the parameter_list
 	if (token.sy == PROCETK) {
 		parse_procedure_part(count);
-		// symbol table state before a procedure
-		printf("~~~~~~~~~~~~~~~~~~\n");
-		print_symbol_table();
-		printf("******************\n");
-		//
-		symbol_table_top = sub_table_idx[cur_depth];
-		cur_depth--;
 	}
 	if (token.sy == FUNCTK) {
-		// the modify of sub_table_idx is done in header
 		parse_function_part(count);
-		// symbol table state before a function
-		printf("~~~~~~~~~~~~~~~~~~\n");
-		print_symbol_table();
-		printf("******************\n");
-		//
-		symbol_table_top = sub_table_idx[cur_depth];
-		cur_depth--;
 	}
 	if (token.sy != BEGINTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
 		return;
 	}
-	// start of the proc
+	// generate procmark
 	r.arg_code = ARG_STRING;
 	if (symbol_idx < 0)
 		strcpy(r.val.str_val, "start");
@@ -65,8 +55,13 @@ void parse_sub_program(int symbol_idx) {
 	// procedure begins here, it should indicate 
 	// the number of local variables, including temps
 	quadruple_procmark(r, *count);
+	// symbol table state in this procedure
+	printf("symbol table state in: %s\n", r.val.str_val);
+	print_symbol_table();
+	printf("******************\n");
+	// begin
 	parse_compound_statement();
-	// end of the proc
+	// end
 	r.arg_code = ARG_STRING;
 	if (symbol_idx < 0)
 		strcpy(r.val.str_val, "start");
@@ -253,8 +248,14 @@ void parse_procedure_part(int *count) {
 	int *symbol_idx;
 	symbol_idx = (int *) malloc(sizeof(int));
 	parse_procedure_head(symbol_idx);
+	// the procedure name counts
 	(*count)++;
+	// deeper layer
+	sub_table_idx[++cur_depth] = symbol_table_top;
 	parse_sub_program(*symbol_idx);
+	// return to the layer
+	symbol_table_top = sub_table_idx[cur_depth--];
+	*strrchr(last_proc_name, '_') = '\0';
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		if (token.sy != PROCETK) {
@@ -263,8 +264,13 @@ void parse_procedure_part(int *count) {
 			return;
 		}
 		parse_procedure_head(symbol_idx);
+		// the procedure name counts
 		(*count)++;
+		// deeper layer
+		sub_table_idx[++cur_depth] = symbol_table_top;
 		parse_sub_program(*symbol_idx);
+		symbol_table_top = sub_table_idx[cur_depth--];
+		*strrchr(last_proc_name, '_') = '\0';
 	}
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' in <procedure_part>");
@@ -275,17 +281,18 @@ void parse_procedure_part(int *count) {
 }
 
 void parse_procedure_head(int *symbol_idx) {
-	char name[256];
+	char name[256], tmp[256];
 	int i = idx;
 	if (token.sy != PROCETK) {
 		eval_error(ERR_UNACCEPTABLE, "<procedure_head> not started with 'procedure'");
 	}
 	get_token_with_history();
 	parse_id(name);
-	// from now on things are in deeper layer
-	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, name, cur_depth++);
-	sub_table_idx[cur_depth] = symbol_table_top;
-
+	strcpy(tmp, last_proc_name);
+	strcat(tmp, "_");
+	strcat(tmp, name);
+	strcpy(last_proc_name, tmp);
+	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, tmp, cur_depth);
 	if (token.sy == LPARENT)
 		parse_parameter_list(*symbol_idx);
 	if (token.sy == COLON) {
@@ -306,8 +313,13 @@ void parse_function_part(int *count) {
 	int *symbol_idx;
 	symbol_idx = (int *) malloc(sizeof(int));
 	parse_function_head(symbol_idx);
+	// the function name counts
 	(*count)++;
+	// deeper layer
+	sub_table_idx[++cur_depth] = symbol_table_top;
 	parse_sub_program(*symbol_idx);
+	// return to the layer
+	symbol_table_top = sub_table_idx[cur_depth--];
 	while (token.sy == SEMICN) {
 		get_token_with_history();
 		if (token.sy != FUNCTK) {
@@ -317,25 +329,35 @@ void parse_function_part(int *count) {
 		}
 		parse_function_head();
 		(*count)++;
+		// deeper layer
+		sub_table_idx[++cur_depth] = symbol_table_top;
 		parse_sub_program(*symbol_idx);
+		// return to the layer
+		symbol_table_top = sub_table_idx[cur_depth--];
+		*strrchr(last_proc_name, '_') = '\0';
 	}
+	if (token.sy != SEMICN) {
+		eval_error(ERR_SEMICN_MISSED, "missing ';' in <function_part>");
+	}
+	get_token_with_history();
+	describe_token_history(i, idx);
+	print_verbose("<function_part> parsed");
 }
 
 void parse_function_head(int *symbol_idx) {
-	char name[256];
+	char name[256], tmp[256];
 	int i = idx;
 	int *type_code;
 	if (token.sy != FUNCTK) {
 		eval_error(ERR_UNACCEPTABLE, "<function_head> not started with 'function'");
 	}
 	get_token_with_history();
-	// the id of the function should be in outer layer
-	// so push the symbol with depth - 1
 	parse_id(name);
-	// from now on things are in deeper layer
-	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, name, cur_depth++);
-	sub_table_idx[cur_depth] = symbol_table_top;
-
+	strcpy(tmp, last_proc_name);
+	strcat(tmp, "_");
+	strcat(tmp, name);
+	strcpy(last_proc_name, tmp);
+	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, tmp, cur_depth);
 	if (token.sy == LPARENT)
 		parse_parameter_list(*symbol_idx);
 	if (token.sy != COLON) {

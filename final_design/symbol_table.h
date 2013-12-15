@@ -2,6 +2,9 @@
 #define SYMBOL_TABLE_H
 
 #include <string.h>
+#include <string.h>
+#include <stdlib.h>
+#include "errors.h"
 #include "env.h"
 
 #define CATEGORY_PARAMREF 509

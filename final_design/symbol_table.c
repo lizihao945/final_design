@@ -5,10 +5,17 @@ int temp_table_top = 0;
 int sub_table_idx[MAX_SUB_DEPTH];
 
 int lookup_id(char name[MAX_NAME]) {
+	char *tmp, *tmp1;
 	int i = symbol_table_top;
-	while (i-- >= 0)
-		if (!strcmp(symbol_table[i].name, name))
+	while (i-- >= 0) {
+		tmp1 = strrchr(symbol_table[i].name, '_');
+		if (!strcmp(symbol_table[i].name, name) || (tmp1 && !strcmp(tmp1 + 1, name)))
 			return i;
+	}
+	tmp = (char *) malloc(sizeof(char) * 256);
+	strcpy(tmp, "undefined variable ");
+	strcat(tmp, name);
+	eval_error(ERR_UNACCEPTABLE, tmp);
 	return -1; // if not found
 }
 

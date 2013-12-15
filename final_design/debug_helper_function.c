@@ -596,7 +596,7 @@ void do_compile_job() {
 	get_token_with_history();
 	parse_program();
 	print_quadruples();
-	freopen("out.asm", "w", stdout);
-	gen_asm();
+	//freopen("out.asm", "w", stdout);
+	//gen_asm();
 	fclose(stdout);
 }

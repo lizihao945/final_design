@@ -58,9 +58,10 @@ void gen_asm() {
 		switch(quadruple[i].op) {
 			case QUAD_PROCMARK:
 				// code starts
-				if (!strcmp(quadruple[i].arg1.val.str_val, "start"))
+				if (!strcmp(quadruple[i].arg1.val.str_val, "start")) {
 					printf(".CODE\n");
-				printf("PUBLIC %s\n", quadruple[i].arg1.val.str_val);
+					printf("PUBLIC start\n");
+				}
 				printf("%s\tPROC\n", quadruple[i].arg1.val.str_val);
 				printf("; *** standard subroutine prologue ***\n");
 				printf("\tpush\tebp\n");
