@@ -9,7 +9,7 @@
 
 #define ARG_LABEL 904
 #define ARG_IMMEDIATE 905
-#define ARG_SYMBOL_IDX 906
+#define ARG_SYMBOL 906
 #define ARG_TEMP_IDX 907
 #define ARG_STRING 908
 
@@ -45,10 +45,10 @@
 typedef struct quad_arg_st {
 	int arg_code;
 	union {
-		int idx;
 		int int_val;
 		char str_val[MAX_NAME];
 	} val;
+	struct symbol_item_st *symbol_item;
 } t_quad_arg;
 
 typedef struct linked_quad_args_st {

@@ -10,7 +10,7 @@ t_quad_arg  quadruple_add(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -22,7 +22,7 @@ t_quad_arg  quadruple_sub(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -34,7 +34,7 @@ t_quad_arg  quadruple_mult(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -46,7 +46,7 @@ t_quad_arg  quadruple_div(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -58,7 +58,7 @@ t_quad_arg  quadruple_les(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -70,7 +70,7 @@ t_quad_arg  quadruple_leq(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -82,7 +82,7 @@ t_quad_arg  quadruple_gtr(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -93,7 +93,7 @@ t_quad_arg  quadruple_geq(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -105,7 +105,7 @@ t_quad_arg  quadruple_eql(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -117,7 +117,7 @@ t_quad_arg  quadruple_neql(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -169,7 +169,7 @@ t_quad_arg quadruple_getarray(t_quad_arg  arg1, t_quad_arg  arg2) {
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2 = arg2;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;
@@ -191,7 +191,7 @@ t_quad_arg quadruple_call(t_quad_arg  arg1, int ct) {
 	quadruple[quadruple_top].arg2.arg_code = ARG_IMMEDIATE;
 	quadruple[quadruple_top].arg2.val.int_val = ct;
 	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.idx = push_temp();
+	rt.val.int_val = push_temp();
 	quadruple[quadruple_top].result = rt;
 	quadruple_top++;
 	return rt;

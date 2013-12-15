@@ -6,10 +6,14 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 	s = asm_arg->name;
 	s[0] = '\0';
 	switch (arg.arg_code) {
-		case ARG_SYMBOL_IDX:
+		case ARG_SYMBOL:
+			if (arg.symbol_item->category_code == CATEGORY_PROCEDURE) {
+				strcat(s, arg.symbol_item->name);
+				break;
+			}
 			strcat(s, "[ebp-");
 			tmp = (char *) malloc(sizeof(char) * 256);
-			itoa(symbol_table[arg.val.idx].offset_byte * 4, tmp, 10);
+			itoa(arg.symbol_item->offset_byte * 4, tmp, 10);
 			strcat(s, tmp);
 			strcat(s, "]");
 			asm_arg->arg_code = ASM_ARG_LOCAL;
@@ -21,7 +25,7 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 		case ARG_TEMP_IDX:
 			strcat(s, "[ebp-");
 			tmp = (char *) malloc(sizeof(char) * 256);
-			itoa((symbol_table[arg.val.idx].offset_byte + count) * 4, tmp, 10);
+			itoa((arg.symbol_item->offset_byte + count) * 4, tmp, 10);
 			strcat(s, tmp);
 			strcat(s, "]");
 			asm_arg->arg_code = ASM_ARG_LOCAL;
@@ -81,6 +85,14 @@ void gen_asm() {
 				if (!strcmp(quadruple[i].arg1.val.str_val, "start"))
 					printf("\tcall ExitProcess\n");
 				printf("%s\tENDP\n", quadruple[i].arg1.val.str_val);
+				break;
+			case QUAD_CALL:
+				if (1)//cur_depth == 1)
+					printf("\tcall %s\n", arg1->name);
+				else {
+					printf("\tmov eax, ebp\n");
+					printf("\tcall %s\n", arg1->name);
+				}
 				break;
 			case QUAD_WRITE:
 				if (quadruple[i].arg2.arg_code)

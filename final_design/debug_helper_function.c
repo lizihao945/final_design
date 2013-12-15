@@ -240,32 +240,6 @@ void test_statement() {
 	}
 }
 
-void test_assign_statement() {
-	char tmp;
-	t_quad_arg p;
-	FILE *inn = fopen("tests/test_assign_statement.txt", "r");
-	while (!feof(inn)) {
-		in = fopen("test.txt", "w+");
-		while ((tmp = fgetc(inn)) != '}' && tmp != -1)
-			fprintf(in, "%c", tmp);
-		if (tmp == EOF) break;
-		if (tmp <= 31) continue;
-		fseek(in, 0, SEEK_SET);
-		idx = 0;
-		printf("******************\n");
-		get_token_with_history();
-		p.arg_code = ARG_SYMBOL_IDX;
-		p.val.idx = 1;
-		label_top = 0;
-		temp_table_top = 0;
-		quadruple_top = 0;
-		parse_assign_statement(p);
-		print_quadruples();
-		fclose(in);
-		remove("test.txt");
-	}
-}
-
 void test_compound_statement() {
 	char tmp;
 	FILE *inn = fopen("tests/test_compound_statement.txt", "r");
@@ -503,8 +477,8 @@ void print_quadruples() {
 
 void describe_quad_arg(t_quad_arg arg) {
 	switch (arg.arg_code) {
-		case ARG_SYMBOL_IDX:
-			printf("%s\t", symbol_table[arg.val.idx].name);
+		case ARG_SYMBOL:
+			printf("%s\t", arg.symbol_item->name);
 			break;
 		case ARG_IMMEDIATE:
 			printf("%d\t", arg.val.int_val);
@@ -597,6 +571,6 @@ void do_compile_job() {
 	parse_program();
 	print_quadruples();
 	//freopen("out.asm", "w", stdout);
-	//gen_asm();
+	gen_asm();
 	fclose(stdout);
 }

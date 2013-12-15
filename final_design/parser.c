@@ -8,8 +8,9 @@ void parse_program() {
 	sub_table_idx[0] = -1;
 	sub_table_idx[1] = 0;
 	cur_depth = 1;
+	push_symbol(CATEGORY_PROCEDURE, 0, "start", 0);
 	strcpy(last_proc_name, "start");
-	parse_sub_program(-1);
+	parse_sub_program(0);
 	if (token.sy != PERIOD)
 		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
 	// get_token_with_history() is no longer needed
@@ -48,10 +49,7 @@ void parse_sub_program(int symbol_idx) {
 	}
 	// generate procmark
 	r.arg_code = ARG_STRING;
-	if (symbol_idx < 0)
-		strcpy(r.val.str_val, "start");
-	else
-		strcpy(r.val.str_val, symbol_table[symbol_idx].name);
+	strcpy(r.val.str_val, symbol_table[symbol_idx].name);
 	// procedure begins here, it should indicate 
 	// the number of local variables, including temps
 	quadruple_procmark(r, *count);
@@ -63,10 +61,7 @@ void parse_sub_program(int symbol_idx) {
 	parse_compound_statement();
 	// end
 	r.arg_code = ARG_STRING;
-	if (symbol_idx < 0)
-		strcpy(r.val.str_val, "start");
-	else
-		strcpy(r.val.str_val, symbol_table[symbol_idx].name);
+	strcpy(r.val.str_val, symbol_table[symbol_idx].name);
 	quadruple_procend(r);
 	print_verbose("<sub_program> parsed");
 }
@@ -678,9 +673,10 @@ void parse_var(t_quad_arg *p) {
 	t_quad_arg *q;
 	q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	parse_id(name);
-	p->arg_code = ARG_SYMBOL_IDX;
-	p->val.idx = lookup_id(name);
-	symbol_idx = p->val.idx;
+	p->arg_code = ARG_SYMBOL;
+	p->symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
+	*(p->symbol_item) = symbol_table[lookup_id(name)];
+	symbol_idx = lookup_id(name);
 	if (token.sy == LBRACK) {
 		get_token_with_history();
 		parse_expression(q);
@@ -749,8 +745,9 @@ void parse_statement() {
 			parse_id(name);
 			symbol_idx = lookup_id(name);
 			p = (t_quad_arg *) malloc(sizeof(t_quad_arg));
-			p->arg_code = ARG_SYMBOL_IDX;
-			p->val.idx = lookup_id(name);
+			p->arg_code = ARG_SYMBOL;
+			p->symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
+			*(p->symbol_item) = symbol_table[lookup_id(name)];
 			if (token.sy == ASSIGN || token.sy == LBRACK) {
 				parse_assign_statement(*p);
 			} else {
@@ -807,7 +804,7 @@ void parse_if_statement() {
 	get_token_with_history();
 	parse_statement();
 	if (token.sy != ELSETK) {
-		quadruple[jmpf_idx].arg1.val.idx = quadruple_lable(); // label_a
+		quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable(); // label_a
 		describe_token_history(i, idx);
 		print_verbose("<if_statement> parsed without 'else'");
 		return;
@@ -818,9 +815,9 @@ void parse_if_statement() {
 	quadruple[jmpf_idx].arg2 = *r;
 	// set QUAD_JMPF result to label value(returned)
 	// next quadruple should be labeled
-	quadruple[jmpf_idx].arg1.val.idx = quadruple_lable();
+	quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable();
 	parse_statement();
-	quadruple[jmp_idx].arg1.val.idx = quadruple_lable();
+	quadruple[jmp_idx].arg1.val.int_val = quadruple_lable();
 	describe_token_history(i, idx);
 	print_verbose("<if_statement> parsed with 'else'");
 }
@@ -861,8 +858,9 @@ void parse_for_statement() {
 		eval_error(ERR_UNACCEPTABLE, "<for_statement> not started with 'for'");
 	}
 	get_token_with_history();
-	p.arg_code = ARG_SYMBOL_IDX;
-	p.val.idx = lookup_id(token.val.str_val);
+	p.arg_code = ARG_SYMBOL;
+	p.symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
+	*(p.symbol_item) = symbol_table[lookup_id(token.val.str_val)];
 	get_token_with_history();
 	if (token.sy != ASSIGN) {
 		eval_error(ERR_UNACCEPTABLE, "missing ':=' in a <for_statement>");

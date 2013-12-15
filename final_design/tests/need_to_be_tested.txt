@@ -1,0 +1,18 @@
+procedure foo;
+	var a: integer;
+	procedure bar;
+		var b: integer;
+		procedure test;
+			var c: integer;
+			begin
+				c := a
+			end;
+		begin
+			test
+		end;
+	begin
+		bar
+	end;
+begin
+	foo
+end.

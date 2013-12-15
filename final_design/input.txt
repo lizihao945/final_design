@@ -1,23 +1,12 @@
-procedure foo;
-	var a: integer;
-	procedure bar;
-		var b: integer;
-		procedure test;
-			var c: integer;
-			begin
-				c := a
-			end;
-		begin
-			test
-		end;
+procedure a;
+	var a1:integer;
 	begin
-		bar
+		a1 := 1
 	end;
-procedure x;
-	var a:integer;
+procedure b;
+	var b1, b2:integer;
 	begin
-		a:=1
+		b1 := b2
 	end;
 begin
-	foo
 end.
