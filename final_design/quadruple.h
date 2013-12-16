@@ -26,8 +26,8 @@
 #define QUAD_GTR 523 // >
 #define QUAD_LES 524 // <
 #define QUAD_DEF 525
-#define QUAD_PARAMVAL 526
-#define QUAD_PARAMREF 527
+#define QUAD_PARAMVAL 526 //
+#define QUAD_PARAMREF 527 // var
 #define QUAD_ARGU 528
 #define QUAD_CALL 529
 #define QUAD_RET 530

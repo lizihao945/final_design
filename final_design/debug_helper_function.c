@@ -549,28 +549,35 @@ void init_map_quad_string() {
 void print_symbol_table() {
 	int i;
 	for (i = 0; i < symbol_table_top; i++) {
-		printf("name:%s\tcategory:%d\ttype:%s\tdepth:%d\n", symbol_table[i].name, symbol_table[i].category_code, map_type_string[symbol_table[i].type_code - 517], symbol_table[i].depth);
+		printf("name: %s\tcategory: %d\ttype: %s\tdepth: %d\toffset_byte: %d\tlocals: %d\tparam_idx: %d\n",
+			symbol_table[i].name,
+			symbol_table[i].category_code,
+			map_type_string[symbol_table[i].type_code - 517],
+			symbol_table[i].depth,
+			symbol_table[i].offset_byte,
+			symbol_table[i].local_count,
+			symbol_table[i].param_idx);
 	}
 }
 
 void init_map_type_string() {
 	map_type_string[TYPE_INTEGER - 517] = "integer";
 	map_type_string[TYPE_CHAR - 517] = "char";
-	map_type_string[TYPE_VAR_PARAMETER - 517] = "var_parameter";
-	map_type_string[TYPE_NON_VAR_PARAMETER - 517] = "non_var_parameter";
 }
 
 void do_compile_job() {
 	char tmp[32];
 	//printf("Input your source file name:\n");
 	//scanf("%s", tmp);
-	in = fopen("input.txt", "r");
+	strcpy(tmp, "input.txt");
+	in = fopen(tmp, "r");
 	verbose_off = 1;
 	describe_token_off = 1;
 	get_token_with_history();
 	parse_program();
 	print_quadruples();
-	//freopen("out.asm", "w", stdout);
+	//freopen("temp.asm", "w", stdout);
+	freopen("D:\\masm32\\final_design\\temp.asm", "w", stdout);
 	gen_asm();
 	fclose(stdout);
 }

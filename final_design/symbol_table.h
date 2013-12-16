@@ -19,9 +19,6 @@
 #define TYPE_INTEGER 517
 #define TYPE_CHAR 518
 
-#define TYPE_VAR_PARAMETER 519
-#define TYPE_NON_VAR_PARAMETER 520
-
 struct symbol_item_st {
 	char name[MAX_NAME];
 	int category_code;
@@ -36,7 +33,9 @@ struct symbol_item_st {
 	int depth; // start from 1 as the very out layer
 	int decl_line_num; // line number of declaration
 	int upper_bound; // in case it's array
-	int param_num; // parameters are the first several symbols in the layer
+	int param_idx; // parameter index(start from 0)
+	int local_count;
+	int param_symbol_idx[256]; // 256 parameters?
 };
 
 // global variables

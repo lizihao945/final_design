@@ -1,12 +1,4 @@
-procedure a;
-	var a1:integer;
-	begin
-		a1 := 1
-	end;
-procedure b;
-	var b1, b2:integer;
-	begin
-		b1 := b2
-	end;
 begin
+	x := 10;
+	foo
 end.

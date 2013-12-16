@@ -5,12 +5,15 @@ char last_proc_name[256];
 int cur_depth;
 
 void parse_program() {
+	int *count;
 	sub_table_idx[0] = -1;
 	sub_table_idx[1] = 0;
 	cur_depth = 1;
 	push_symbol(CATEGORY_PROCEDURE, 0, "start", 0);
 	strcpy(last_proc_name, "start");
-	parse_sub_program(0);
+	count = (int *) malloc(sizeof(int)); // the number of parameters, local variables & temps
+	*count = 0;
+	parse_sub_program(0, count);
 	if (token.sy != PERIOD)
 		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
 	// get_token_with_history() is no longer needed
@@ -19,17 +22,12 @@ void parse_program() {
 /**
  * symbol_idx shuold be the index of the proc symbol or -1 for "start"
  */
-void parse_sub_program(int symbol_idx) {
+void parse_sub_program(int symbol_idx, int *count) {
 	t_quad_arg r;
-	int i;
-	int *count; // the number of local variables, including temps
 	if (cur_depth > MAX_SUB_DEPTH) {
 		eval_error(ERR_STACK_OVERFLOW, "");
 		return;
 	}
-	// count the variables and consts
-	count = (int *) malloc(sizeof(int));
-	*count = 0;
 	// reset temp table
 	temp_table_top = 0;
 	if (token.sy == CONSTTK)
@@ -48,20 +46,23 @@ void parse_sub_program(int symbol_idx) {
 		return;
 	}
 	// generate procmark
-	r.arg_code = ARG_STRING;
-	strcpy(r.val.str_val, symbol_table[symbol_idx].name);
+	r.arg_code = ARG_SYMBOL;
+	r.symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
+	*(r.symbol_item) = symbol_table[symbol_idx];
 	// procedure begins here, it should indicate 
 	// the number of local variables, including temps
+	symbol_table[symbol_idx].local_count = *count; 
 	quadruple_procmark(r, *count);
 	// symbol table state in this procedure
-	printf("symbol table state in: %s\n", r.val.str_val);
+	printf("symbol table state in: %s\n", r.symbol_item->name);
 	print_symbol_table();
 	printf("******************\n");
 	// begin
 	parse_compound_statement();
 	// end
-	r.arg_code = ARG_STRING;
-	strcpy(r.val.str_val, symbol_table[symbol_idx].name);
+	r.arg_code = ARG_SYMBOL;
+	r.symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
+	*(r.symbol_item) = symbol_table[symbol_idx];
 	quadruple_procend(r);
 	print_verbose("<sub_program> parsed");
 }
@@ -240,14 +241,17 @@ void parse_primitive_type(int *type_code) {
 
 void parse_procedure_part(int *count) {
 	int i = idx;
-	int *symbol_idx;
+	int *symbol_idx, *param_count;
 	symbol_idx = (int *) malloc(sizeof(int));
-	parse_procedure_head(symbol_idx);
+	// the params are those of the sub_program
+	param_count = (int *) malloc(sizeof(int));
+	*param_count = 0;
+	parse_procedure_head(symbol_idx, param_count);
 	// the procedure name counts
 	(*count)++;
 	// deeper layer
 	sub_table_idx[++cur_depth] = symbol_table_top;
-	parse_sub_program(*symbol_idx);
+	parse_sub_program(*symbol_idx, param_count);
 	// return to the layer
 	symbol_table_top = sub_table_idx[cur_depth--];
 	*strrchr(last_proc_name, '_') = '\0';
@@ -258,12 +262,16 @@ void parse_procedure_part(int *count) {
 			print_verbose("<function_part> parsed");
 			return;
 		}
-		parse_procedure_head(symbol_idx);
+		// the params are those of the sub_program
+		param_count = (int *) malloc(sizeof(int));
+		*param_count = 0;
+		parse_procedure_head(symbol_idx, param_count);
 		// the procedure name counts
 		(*count)++;
 		// deeper layer
 		sub_table_idx[++cur_depth] = symbol_table_top;
-		parse_sub_program(*symbol_idx);
+		parse_sub_program(*symbol_idx, param_count);
+		// return to the layer
 		symbol_table_top = sub_table_idx[cur_depth--];
 		*strrchr(last_proc_name, '_') = '\0';
 	}
@@ -275,7 +283,7 @@ void parse_procedure_part(int *count) {
 	print_verbose("<procedure_part> parsed");
 }
 
-void parse_procedure_head(int *symbol_idx) {
+void parse_procedure_head(int *symbol_idx, int *count) {
 	char name[256], tmp[256];
 	int i = idx;
 	if (token.sy != PROCETK) {
@@ -289,7 +297,7 @@ void parse_procedure_head(int *symbol_idx) {
 	strcpy(last_proc_name, tmp);
 	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, tmp, cur_depth);
 	if (token.sy == LPARENT)
-		parse_parameter_list(*symbol_idx);
+		parse_parameter_list(*symbol_idx, count);
 	if (token.sy == COLON) {
 		eval_error(ERR_UNACCEPTABLE, "procedure IDEN should not be specified with a type");
 		return;
@@ -305,14 +313,17 @@ void parse_procedure_head(int *symbol_idx) {
 
 void parse_function_part(int *count) {
 	int i = idx;
-	int *symbol_idx;
+	int *symbol_idx, *param_count;
 	symbol_idx = (int *) malloc(sizeof(int));
-	parse_function_head(symbol_idx);
+	// the params are those of the sub_program
+	param_count = (int *) malloc(sizeof(int));
+	*param_count = 0;
+	parse_function_head(symbol_idx, param_count);
 	// the function name counts
 	(*count)++;
 	// deeper layer
 	sub_table_idx[++cur_depth] = symbol_table_top;
-	parse_sub_program(*symbol_idx);
+	parse_sub_program(*symbol_idx, param_count);
 	// return to the layer
 	symbol_table_top = sub_table_idx[cur_depth--];
 	while (token.sy == SEMICN) {
@@ -322,11 +333,15 @@ void parse_function_part(int *count) {
 			print_verbose("<function_part> parsed");
 			return;
 		}
-		parse_function_head();
+		// the params are those of the sub_program
+		param_count = (int *) malloc(sizeof(int));
+		*param_count = 0;
+		parse_function_head(symbol_idx, param_count);
+		// the function name counts
 		(*count)++;
 		// deeper layer
 		sub_table_idx[++cur_depth] = symbol_table_top;
-		parse_sub_program(*symbol_idx);
+		parse_sub_program(*symbol_idx, param_count);
 		// return to the layer
 		symbol_table_top = sub_table_idx[cur_depth--];
 		*strrchr(last_proc_name, '_') = '\0';
@@ -372,6 +387,7 @@ void parse_function_head(int *symbol_idx) {
 
 void parse_parameter_list(int symbol_idx) {
 	int i = idx;
+	int *param_count;
 	if (token.sy != LPARENT) {
 		eval_error(ERR_UNACCEPTABLE, "<parameter_list> not started with '('");
 	}
@@ -379,12 +395,12 @@ void parse_parameter_list(int symbol_idx) {
 	if (token.sy == RPARENT) {
 		eval_error(ERR_PARAMETER_MISSED, "use foo instead of foo()");
 	}
-	// make a symbol table for the procedure itself
-	symbol_table[symbol_idx].param_num = 0;
-	parse_parameter(symbol_idx);
+	param_count = (int *) malloc(sizeof(int));
+	*param_count = 0;
+	parse_parameter(symbol_idx, param_count);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
-		parse_parameter(symbol_idx);
+		parse_parameter(symbol_idx, param_count);
 	}
 	if (token.sy != RPARENT) {
 		eval_error(ERR_RPARENT_MISSED, "missing ')' in <parameter_list>");
@@ -394,31 +410,37 @@ void parse_parameter_list(int symbol_idx) {
 	print_verbose("<parameter_list> parsed");
 }
 
-void parse_parameter(int symbol_idx) {
+void parse_parameter(int symbol_idx, int *param_count) {
 	char name[MAX_NAME];
 	int *type_code;
 	int i = idx;
-	int flag = 0, st;
+	int flag = 0, st, tmp;
 	if (token.sy == VARTK) {
 		flag = 1;
 		get_token_with_history();
 	}
-	// parameter list has many part
+	// parameter list has many parts
 	// start index of the symbol table of the procedure
 	st = symbol_table_top;
 	parse_id(name);
 	if (flag)
-		push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth);
+		tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth + 1);
 	else
-		push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth);
+		tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth + 1);
+	symbol_table[tmp].param_idx = *param_count;
+	symbol_table[symbol_idx].param_symbol_idx[*param_count] = tmp;
+	(*param_count)++;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
-		if (flag) {
-			push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth);
-		} else {
-			push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth);
-		}
+		(*param_count)++;
+		if (flag)
+			tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth + 1);
+		else
+			tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth + 1);
+		symbol_table[tmp].param_idx = *param_count;
+		symbol_table[symbol_idx].param_symbol_idx[*param_count] = tmp;
+		(*param_count)++;
 	}
 	if (token.sy != COLON) {
 		eval_error(ERR_COLON_MISSED, "missing ':' to indicate the type of IDEN");
@@ -707,11 +729,14 @@ void parse_argument(int *ct, int symbol_idx) {
 	// here is the first argument
 	*ct = 0;
 	parse_expression(r);
-	//if (symbol_table[symbol_idx].proc_extra->proc_table[*ct].category_code == CATEGORY_PARAMVAL)
-	//	quadruple_paramval(*r);
-	//else
+	if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[*ct]].category_code == CATEGORY_PARAMVAL)
+		quadruple_paramval(*r);
+	else
 		quadruple_paramref(*r);
 	parse_optargument(ct, symbol_idx);
+	if (*ct == 0) {
+		eval_error(ERR_UNACCEPTABLE, "no argument specified");
+	}
 	if (token.sy != RPARENT) {
 		eval_error(ERR_RPARENT_MISSED, "in a argument list");
 	}
@@ -727,9 +752,9 @@ void parse_optargument(int *ct, int symbol_idx) {
 		(*ct)++;
 		get_token_with_history();
 		parse_expression(r);
-		//if (symbol_table[symbol_idx].proc_extra->proc_table[*ct].category_code == CATEGORY_PARAMVAL)
-		//	quadruple_paramval(*r);
-		//else
+		if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[*ct]].category_code == CATEGORY_PARAMVAL)
+			quadruple_paramval(*r);
+		else
 			quadruple_paramref(*r);
 		parse_optargument(ct, symbol_idx);
 	}
@@ -916,7 +941,7 @@ void parse_compound_statement() {
 	parse_statement();
 	parse_optcompound_statement();
 	if (token.sy != ENDTK) {
-		eval_error(ERR_UNACCEPTABLE, "missing 'end' in a <compound_statement>");
+		eval_error(ERR_UNACCEPTABLE, "missing 'end' in a <compound_statement>, maybe you missed a ';'");
 	}
 	get_token_with_history();
 	describe_token_history(i, idx);
