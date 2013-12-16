@@ -2,12 +2,16 @@
 int count, quad_idx;
 t_quadruple cur_procedure;
 
+int flag_reg[8]; // reg used?
+char * reg_name[8] = {"eax", "ebx", "ecx", "edx", "esi", "edi", "esp", "ebp"};
+int get_reg_idx();
+
 void prog_head();
 
-void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg, int pos) {
+void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 	char *tmp;
 	char *s;
-	int cur_depth, arg_depth;
+	int cur_depth, arg_depth, reg_idx;
 	s = asm_arg->name;
 	s[0] = '\0';
 	switch (arg.arg_code) {
@@ -28,9 +32,14 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg, int pos) {
 				itoa((arg.symbol_item->param_idx + 1) * 4 + 4 + arg_depth * 4, tmp, 10);
 				strcat(s, tmp);
 				strcat(s, "]");
-				printf("\tmov eax, %s\n", s);
+				// allocate a free register to save address of the parameter
+				reg_idx = get_reg_idx();
+				printf("\tmov %s, %s\n", reg_name[reg_idx], s);
 				s[0] = '\0';
-				strcpy(s, "dword ptr [eax]");
+				strcat(s, "dword ptr [");
+				strcat(s, reg_name[reg_idx]);
+				strcat(s, "]");
+				flag_reg[reg_idx] = 0;
 				asm_arg->arg_code = ASM_ARG_LOCAL;
 				break;
 			}
@@ -51,8 +60,11 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg, int pos) {
 			cur_depth = cur_procedure.arg1.symbol_item->depth + 1;
 			if (arg_depth < cur_depth) {
 				// abp to arg_depth layer
-				printf("\tmov eax, dword ptr [ebp+%d]\n", (arg_depth + 1) * 4);
-				strcat(s, "dword ptr [eax-");
+				reg_idx = get_reg_idx();
+				printf("\tmov %s, dword ptr [ebp+%d]\n", reg_name[reg_idx], (arg_depth + 1) * 4);
+				strcat(s, "dword ptr [");
+				strcat(s, reg_name[reg_idx]);
+				strcat(s, "-");
 				tmp = (char *) malloc(sizeof(char) * 256);
 				itoa((arg.symbol_item->offset_byte) * 4, tmp, 10);
 				strcat(s, tmp);
@@ -75,16 +87,22 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg, int pos) {
 			strcat(s, "dword ptr [ebp-");
 			tmp = (char *) malloc(sizeof(char) * 256);
 			// first temp is t0
-			itoa((arg.val.int_val + count + 1) * 4, tmp, 10);
+			itoa((arg.val.int_val + 1) * 4, tmp, 10);
 			strcat(s, tmp);
 			strcat(s, "]");
 			asm_arg->arg_code = ASM_ARG_LOCAL;
+			break;
+		case ARG_LABEL:
+			strcat(s, "lable");
+			tmp = (char *) malloc(sizeof(char) * 256);
+			itoa(arg.val.int_val, tmp, 10);
+			strcat(s, tmp);
 			break;
 	}
 }
 
 void gen_asm() {
-	int i, caller_depth, callee_depth;
+	int i, caller_depth, callee_depth, reg_idx;
 	struct asm_arg_st *arg1, *arg2, *arg3;
 	prog_head();
 	for (quad_idx = 0; quad_idx < quadruple_top; quad_idx++) {
@@ -100,9 +118,6 @@ void gen_asm() {
 		arg2->name = (char *) malloc(sizeof(char) * 256);
 		arg3 = (struct asm_arg_st *) malloc(sizeof(struct asm_arg_st));
 		arg3->name = (char *) malloc(sizeof(char) * 256);
-		asm_arg_str(quadruple[quad_idx].arg1, arg1, 1);
-		asm_arg_str(quadruple[quad_idx].arg2, arg2, 2);
-		asm_arg_str(quadruple[quad_idx].result, arg3, 3);
 		// translate
 		switch(quadruple[quad_idx].op) {
 			case QUAD_PROCMARK:
@@ -128,9 +143,11 @@ void gen_asm() {
 				printf("%s\tENDP\n", quadruple[quad_idx].arg1.symbol_item->name);
 				break;
 			case QUAD_PARAMVAL:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("\tpush %s\n", arg1->name);
 				break;
 			case QUAD_PARAMREF:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("\tlea eax, %s\n", arg1->name);
 				printf("\tpush eax\n");
 				break;
@@ -153,44 +170,80 @@ void gen_asm() {
 				printf("\tcall %s\n", quadruple[quad_idx].arg1.symbol_item->name);
 				break;
 			case QUAD_WRITE:
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
 				if (quadruple[quad_idx].arg2.arg_code)
 					printf("\tpush %s\n", arg2->name);
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				if (quadruple[quad_idx].arg1.arg_code)
 					printf("\tpush %s\n", arg1->name);
 				printf("\tpush offset OneInt\n");
 				printf("\tcall crt_printf\n");
 				break;
 			case QUAD_ASSIGN:
-				// memory to memory
-				if (arg1->arg_code == arg2->arg_code) {
-					printf("\tmov eax, %s\n", arg2->name);
-					printf("\tmov %s, eax\n", arg1->name);
-				} else
-					printf("\tmov %s, %s\n", arg1->name, arg2->name);
+				// check twice
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
+				flag_reg[0] = 1;
+				printf("\tmov eax, %s\n", arg2->name);
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tmov %s, eax\n", arg1->name);
+				flag_reg[0] = 0;
 				break;
 			case QUAD_ADD:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("\tmov eax, %s\n", arg1->name);
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
 				printf("\tadd eax, %s\n", arg2->name);
+				asm_arg_str(quadruple[quad_idx].result, arg3);
 				printf("\tmov %s, eax\n", arg3->name);
 				break;
 			case QUAD_SUB:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("\tmov eax, %s\n", arg1->name);
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
 				printf("\tsub eax, %s\n", arg2->name);
+				asm_arg_str(quadruple[quad_idx].result, arg3);
 				printf("\tmov %s, eax\n", arg3->name);
 				break;
 			case QUAD_MULT:
-				printf("\timul eax, %s, %s\n", arg1->name, arg2->name);
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tmov eax, %s\n", arg1->name);
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
+				printf("\timul eax, %s\n", arg2->name);
+				asm_arg_str(quadruple[quad_idx].result, arg3);
 				printf("\tmov %s, eax\n", arg3->name);
 				break;
 			case QUAD_DIV:
+				flag_reg[3] = 1;
+				printf("\tmov edx, 0\n");
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("\tmov eax, %s\n", arg1->name);
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
+				reg_idx = get_reg_idx();
+				printf("\tmov %s, %s\n", reg_name[reg_idx], arg2->name);
+				printf("\tidiv %s\n", reg_name[reg_idx]);
+				asm_arg_str(quadruple[quad_idx].result, arg3);
+				printf("\tmov %s, %s\n", arg3->name, reg_name[reg_idx]);
+				flag_reg[reg_idx] = 0;
+				flag_reg[3] = 0;
+				break;
+			case QUAD_LABEL:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("%s:\n", arg1->name);
+				break;
+			case QUAD_EQL:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tmov eax, %s\n", arg1->name);
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
 				printf("\tmov ebx, %s\n", arg2->name);
-				printf("\tdiv\tebx\n");
-				printf("\tmov %s, eax\n", arg3->name);
+				printf("\tcmp eax, ebx\n");
 				break;
 			case QUAD_JMP:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tjmp %s\n", arg1->name);
 				break;
 			case QUAD_JMPF:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tjne %s\n", arg1->name);
 				break;
 		}
 	}
@@ -210,4 +263,13 @@ void prog_head() {
 	printf("OneInt db \"%%d\", 0ah, 0\n");
 	// .code
 	printf(".CODE\n");
+}
+
+int get_reg_idx() {
+	int i;
+	for (i = 0; i < 6; i++)
+		if (!flag_reg[i]) {
+			flag_reg[i] = 1;
+			return i;
+		}
 }

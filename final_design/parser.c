@@ -28,8 +28,6 @@ void parse_sub_program(int symbol_idx, int *count) {
 		eval_error(ERR_STACK_OVERFLOW, "");
 		return;
 	}
-	// reset temp table
-	temp_table_top = 0;
 	if (token.sy == CONSTTK)
 		parse_const_part(count);
 	if (token.sy ==VARTK)
@@ -45,6 +43,8 @@ void parse_sub_program(int symbol_idx, int *count) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
 		return;
 	}
+	// reset temp table
+	temp_table_top = 0;
 	// generate procmark
 	r.arg_code = ARG_SYMBOL;
 	r.symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
