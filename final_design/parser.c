@@ -32,7 +32,7 @@ void parse_sub_program(int symbol_idx, int *local_count) {
 		return;
 	}
 	if (token.sy == CONSTTK)
-		parse_const_part(local_count);
+		parse_const_part();
 	if (token.sy ==VARTK)
 		parse_var_part(local_count);
 	// a deeper layer start from the parameter_list
@@ -77,18 +77,18 @@ void parse_id(char name[MAX_NAME]) {
 	get_token_with_history();
 }
 
-void parse_const_part(int *local_count) {
+void parse_const_part() {
 	int i = idx;
 	if (token.sy != CONSTTK) {
 		eval_error(ERR_UNACCEPTABLE, "<const_part> not started with 'const'");
 	}
 	get_token_with_history();
 	parse_const_def();
-	(*local_count)++;
+	// (*local_count)++;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_const_def();
-		(*local_count)++;
+		// (*local_count)++;
 	}
 	if (token.sy != SEMICN) {
 		eval_error(ERR_SEMICN_MISSED, "missing ';' int <const_part>");
