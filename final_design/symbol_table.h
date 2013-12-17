@@ -25,16 +25,15 @@ struct symbol_item_st {
 	int type_code; // [array_of_] integer | char
 	int param_type_code; // var or not
 	union {
-		char str_val[MAX_NAME];
+		char char_val;
 		int int_val;
 	} val;
 	int offset_byte;
-	int size_byte;// count of bytes
 	int depth; // start from 1 as the very out layer
-	int decl_line_num; // line number of declaration
 	int upper_bound; // in case it's array
+	// parameter
 	int param_idx; // parameter index(start from 0)
-	int local_count;
+	// procedure
 	int param_symbol_idx[256]; // 256 parameters?
 };
 

@@ -549,13 +549,12 @@ void init_map_quad_string() {
 void print_symbol_table() {
 	int i;
 	for (i = 0; i < symbol_table_top; i++) {
-		printf("name: %s\tcategory: %d\ttype: %s\tdepth: %d\toffset_byte: %d\tlocals: %d\tparam_idx: %d\n",
+		printf("name: %s\tcategory: %d\ttype: %s\tdepth: %d\toffset_byte: %d\tparam_idx: %d\n",
 			symbol_table[i].name,
 			symbol_table[i].category_code,
 			map_type_string[symbol_table[i].type_code - 517],
 			symbol_table[i].depth,
 			symbol_table[i].offset_byte,
-			symbol_table[i].local_count,
 			symbol_table[i].param_idx);
 	}
 }
