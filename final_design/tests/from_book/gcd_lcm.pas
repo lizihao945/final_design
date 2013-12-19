@@ -22,5 +22,6 @@ begin
 		end;
 	g := y;
 	m := a * b / g;
-	write(g, m)
+	write(g);
+	write(m)
 end.

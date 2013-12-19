@@ -6,7 +6,6 @@
 #include "lexer.h"
 FILE *in;
 struct token_st token;
-const char *map_sy_string[120];
 
 int get_char_type(char ch) {
     if (ch >= 'a' && ch <= 'z') return LOWER_LETTER;
@@ -255,7 +254,6 @@ int get_token(FILE *fp, struct token_st *token) {
 int analyse_and_print(FILE *in, FILE *out) {
     struct token_st tmp;
     int token_count = 0;
-    init_map_sy_string();
     while (get_token(in, &tmp) != 0) {
         fprintf(out, "%d ", ++token_count);
         fprintf(out, "%s ", map_sy_string[tmp.sy]);
@@ -264,68 +262,3 @@ int analyse_and_print(FILE *in, FILE *out) {
     }
     return 0;
 }
-
-int init_map_sy_string() {
-    map_sy_string[11] = "IDEN";
-    map_sy_string[21] = "INTCON";
-    map_sy_string[31] = "REALCON";
-    map_sy_string[41] = "CHARCON";
-    map_sy_string[51] = "STRCON";
-    map_sy_string[61] = "CONSTTK";
-    map_sy_string[71] = "INTTK";
-    map_sy_string[81] = "FLOATTK";
-    map_sy_string[91] = "CHARTK";
-    map_sy_string[101] = "VARTK";
-    map_sy_string[111] = "ARRAYTK";
-    map_sy_string[121] = "OFTK";
-
-    map_sy_string[12] = "REPTTK";
-    map_sy_string[22] = "UNLTK";
-    map_sy_string[32] = "IFTK";
-    map_sy_string[42] = "THENTK";
-    map_sy_string[52] = "ELSETK";
-    map_sy_string[62] = "DOTK";
-    map_sy_string[72] = "WHILETK";
-    map_sy_string[82] = "SWITCHTK";
-    map_sy_string[92] = "CASETK";
-    map_sy_string[102] = "FORTK";
-    map_sy_string[112] = "TOTK";
-    map_sy_string[122] = "BYTK";
-
-    map_sy_string[13] = "DOWNTOTK";
-    map_sy_string[23] = "PROCETK";
-    map_sy_string[33] = "FUNCTK";
-    map_sy_string[43] = "READTK";
-    map_sy_string[53] = "WRITETK";
-    map_sy_string[63] = "CALLTK";
-    map_sy_string[73] = "BEGINTK";
-    map_sy_string[83] = "ENDTK";
-    map_sy_string[93] = "ODDTK";
-    map_sy_string[103] = "PLUS";
-    map_sy_string[113] = "MINU";
-
-    map_sy_string[14] = "MULT";
-    map_sy_string[24] = "DIV";
-    map_sy_string[34] = "LSS";
-    map_sy_string[44] = "LEQ";
-    map_sy_string[54] = "GRE";
-    map_sy_string[64] = "GEQ";
-    map_sy_string[74] = "EQL";
-    map_sy_string[84] = "NEQ";
-    map_sy_string[94] = "ASSIGN";
-    map_sy_string[104] = "SEMICN";
-    map_sy_string[114] = "COMMA";
-
-    map_sy_string[15] = "PERIOD";
-    map_sy_string[25] = "COLON";
-    map_sy_string[35] = "QMARK";
-    map_sy_string[45] = "DQMARK";
-    map_sy_string[55] = "LPARENT";
-    map_sy_string[65] = "RPARENT";
-    map_sy_string[75] = "LBRACK";
-    map_sy_string[85] = "RBRACK";
-    map_sy_string[95] = "LBRACE";
-    map_sy_string[105] = "RBRACE";
-    return 0;
-}
-

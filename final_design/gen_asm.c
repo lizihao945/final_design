@@ -217,27 +217,35 @@ void gen_asm() {
 				free_regs();
 				break;
 			case QUAD_GETARRAY:
-				printf("\tmov eax, ebp\n");
-				printf("\tsub eax, %d\n", (quadruple[quad_idx].arg1.symbol_item->offset_byte) * 4);
-				asm_arg_str(quadruple[quad_idx].arg2, arg2);
-				printf("\timul ebx, %s, 4\n", arg2->name);
-				printf("\tsub eax, ebx\n");
-				printf("\tmov ebx, dword ptr [eax]\n");
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tlea eax, %s\n", arg1->name);
+				if (quadruple[quad_idx].arg2.arg_code == ARG_IMMEDIATE)
+					printf("\tsub eax, %d\n", quadruple[quad_idx].arg2.val.int_val * 4);
+				else {
+					asm_arg_str(quadruple[quad_idx].arg2, arg2);
+					printf("\timul ecx, %s, 4\n", arg2->name);
+					printf("\tsub eax, ecx\n");
+				}
+				printf("\tmov eax, dword ptr [eax]\n");
 				asm_arg_str(quadruple[quad_idx].result, arg3);
-				printf("\tmov %s, ebx\n", arg3->name);
+				printf("\tmov %s, eax\n", arg3->name);
 				break;
 			case QUAD_SETARRAY:
-				printf("\tmov eax, ebp\n");
-				printf("\tsub eax, %d\n", (quadruple[quad_idx].arg1.symbol_item->offset_byte) * 4);
-				asm_arg_str(quadruple[quad_idx].arg2, arg2);
-				printf("\tsub eax, %d\n", atoi(arg2->name) * 4);
-				printf("\tlea ebx, dword ptr [eax]\n");
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tlea eax, %s\n", arg1->name);
+				if (quadruple[quad_idx].arg2.arg_code == ARG_IMMEDIATE)
+					printf("\tsub eax, %d\n", quadruple[quad_idx].arg2.val.int_val * 4);
+				else {
+					asm_arg_str(quadruple[quad_idx].arg2, arg2);
+					printf("\timul ecx, %s, 4\n", arg2->name);
+					printf("\tsub eax, ecx\n");
+				}
 				asm_arg_str(quadruple[quad_idx].result, arg3);
 				if (arg3->arg_code == ARG_IMMEDIATE)
-					printf("\tmov dword ptr [ebx], %s\n", arg3->name);
+					printf("\tmov dword ptr [eax], %s\n", arg3->name);
 				else {
-					printf("\tmov eax, %s\n", arg3->name);
-					printf("\tmov dword ptr [ebx], eax\n");
+					printf("\tmov ebx, %s\n", arg3->name);
+					printf("\tmov dword ptr [eax], ebx\n");
 				}
 				break;
 			case QUAD_ASSIGN:

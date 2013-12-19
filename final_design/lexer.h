@@ -60,7 +60,6 @@
 
 extern FILE *in;
 extern struct token_st token;
-extern const char *map_sy_string[120];
 
 struct token_st {
     int sy;
@@ -72,5 +71,4 @@ struct token_st {
 
 int get_token(FILE *fp, struct token_st *token);
 int analyse_and_print(FILE *in, FILE *out);
-int init_map_sy_string();
 #endif // LEXER_FIRST_H_INCLUDED

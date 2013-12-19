@@ -5,17 +5,14 @@ char last_proc_name[256];
 int cur_depth;
 
 void parse_program() {
-	int *local_count;
 	sub_table_idx[0] = -1;
 	sub_table_idx[1] = 0;
 	cur_depth = 1;
 	push_symbol(CATEGORY_PROCEDURE, 0, "start", 0);
 	strcpy(last_proc_name, "start");
 	// no parameter for start
-	local_count = (int *) malloc(sizeof(int));
-	*local_count = 0;
 	// no local or temp before start procedure
-	parse_sub_program(0, local_count);
+	parse_sub_program(0);
 	if (token.sy != PERIOD)
 		eval_error(ERR_UNACCEPTABLE, "missing '.' at the end of program");
 	// get_token_with_history() is no longer needed
@@ -24,9 +21,12 @@ void parse_program() {
 /**
  * symbol_idx shuold be the index of the proc symbol or -1 for "start"
  */
-void parse_sub_program(int symbol_idx, int *local_count) {
+void parse_sub_program(int symbol_idx) {
 	int mark_idx;
 	t_quad_arg r;
+	int *local_count;
+	local_count = (int *) malloc(sizeof(int));
+	*local_count = 0;
 	if (cur_depth > MAX_SUB_DEPTH) {
 		eval_error(ERR_STACK_OVERFLOW, "");
 		return;
@@ -38,11 +38,9 @@ void parse_sub_program(int symbol_idx, int *local_count) {
 	// a deeper layer start from the parameter_list
 	if (token.sy == PROCETK) {
 		parse_procedure_part(local_count);
-		symbol_table_top = sub_table_idx[cur_depth--];
 	}
 	if (token.sy == FUNCTK) {
 		parse_function_part(local_count);
-		symbol_table_top = sub_table_idx[cur_depth--];
 	}
 	if (token.sy != BEGINTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
@@ -56,9 +54,9 @@ void parse_sub_program(int symbol_idx, int *local_count) {
 	// the number of local variables
 	mark_idx = quadruple_procmark(r, *local_count);
 	// symbol table state in this procedure
-	printf("symbol table state in: %s\n", r.symbol_item->name);
-	print_symbol_table();
-	printf("******************\n");
+	 printf("symbol table state in: %s\n", r.symbol_item->name);
+	 print_symbol_table();
+	 printf("******************\n");
 	temp_table_top = 0;
 	// begin
 	parse_compound_statement();
@@ -258,8 +256,8 @@ void parse_procedure_part(int *local_count) {
 	symbol_table[*symbol_idx].param_count = *param_count;
 	// the procedure name counts
 	(*local_count)++;
-	// parameters are first locals
-	parse_sub_program(*symbol_idx, param_count);
+	parse_sub_program(*symbol_idx);
+	symbol_table_top = sub_table_idx[cur_depth--];
 	*strrchr(last_proc_name, '_') = '\0';
 	while (token.sy == SEMICN) {
 		get_token_with_history();
@@ -277,7 +275,8 @@ void parse_procedure_part(int *local_count) {
 		symbol_table[*symbol_idx].param_count = *param_count;
 		// the procedure name counts
 		(*local_count)++;
-		parse_sub_program(*symbol_idx, param_count);
+		parse_sub_program(*symbol_idx);
+		symbol_table_top = sub_table_idx[cur_depth--];
 		*strrchr(last_proc_name, '_') = '\0';
 	}
 	if (token.sy != SEMICN) {
@@ -330,7 +329,8 @@ void parse_function_part(int *local_count) {
 	// the function name counts
 	(*local_count)++;
 	// parameters are first locals
-	parse_sub_program(*symbol_idx, param_count);
+	parse_sub_program(*symbol_idx);
+	symbol_table_top = sub_table_idx[cur_depth--];
 	*strrchr(last_proc_name, '_') = '\0';
 	while (token.sy == SEMICN) {
 		get_token_with_history();
@@ -348,7 +348,8 @@ void parse_function_part(int *local_count) {
 		symbol_table[*symbol_idx].param_count = *param_count;
 		// the function name counts
 		(*local_count)++;
-		parse_sub_program(*symbol_idx, param_count);
+		parse_sub_program(*symbol_idx);
+		symbol_table_top = sub_table_idx[cur_depth--];
 		*strrchr(last_proc_name, '_') = '\0';
 	}
 	if (token.sy != SEMICN) {
@@ -697,7 +698,7 @@ void parse_factor(t_quad_arg *p)  {
 		get_token_with_history();
 		parse_expression(p);
 		if (token.sy != RPARENT) {
-			eval_error(ERR_RPARENT_MISSED, "parentheses should appear in pairs to represent a factor");
+			eval_error(ERR_RPARENT_MISSED, "parentheses should appear in pairs to represent a factor\n\t\tdid you add'(' to <cond> ?");
 		}
 		get_token_with_history();
 		break;
@@ -728,6 +729,8 @@ void parse_var(t_quad_arg *p) {
 		}
 		get_token_with_history();
 	} else if (token.sy == LPARENT) {
+		if (p->symbol_item->category_code != CATEGORY_FUNCTION)
+			eval_error(ERR_UNACCEPTABLE, "it's not a function");
 		ct = (int *) malloc(sizeof(int));
 		parse_argument(ct, symbol_idx);
 		quadruple_call(*p, (*ct)+1);
@@ -809,6 +812,8 @@ void parse_statement() {
 						eval_error(ERR_UNACCEPTABLE, "arguments not specified");
 						return;
 					}
+					if (p->symbol_item->category_code != CATEGORY_PROCEDURE)
+						eval_error(ERR_UNACCEPTABLE, "it's not a procedure");
 					quadruple_call(*p, 0); // procedure call without return value
 				}
 			}

@@ -17,6 +17,7 @@ extern int idx;
 extern int line_num;
 extern const char * map_quad_string[];
 extern const char * map_type_string[];
+extern const char *map_sy_string[];
 
 // interfaces
 
