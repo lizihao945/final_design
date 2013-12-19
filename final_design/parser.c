@@ -542,8 +542,10 @@ void parse_write() {
 		quadruple_write(*r1, *r2);
 	}
 	// opt write over
-	if (token.sy != RPARENT)
+	if (token.sy != RPARENT) {
+		eval_error(ERR_UNACCEPTABLE, "')' missed in a <write> statement");
 		return;
+	}
 	get_token_with_history();
 	describe_token_history(i, idx);
 	print_verbose("<write> parsed");
@@ -552,6 +554,7 @@ void parse_write() {
 void parse_read() {
 	char name[256];
 	int i = idx;
+	t_quad_arg r1;
 	if (token.sy != READTK)
 		return;
 	get_token_with_history();
@@ -559,6 +562,10 @@ void parse_read() {
 		return;
 	get_token_with_history();
 	parse_id(name);
+	r1.arg_code = ARG_SYMBOL;
+	r1.symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
+	*(r1.symbol_item) = symbol_table[lookup_id(name)];
+	quadruple_read(r1);
 	parse_optread();
 	if (token.sy != RPARENT)
 		return;
@@ -569,9 +576,14 @@ void parse_read() {
 
 void parse_optread() {
 	char name[256];
+	t_quad_arg r1;
 	if (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
+		r1.arg_code = ARG_SYMBOL;
+		r1.symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
+		*(r1.symbol_item) = symbol_table[lookup_id(name)];
+		quadruple_read(r1);
 		parse_optread();
 	}
 }

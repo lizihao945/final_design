@@ -80,6 +80,7 @@ int quadruple_jmp();
 t_quad_arg quadruple_getarray(t_quad_arg  arg1, t_quad_arg  arg2);
 void quadruple_setarray(t_quad_arg  arg1, t_quad_arg  arg2, t_quad_arg  result);
 t_quad_arg quadruple_call(t_quad_arg  arg1, int ct);
+void quadruple_read(t_quad_arg arg1);
 void quadruple_write(t_quad_arg arg1, t_quad_arg arg2);
 void quadruple_paramref(t_quad_arg arg1);
 void quadruple_paramval(t_quad_arg arg1);

@@ -190,6 +190,13 @@ void gen_asm() {
 				printf("\tcall %s\n", quadruple[quad_idx].arg1.symbol_item->name);
 				free_regs();
 				break;
+			case QUAD_READ:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tlea eax, %s\n", arg1->name);
+				printf("\tpush eax\n");
+				printf("\tpush offset OneInt\n");
+				printf("\tcall crt_scanf\n");
+				break;
 			case QUAD_WRITE:
 				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				if (quadruple[quad_idx].arg1.arg_code == ARG_SYMBOL) {
@@ -274,6 +281,7 @@ void gen_asm() {
 				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("%s:\n", arg1->name);
 				break;
+			case QUAD_LEQ:
 			case QUAD_EQL:
 				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("\tmov eax, %s\n", arg1->name);
