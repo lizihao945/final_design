@@ -250,6 +250,7 @@ void parse_procedure_part(int *local_count) {
 	param_count = (int *) malloc(sizeof(int));
 	*param_count = 0;
 	parse_procedure_head(symbol_idx, param_count);
+	symbol_table[*symbol_idx].param_count = *param_count;
 	// the procedure name counts
 	(*local_count)++;
 	// deeper layer
@@ -270,6 +271,7 @@ void parse_procedure_part(int *local_count) {
 		param_count = (int *) malloc(sizeof(int));
 		*param_count = 0;
 		parse_procedure_head(symbol_idx, param_count);
+		symbol_table[*symbol_idx].param_count = *param_count;
 		// the procedure name counts
 		(*local_count)++;
 		// deeper layer
@@ -323,6 +325,7 @@ void parse_function_part(int *local_count) {
 	param_count = (int *) malloc(sizeof(int));
 	*param_count = 0;
 	parse_function_head(symbol_idx, param_count);
+	symbol_table[*symbol_idx].param_count = *param_count;
 	// the function name counts
 	(*local_count)++;
 	// deeper layer
@@ -343,6 +346,7 @@ void parse_function_part(int *local_count) {
 		param_count = (int *) malloc(sizeof(int));
 		*param_count = 0;
 		parse_function_head(symbol_idx, param_count);
+		symbol_table[*symbol_idx].param_count = *param_count;
 		// the function name counts
 		(*local_count)++;
 		// deeper layer
@@ -391,9 +395,8 @@ void parse_function_head(int *symbol_idx, int *param_count) {
 	print_verbose("<function_head> parsed");
 }
 
-void parse_parameter_list(int symbol_idx) {
+void parse_parameter_list(int symbol_idx, int *param_count) {
 	int i = idx;
-	int *param_count;
 	if (token.sy != LPARENT) {
 		eval_error(ERR_UNACCEPTABLE, "<parameter_list> not started with '('");
 	}
@@ -401,8 +404,6 @@ void parse_parameter_list(int symbol_idx) {
 	if (token.sy == RPARENT) {
 		eval_error(ERR_PARAMETER_MISSED, "use foo instead of foo()");
 	}
-	param_count = (int *) malloc(sizeof(int));
-	*param_count = 0;
 	parse_parameter(symbol_idx, param_count);
 	while (token.sy == SEMICN) {
 		get_token_with_history();
@@ -756,6 +757,7 @@ void parse_argument(int *ct, int symbol_idx) {
 		quadruple_paramval(*r);
 	else
 		quadruple_paramref(*r);
+	(*ct)++;
 	parse_optargument(ct, symbol_idx);
 	if (*ct == 0) {
 		eval_error(ERR_UNACCEPTABLE, "no argument specified");
@@ -804,6 +806,10 @@ void parse_statement() {
 					parse_argument(ct, symbol_idx);
 					quadruple_call(*p, (*ct)+1);
 				} else { //foo
+					if (p->symbol_item->param_count != 0) {
+						eval_error(ERR_UNACCEPTABLE, "arguments not specified");
+						return;
+					}
 					quadruple_call(*p, 0); // procedure call without return value
 				}
 			}

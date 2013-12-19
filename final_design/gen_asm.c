@@ -36,35 +36,26 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 			}
 			// parameter
 			arg_depth = arg.symbol_item->depth;
-			if (arg.symbol_item->category_code == CATEGORY_PARAMREF) {
+			if (arg.symbol_item->category_code == CATEGORY_PARAMREF || arg.symbol_item->category_code == CATEGORY_PARAMVAL) {
 				strcat(s, "dword ptr [ebp+");
 				tmp = (char *) malloc(sizeof(char) * 256);
-				// param_idx start from 0
-				// return value is ebp+4
-				// display allocated: ebp + 4 ~> ebp + depth * 4
-				itoa((arg.symbol_item->param_idx + 1) * 4 + 4 + arg_depth * 4, tmp, 10);
-				strcat(s, tmp);
-				strcat(s, "]");
-				// allocate a free register to save address of the parameter
-				reg_idx = get_reg_idx();
-				printf("\tmov %s, %s\n", reg_name[reg_idx], s);
-				s[0] = '\0';
-				strcat(s, "dword ptr [");
-				strcat(s, reg_name[reg_idx]);
-				strcat(s, "]");
-				asm_arg->arg_code = ASM_ARG_LOCAL;
-				break;
-			}
-			if (arg.symbol_item->category_code == CATEGORY_PARAMVAL) {
-				strcat(s, "dword ptr [ebp+");
-				tmp = (char *) malloc(sizeof(char) * 256);
-				// param_idx start from 0
-				// return value is ebp+4
-				// display allocated: ebp + 4 ~> ebp + depth * 4
-				itoa((arg.symbol_item->param_idx + 1) * 4 + 4 + arg_depth * 4, tmp, 10);
+				// param_idx starts from 0
+				// return value address is allocated at ebp+4
+				// display allocated: ebp + 8 ~> ebp + (arg_depth - 1) * 4
+				itoa((arg.symbol_item->param_idx + 1) * 4 + 4 + (arg_depth - 1) * 4, tmp, 10);
 				strcat(s, tmp);
 				strcat(s, "]");
 				asm_arg->arg_code = ASM_ARG_LOCAL;
+				if (arg.symbol_item->category_code == CATEGORY_PARAMREF) {					
+					// allocate a free register to save address of the parameter
+					reg_idx = get_reg_idx();
+					printf("\tmov %s, %s\n", reg_name[reg_idx], s);
+					s[0] = '\0';
+					strcat(s, "dword ptr [");
+					strcat(s, reg_name[reg_idx]);
+					strcat(s, "]");
+					break;
+				}
 				break;
 			}
 			// local

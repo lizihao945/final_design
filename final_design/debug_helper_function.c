@@ -547,13 +547,13 @@ void init_map_quad_string() {
 void print_symbol_table() {
 	int i;
 	for (i = 0; i < symbol_table_top; i++) {
-		printf("name: %s\tcategory: %d\ttype: %s\tdepth: %d\toffset_byte: %d\tparam_idx: %d\n",
+		printf("name: %s\tcategory: %d\ttype: %s\tdepth: %d\toffset_byte: %d\tparam_count: %d\n",
 			symbol_table[i].name,
 			symbol_table[i].category_code,
 			map_type_string[symbol_table[i].type_code - 517],
 			symbol_table[i].depth,
 			symbol_table[i].offset_byte,
-			symbol_table[i].param_idx);
+			symbol_table[i].param_count);
 	}
 }
 
@@ -566,7 +566,7 @@ void do_compile_job() {
 	char tmp[32];
 	//printf("Input your source file name:\n");
 	//scanf("%s", tmp);
-	strcpy(tmp, "input.txt");
+	strcpy(tmp, "input.pas");
 	in = fopen(tmp, "r");
 	verbose_off = 1;
 	describe_token_off = 1;
