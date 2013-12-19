@@ -183,18 +183,14 @@ void quadruple_setarray(t_quad_arg  arg1, t_quad_arg  arg2, t_quad_arg  result) 
 	quadruple_top++;
 }
 
-// call arg1() with ct arguments and put return value in result
-t_quad_arg quadruple_call(t_quad_arg  arg1, int ct) {
-	t_quad_arg rt;
+// call arg1() with ct arguments
+void quadruple_call(t_quad_arg  arg1, int ct) {
 	quadruple[quadruple_top].op = QUAD_CALL;
 	quadruple[quadruple_top].arg1 = arg1;
 	quadruple[quadruple_top].arg2.arg_code = ARG_IMMEDIATE;
 	quadruple[quadruple_top].arg2.val.int_val = ct;
-	rt.arg_code = ARG_TEMP_IDX;
-	rt.val.int_val = push_temp();
-	quadruple[quadruple_top].result = rt;
+	quadruple[quadruple_top].result.arg_code = 0;
 	quadruple_top++;
-	return rt;
 }
 
 void quadruple_write(t_quad_arg arg1, t_quad_arg arg2) {

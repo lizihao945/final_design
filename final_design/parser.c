@@ -38,9 +38,11 @@ void parse_sub_program(int symbol_idx, int *local_count) {
 	// a deeper layer start from the parameter_list
 	if (token.sy == PROCETK) {
 		parse_procedure_part(local_count);
+		symbol_table_top = sub_table_idx[cur_depth--];
 	}
 	if (token.sy == FUNCTK) {
 		parse_function_part(local_count);
+		symbol_table_top = sub_table_idx[cur_depth--];
 	}
 	if (token.sy != BEGINTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
@@ -249,16 +251,14 @@ void parse_procedure_part(int *local_count) {
 	// the params are those of the sub_program
 	param_count = (int *) malloc(sizeof(int));
 	*param_count = 0;
+	// make one place for the name of procedure
+	sub_table_idx[++cur_depth] = symbol_table_top + 1;
 	parse_procedure_head(symbol_idx, param_count);
 	symbol_table[*symbol_idx].param_count = *param_count;
 	// the procedure name counts
 	(*local_count)++;
-	// deeper layer
-	sub_table_idx[++cur_depth] = symbol_table_top;
 	// parameters are first locals
 	parse_sub_program(*symbol_idx, param_count);
-	// return to the layer
-	symbol_table_top = sub_table_idx[cur_depth--];
 	*strrchr(last_proc_name, '_') = '\0';
 	while (token.sy == SEMICN) {
 		get_token_with_history();
@@ -270,15 +270,13 @@ void parse_procedure_part(int *local_count) {
 		// the params are those of the sub_program
 		param_count = (int *) malloc(sizeof(int));
 		*param_count = 0;
+		// make one place for the name of procedure
+		sub_table_idx[++cur_depth] = symbol_table_top + 1;
 		parse_procedure_head(symbol_idx, param_count);
 		symbol_table[*symbol_idx].param_count = *param_count;
 		// the procedure name counts
 		(*local_count)++;
-		// deeper layer
-		sub_table_idx[++cur_depth] = symbol_table_top;
 		parse_sub_program(*symbol_idx, param_count);
-		// return to the layer
-		symbol_table_top = sub_table_idx[cur_depth--];
 		*strrchr(last_proc_name, '_') = '\0';
 	}
 	if (token.sy != SEMICN) {
@@ -301,7 +299,7 @@ void parse_procedure_head(int *symbol_idx, int *param_count) {
 	strcat(tmp, "_");
 	strcat(tmp, name);
 	strcpy(last_proc_name, tmp);
-	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, tmp, cur_depth);
+	*symbol_idx = push_symbol(CATEGORY_PROCEDURE, 0, tmp, cur_depth - 1);
 	if (token.sy == LPARENT)
 		parse_parameter_list(*symbol_idx, param_count);
 	if (token.sy == COLON) {
@@ -324,16 +322,14 @@ void parse_function_part(int *local_count) {
 	// the params are those of the sub_program
 	param_count = (int *) malloc(sizeof(int));
 	*param_count = 0;
+	// make one place for the name of function
+	sub_table_idx[++cur_depth] = symbol_table_top + 1;
 	parse_function_head(symbol_idx, param_count);
 	symbol_table[*symbol_idx].param_count = *param_count;
 	// the function name counts
 	(*local_count)++;
-	// deeper layer
-	sub_table_idx[++cur_depth] = symbol_table_top;
 	// parameters are first locals
 	parse_sub_program(*symbol_idx, param_count);
-	// return to the layer
-	symbol_table_top = sub_table_idx[cur_depth--];
 	*strrchr(last_proc_name, '_') = '\0';
 	while (token.sy == SEMICN) {
 		get_token_with_history();
@@ -345,15 +341,13 @@ void parse_function_part(int *local_count) {
 		// the params are those of the sub_program
 		param_count = (int *) malloc(sizeof(int));
 		*param_count = 0;
+		// make one place for the name of function
+		sub_table_idx[++cur_depth] = symbol_table_top + 1;
 		parse_function_head(symbol_idx, param_count);
 		symbol_table[*symbol_idx].param_count = *param_count;
 		// the function name counts
 		(*local_count)++;
-		// deeper layer
-		sub_table_idx[++cur_depth] = symbol_table_top;
 		parse_sub_program(*symbol_idx, param_count);
-		// return to the layer
-		symbol_table_top = sub_table_idx[cur_depth--];
 		*strrchr(last_proc_name, '_') = '\0';
 	}
 	if (token.sy != SEMICN) {
@@ -377,7 +371,7 @@ void parse_function_head(int *symbol_idx, int *param_count) {
 	strcat(tmp, "_");
 	strcat(tmp, name);
 	strcpy(last_proc_name, tmp);
-	*symbol_idx = push_symbol(CATEGORY_FUNCTION, 0, tmp, cur_depth);
+	*symbol_idx = push_symbol(CATEGORY_FUNCTION, 0, tmp, cur_depth - 1);
 	if (token.sy == LPARENT)
 		parse_parameter_list(*symbol_idx, param_count);
 	if (token.sy != COLON) {
@@ -431,9 +425,9 @@ void parse_parameter(int symbol_idx, int *param_count) {
 	st = symbol_table_top;
 	parse_id(name);
 	if (flag)
-		tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth + 1);
+		tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth);
 	else
-		tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth + 1);
+		tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth);
 	symbol_table[tmp].param_idx = *param_count;
 	symbol_table[symbol_idx].param_symbol_idx[*param_count] = tmp;
 	(*param_count)++;
@@ -442,9 +436,9 @@ void parse_parameter(int symbol_idx, int *param_count) {
 		parse_id(name);
 		(*param_count)++;
 		if (flag)
-			tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth + 1);
+			tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth);
 		else
-			tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth + 1);
+			tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth);
 		symbol_table[tmp].param_idx = *param_count;
 		symbol_table[symbol_idx].param_symbol_idx[*param_count] = tmp;
 		(*param_count)++;
@@ -617,6 +611,7 @@ void parse_assign_statement(t_quad_arg p) {
 	}
 	get_token_with_history();
 	q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	q->arg_code = ARG_IMMEDIATE;
 	parse_expression(q);
 	quadruple_assign(p, *q);
 	describe_token_history(i, idx);
@@ -799,6 +794,9 @@ void parse_statement() {
 			p->symbol_item = (struct symbol_item_st *) malloc(sizeof(struct symbol_item_st));
 			*(p->symbol_item) = symbol_table[lookup_id(name)];
 			if (token.sy == ASSIGN || token.sy == LBRACK) {
+				if (p->symbol_item->category_code == CATEGORY_CONST ||
+					p->symbol_item->category_code == CATEGORY_PROCEDURE)
+					eval_error(ERR_UNACCEPTABLE, "left value can't be assigned");
 				parse_assign_statement(*p);
 			} else {
 				if (token.sy == LPARENT) { // foo(1)
