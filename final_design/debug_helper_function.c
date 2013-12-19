@@ -542,6 +542,8 @@ void init_map_quad_string() {
 	map_quad_string[QUAD_ITOC] = "ITOC";
 	map_quad_string[QUAD_WRITE] = "WRITE";
 	map_quad_string[QUAD_READ] = "READ";
+	map_quad_string[QUAD_INC] = "INC";
+	map_quad_string[QUAD_DEC] = "DEC";
 }
 
 void print_symbol_table() {

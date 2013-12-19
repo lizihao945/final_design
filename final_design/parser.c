@@ -194,6 +194,7 @@ void parse_var_def(int *local_count) {
 		symbol_table[stack->val].type_code = *type_code;
 		symbol_table[stack->val].upper_bound = *upper_bound;
 		stack = stack->next;
+		(*local_count) += *upper_bound;
 	}
 	describe_token_history(i, idx);
 	print_verbose("<var_def> parsed");
@@ -947,10 +948,10 @@ void parse_for_statement() {
 	
 	// loop body (<statement> and loop variable modification)
 	parse_statement();
-	if (token.sy == DOTK)
-		quadruple_add(p, one_arg);
+	if (tmp == TOTK)
+		quadruple_inc(p);
 	else
-		quadruple_sub(p, one_arg);
+		quadruple_dec(p);
 	quadruple[quadruple_jmp()].arg1.val.int_val = label_start;
 
 	// label end

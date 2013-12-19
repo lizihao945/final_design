@@ -216,6 +216,30 @@ void gen_asm() {
 				printf("\tpush offset Writeline\n\tcall crt_printf\n");
 				free_regs();
 				break;
+			case QUAD_GETARRAY:
+				printf("\tmov eax, ebp\n");
+				printf("\tsub eax, %d\n", (quadruple[quad_idx].arg1.symbol_item->offset_byte) * 4);
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
+				printf("\timul ebx, %s, 4\n", arg2->name);
+				printf("\tsub eax, ebx\n");
+				printf("\tmov ebx, dword ptr [eax]\n");
+				asm_arg_str(quadruple[quad_idx].result, arg3);
+				printf("\tmov %s, ebx\n", arg3->name);
+				break;
+			case QUAD_SETARRAY:
+				printf("\tmov eax, ebp\n");
+				printf("\tsub eax, %d\n", (quadruple[quad_idx].arg1.symbol_item->offset_byte) * 4);
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
+				printf("\tsub eax, %d\n", atoi(arg2->name) * 4);
+				printf("\tlea ebx, dword ptr [eax]\n");
+				asm_arg_str(quadruple[quad_idx].result, arg3);
+				if (arg3->arg_code == ARG_IMMEDIATE)
+					printf("\tmov dword ptr [ebx], %s\n", arg3->name);
+				else {
+					printf("\tmov eax, %s\n", arg3->name);
+					printf("\tmov dword ptr [ebx], eax\n");
+				}
+				break;
 			case QUAD_ASSIGN:
 				if (quadruple[quad_idx].arg2.arg_code == ARG_IMMEDIATE) {
 					asm_arg_str(quadruple[quad_idx].arg1, arg1);
@@ -275,6 +299,14 @@ void gen_asm() {
 				// result is placed in eax
 				printf("\tmov %s, eax\n", arg3->name);
 				free_regs();
+				break;
+			case QUAD_INC:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tinc %s\n", arg1->name);
+				break;
+			case QUAD_DEC:
+				asm_arg_str(quadruple[quad_idx].arg1, arg1);
+				printf("\tdec %s\n", arg1->name);
 				break;
 			case QUAD_LABEL:
 				asm_arg_str(quadruple[quad_idx].arg1, arg1);

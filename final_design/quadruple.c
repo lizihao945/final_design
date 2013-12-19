@@ -240,3 +240,19 @@ void quadruple_procend(t_quad_arg arg1) {
 	quadruple[quadruple_top].result.arg_code = 0;
 	quadruple_top++;
 }
+
+void quadruple_inc(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_INC;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}
+
+void quadruple_dec(t_quad_arg arg1) {
+	quadruple[quadruple_top].op = QUAD_DEC;
+	quadruple[quadruple_top].arg1 = arg1;
+	quadruple[quadruple_top].arg2.arg_code = 0;
+	quadruple[quadruple_top].result.arg_code = 0;
+	quadruple_top++;
+}

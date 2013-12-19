@@ -38,6 +38,8 @@
 #define QUAD_ITOC 538
 #define QUAD_WRITE 539
 #define QUAD_READ 540
+#define QUAD_INC 541
+#define QUAD_DEC 542
 
 typedef struct quad_arg_st {
 	int arg_code;
@@ -83,4 +85,6 @@ void quadruple_paramref(t_quad_arg arg1);
 void quadruple_paramval(t_quad_arg arg1);
 int quadruple_procmark(t_quad_arg arg1, int count);
 void quadruple_procend(t_quad_arg arg1);
+void quadruple_inc(t_quad_arg arg1);
+void quadruple_dec(t_quad_arg arg1);
 #endif

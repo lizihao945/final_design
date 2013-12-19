@@ -1,8 +1,9 @@
-var x: integer;
-function boo(x: integer): integer;
-	begin
-		boo := x
-	end;
+var i: integer; x, y, z: array[10] of integer;
 begin
-	x := boo(1)
+	x[0] := 0;
+	x[1] := 1;
+	x[2] := 2;
+	x[3] := -1;
+	for i := 0 to 3 do
+		write(x[i])
 end.
