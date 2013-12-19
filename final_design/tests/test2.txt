@@ -24,4 +24,4 @@ m:=a*b/g;
 write("x=",x);
 write("g=",g);
 write("m=",m)
-end.
+end

@@ -109,6 +109,12 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 			itoa(arg.val.int_val, tmp, 10);
 			strcat(s, tmp);
 			break;
+		case ARG_STRING:
+			strcat(s, "string");
+			tmp = (char *) malloc(sizeof(char) * 256);
+			itoa(arg.val.int_val, tmp, 10);
+			strcat(s, tmp);
+			break;
 	}
 }
 
@@ -185,14 +191,28 @@ void gen_asm() {
 				free_regs();
 				break;
 			case QUAD_WRITE:
-				asm_arg_str(quadruple[quad_idx].arg2, arg2);
-				if (quadruple[quad_idx].arg2.arg_code)
-					printf("\tpush %s\n", arg2->name);
 				asm_arg_str(quadruple[quad_idx].arg1, arg1);
-				if (quadruple[quad_idx].arg1.arg_code)
+				if (quadruple[quad_idx].arg1.arg_code == ARG_SYMBOL) {
 					printf("\tpush %s\n", arg1->name);
-				printf("\tpush offset OneInt\n");
-				printf("\tcall crt_printf\n");
+					printf("\tpush offset OneInt\n");
+					printf("\tcall crt_printf\n");
+				} else if (quadruple[quad_idx].arg1.arg_code == ARG_STRING) {
+					printf("\tpush offset %s\n", arg1->name);
+					printf("\tpush offset String\n");
+					printf("\tcall crt_printf\n");
+				}
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
+				if (quadruple[quad_idx].arg2.arg_code == ARG_SYMBOL) {
+					printf("\tpush %s\n", arg2->name);
+					printf("\tpush offset OneInt\n");
+					printf("\tcall crt_printf\n");
+				} else if (quadruple[quad_idx].arg2.arg_code == ARG_STRING) {
+					printf("\tpush offset %s\n", arg2->name);
+					printf("\tpush offset String\n");
+					printf("\tcall crt_printf\n");
+				}
+				// new line after write();
+				printf("\tpush offset Writeline\n\tcall crt_printf\n");
 				free_regs();
 				break;
 			case QUAD_ASSIGN:
@@ -277,6 +297,7 @@ void gen_asm() {
 }
 
 void prog_head() {
+	int i;
 	printf(".386\n");
 	printf(".model flat, stdcall\n\n");
 	printf("include \\masm32\\include\\kernel32.inc\n");
@@ -285,7 +306,11 @@ void prog_head() {
 	printf("includelib \\masm32\\lib\\kernel32.lib\n\n");
 	// .data
 	printf(".data\n");
-	printf("OneInt db \"%%d\", 0ah, 0\n");
+	printf("String db \"%%s\", 0\n");
+	printf("OneInt db \"%%d\", 0\n");
+	printf("WriteLine db 0ah, 0\n");
+	for (i = 0; i< string_count; i++)
+		printf("string%d db \"%s\", 0\n", i, string_values[i]);
 	// .code
 	printf(".CODE\n");
 }

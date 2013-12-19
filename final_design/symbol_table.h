@@ -42,6 +42,8 @@ extern struct symbol_item_st symbol_table[];
 extern int symbol_table_top;
 extern int temp_table_top;
 extern int sub_table_idx[];
+extern char *string_values[];
+extern int string_count;
 
 // interfaces
 int lookup_id(char name[]);

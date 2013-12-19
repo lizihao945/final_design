@@ -490,7 +490,7 @@ void describe_quad_arg(t_quad_arg arg) {
 			printf("t%d\t", arg.val.int_val);
 			break;
 		case ARG_STRING:
-			printf("%s\t", arg.val.str_val);
+			printf("%s\t", string_values[arg.val.int_val]);
 			break;
 		default:
 			printf("N/A\t");

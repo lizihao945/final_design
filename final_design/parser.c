@@ -503,8 +503,11 @@ void parse_str(t_quad_arg *r) {
 	if (token.sy != STRCON) {
 		eval_error(ERR_UNACCEPTABLE, "<str> not started with a string");
 	}
+	string_values[string_count] = (char *) malloc(sizeof(char) * 256);
+	strcpy(string_values[string_count], token.val.str_val);
 	r->arg_code = ARG_STRING;
-	strcpy(r->val.str_val, token.val.str_val);
+	r->val.int_val = string_count;
+	string_count++;
 	get_token_with_history();
 	describe_token_history(idx - 1, idx);
 	print_verbose("<str> parsed");
@@ -512,29 +515,31 @@ void parse_str(t_quad_arg *r) {
 
 void parse_write() {
 	int i = idx;
-	t_quad_arg *r;
+	t_quad_arg *r1, *r2;
 	if (token.sy != WRITETK)
 		return;
 	get_token_with_history();
 	if (token.sy != LPARENT)
 		return;
 	get_token_with_history();
-	// opt write
+	r1 = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	r2 = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+	r2->arg_code = 0;
+	// firset arg
 	if (token.sy == STRCON) {
-		r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
-		parse_str(r);
-		quadruple_write(*r);
+		parse_str(r1);
+		// second arg
 		if (token.sy == COMMA) {
 			get_token_with_history();
-			r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
-			parse_expression(r);
-			quadruple_write(*r);
+			parse_expression(r2);
+			quadruple_write(*r1, *r2);
 		} else {
+			quadruple_write(*r1, *r2);
 		}
 	} else {
-		r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
-		parse_expression(r);
-		quadruple_write(*r);
+		r1 = (t_quad_arg *) malloc(sizeof(t_quad_arg));
+		parse_expression(r1);
+		quadruple_write(*r1, *r2);
 	}
 	// opt write over
 	if (token.sy != RPARENT)
