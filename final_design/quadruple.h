@@ -25,12 +25,9 @@
 #define QUAD_NEQL 522 // <>
 #define QUAD_GTR 523 // >
 #define QUAD_LES 524 // <
-#define QUAD_DEF 525
 #define QUAD_PARAMVAL 526 //
 #define QUAD_PARAMREF 527 // var
-#define QUAD_ARGU 528
 #define QUAD_CALL 529
-#define QUAD_RET 530
 #define QUAD_ASSIGN 531
 #define QUAD_GETARRAY 532
 #define QUAD_SETARRAY 533
@@ -74,7 +71,7 @@ t_quad_arg quadruple_geq(t_quad_arg arg1, t_quad_arg arg2);
 t_quad_arg quadruple_eql(t_quad_arg arg1, t_quad_arg arg2);
 t_quad_arg quadruple_neql(t_quad_arg arg1, t_quad_arg arg2);
 void quadruple_assign(t_quad_arg  arg1, t_quad_arg  arg2);
-int quadruple_lable();
+int quadruple_label();
 int quadruple_jmpf(t_quad_arg arg2);
 int quadruple_jmp();
 t_quad_arg quadruple_getarray(t_quad_arg  arg1, t_quad_arg  arg2);

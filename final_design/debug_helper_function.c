@@ -3,6 +3,7 @@ struct token_st token_history[MAX_TOKEN_NUM];
 int idx = 0; // index of the token
 int verbose_off = 0; // turn off verbose printing
 int describe_token_off = 0; // turn off tokens of a N-T printing
+int line_num = 1;
 const char * map_quad_string[1024];
 const char * map_type_string[4];
 
@@ -438,7 +439,7 @@ void describe_token_history(int st, int en) {
 }
 
 void print_error(const char x[]) {
-	printf("Error\t%s!\n", x);
+	printf("(line: %d)Error\t%s!\n", line_num, x);
 	//    printf("Error\t%s!\t Next token:\t%s\t", x, map_sy_string[token.sy]);
 	//    if (token.sy == INTCON)
 	//        printf("%d\n", token.val.intVal);
@@ -528,12 +529,9 @@ void init_map_quad_string() {
 	map_quad_string[QUAD_NEQL] = "NEQL<>";
 	map_quad_string[QUAD_GTR] = "GTR>";
 	map_quad_string[QUAD_LES] = "LES<";
-	map_quad_string[QUAD_DEF] = "DEF";
 	map_quad_string[QUAD_PARAMVAL] = "PARAMVAL";
 	map_quad_string[QUAD_PARAMREF] = "PARAMREF";
-	map_quad_string[QUAD_ARGU] = "ARGU";
 	map_quad_string[QUAD_CALL] = "CALL";
-	map_quad_string[QUAD_RET] = "RET";
 	map_quad_string[QUAD_ASSIGN] = "ASSIGN";
 	map_quad_string[QUAD_GETARRAY] ="GETARRAY=[]";
 	map_quad_string[QUAD_SETARRAY] ="SETARRAY[]=";

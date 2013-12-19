@@ -852,7 +852,7 @@ void parse_if_statement() {
 	get_token_with_history();
 	parse_statement();
 	if (token.sy != ELSETK) {
-		quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable(); // label_a
+		quadruple[jmpf_idx].arg1.val.int_val = quadruple_label(); // label_a
 		describe_token_history(i, idx);
 		print_verbose("<if_statement> parsed without 'else'");
 		return;
@@ -863,9 +863,9 @@ void parse_if_statement() {
 	quadruple[jmpf_idx].arg2 = *r;
 	// set QUAD_JMPF result to label value(returned)
 	// next quadruple should be labeled
-	quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable();
+	quadruple[jmpf_idx].arg1.val.int_val = quadruple_label();
 	parse_statement();
-	quadruple[jmp_idx].arg1.val.int_val = quadruple_lable();
+	quadruple[jmp_idx].arg1.val.int_val = quadruple_label();
 	describe_token_history(i, idx);
 	print_verbose("<if_statement> parsed with 'else'");
 }
@@ -880,7 +880,7 @@ void parse_while_statement() {
 	get_token_with_history();
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	// label_start
-	label_start = quadruple_lable();
+	label_start = quadruple_label();
 	parse_cond(r);
 	// if not satisfied, jump to the end
 	jmpf_idx = quadruple_jmpf(*r);
@@ -892,7 +892,7 @@ void parse_while_statement() {
 	// loop
 	quadruple[quadruple_jmp()].arg1.val.int_val = label_start;
 	// label end
-	quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable();
+	quadruple[jmpf_idx].arg1.val.int_val = quadruple_label();
 	describe_token_history(i, idx);
 	print_verbose("<while_statement> parsed");
 }
@@ -922,7 +922,7 @@ void parse_for_statement() {
 	quadruple_assign(p, *st);
 
 	// label_start
-	label_start = quadruple_lable();
+	label_start = quadruple_label();
 	if (token.sy != DOWNTOTK && token.sy != TOTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'downto | to' in a <for_statement>");
 	}
@@ -950,7 +950,7 @@ void parse_for_statement() {
 	quadruple[quadruple_jmp()].arg1.val.int_val = label_start;
 
 	// label end
-	quadruple[jmpf_idx].arg1.val.int_val = quadruple_lable();
+	quadruple[jmpf_idx].arg1.val.int_val = quadruple_label();
 	describe_token_history(i, idx);
 	print_verbose("<for_statement> parsed");
 }

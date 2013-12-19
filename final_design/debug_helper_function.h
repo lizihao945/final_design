@@ -14,6 +14,7 @@ extern int verbose_off;
 extern int describe_token_off;
 extern struct token_st token_history[];
 extern int idx;
+extern int line_num;
 extern const char * map_quad_string[];
 extern const char * map_type_string[];
 

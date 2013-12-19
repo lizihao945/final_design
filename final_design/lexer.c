@@ -16,6 +16,7 @@ int get_char_type(char ch) {
 }
 
 int is_blank(char ch) {
+	if (ch == '\n') line_num++;
     return (ch == ' ' || ch == '\n' || ch == '\t');
 }
 

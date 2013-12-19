@@ -126,7 +126,7 @@ t_quad_arg  quadruple_neql(t_quad_arg  arg1, t_quad_arg  arg2) {
 /**
  * label is set to next quadruple
  */
-int quadruple_lable() {
+int quadruple_label() {
 	quadruple[quadruple_top].op = QUAD_LABEL;
 	quadruple[quadruple_top].arg1.arg_code = ARG_LABEL;
 	quadruple[quadruple_top].arg1.val.int_val = label_top;
