@@ -197,7 +197,10 @@ void gen_asm() {
 					printf("\tcall crt_printf\n");
 				} else {
 					printf("\tpush %s\n", arg1->name);
-					printf("\tpush offset OneInt\n");
+					if (quadruple[quad_idx].arg1.symbol_item->type_code == TYPE_INTEGER)
+						printf("\tpush offset OneInt\n");
+					else
+						printf("\tpush offset OneChar\n");
 					printf("\tcall crt_printf\n");
 				}
 				if (quadruple[quad_idx].arg2.arg_code) {
@@ -352,6 +355,7 @@ void prog_head() {
 	// .data
 	printf(".data\n");
 	printf("String db \"%%s\", 0\n");
+	printf("OneChar db \"%%c\", 0\n");
 	printf("OneInt db \"%%d\", 0\n");
 	printf("WriteLine db 0ah, 0\n");
 	for (i = 0; i< string_count; i++)
