@@ -1,8 +1,8 @@
 var x: integer;
-	procedure foo(x: integer);
+function boo(x: integer): integer;
 	begin
-		write(x)
+		boo := x
 	end;
 begin
-	foo(1)
+	x := boo(1)
 end.
