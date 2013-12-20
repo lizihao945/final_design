@@ -8,8 +8,6 @@ const char *map_sy_string[65535];
 const char * map_quad_string[1024];
 const char * map_type_string[4];
 
-int init_map_sy_string();
-
 void test_program() {
 	char tmp;
 	FILE *inn = fopen("tests/test_program.txt", "r");
@@ -566,7 +564,7 @@ void init_map_type_string() {
 	map_type_string[TYPE_CHAR - 517] = "char";
 }
 
-int init_map_sy_string() {
+void init_map_sy_string() {
 	map_sy_string[11] = "IDEN";
 	map_sy_string[21] = "INTCON";
 	map_sy_string[31] = "REALCON";
@@ -633,7 +631,6 @@ int init_map_sy_string() {
 	map_sy_string[GEQ] = "GEQ>=";
 	map_sy_string[EQL] = "EQL=";
 	map_sy_string[NEQ] = "NEQ<>";
-	return 0;
 }
 
 void do_compile_job() {
@@ -644,7 +641,6 @@ void do_compile_job() {
 	in = fopen(tmp, "r");
 	verbose_off = 1;
 	describe_token_off = 1;
-	init_map_sy_string();
 	get_token_with_history();
 	parse_program();
 	print_quadruples();

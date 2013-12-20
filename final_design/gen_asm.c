@@ -186,7 +186,10 @@ void gen_asm() {
 				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				printf("\tlea eax, %s\n", arg1->name);
 				printf("\tpush eax\n");
-				printf("\tpush offset OneInt\n");
+				if (quadruple[quad_idx].arg1.symbol_item->type_code == TYPE_INTEGER)
+					printf("\tpush offset OneInt\n");
+				else
+					printf("\tpush offset OneChar\n");
 				printf("\tcall crt_scanf\n");
 				break;
 			case QUAD_WRITE:
@@ -195,12 +198,16 @@ void gen_asm() {
 					printf("\tpush offset %s\n", arg1->name);
 					printf("\tpush offset String\n");
 					printf("\tcall crt_printf\n");
-				} else {
+				} else if (quadruple[quad_idx].arg1.arg_code == ARG_SYMBOL) {
 					printf("\tpush %s\n", arg1->name);
 					if (quadruple[quad_idx].arg1.symbol_item->type_code == TYPE_INTEGER)
 						printf("\tpush offset OneInt\n");
 					else
 						printf("\tpush offset OneChar\n");
+					printf("\tcall crt_printf\n");
+				} else {
+					printf("\tpush %s\n", arg1->name);
+					printf("\tpush offset OneInt\n");
 					printf("\tcall crt_printf\n");
 				}
 				if (quadruple[quad_idx].arg2.arg_code) {

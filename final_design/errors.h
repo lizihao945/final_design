@@ -29,5 +29,6 @@
 #define	 ERR_PARAMETER_MISSED 38
 #define ERR_STACK_OVERFLOW 39
 
+void judge_type(struct quad_arg_st p, struct quad_arg_st q);
 int eval_error(int error_type, const char *p);
 #endif

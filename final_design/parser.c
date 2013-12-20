@@ -603,10 +603,7 @@ void parse_assign_statement(t_quad_arg p) {
 		get_token_with_history();
 		q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 		parse_expression(q);
-		if (p.symbol_item->type_code != q->symbol_item->type_code) {
-			eval_error(ERR_UNACCEPTABLE, "type mismatch");
-			exit(0);
-		}
+		judge_type(p, *q);
 		quadruple_setarray(p, *idx_val, *q);
 		describe_token_history(i, idx);
 		print_verbose("<assign_statement> parsed");
@@ -619,10 +616,7 @@ void parse_assign_statement(t_quad_arg p) {
 	q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	q->arg_code = ARG_IMMEDIATE;
 	parse_expression(q);
-	if (p.symbol_item->type_code != q->symbol_item->type_code) {
-		eval_error(ERR_UNACCEPTABLE, "type mismatch");
-		exit(0);
-	}
+	judge_type(p, *q);
 	quadruple_assign(p, *q);
 	describe_token_history(i, idx);
 	print_verbose("<assign_statement> parsed");

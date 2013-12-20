@@ -22,13 +22,13 @@ extern const char *map_sy_string[];
 // interfaces
 
 void init_fake_symbol_table();
+void init_map_sy_string();
+void init_map_type_string();
+void init_map_quad_string();
 
 void print_symbol_table();
-void init_map_type_string();
-
 void describe_quad_arg(struct quad_arg_st arg);
 void print_quadruples();
-void init_map_quad_string();
 
 void print_tokens(FILE *in);
 void get_token_with_history();
