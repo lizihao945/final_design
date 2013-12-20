@@ -252,6 +252,7 @@ void parse_procedure_part(int *local_count) {
 	*param_count = 0;
 	// make one place for the name of procedure
 	sub_table_idx[++cur_depth] = symbol_table_top + 1;
+	symbol_table[symbol_table_top].offset_byte = *local_count + 1;
 	parse_procedure_head(symbol_idx, param_count);
 	symbol_table[*symbol_idx].param_count = *param_count;
 	// the procedure name counts
@@ -271,6 +272,7 @@ void parse_procedure_part(int *local_count) {
 		*param_count = 0;
 		// make one place for the name of procedure
 		sub_table_idx[++cur_depth] = symbol_table_top + 1;
+		symbol_table[symbol_table_top].offset_byte = *local_count + 1;
 		parse_procedure_head(symbol_idx, param_count);
 		symbol_table[*symbol_idx].param_count = *param_count;
 		// the procedure name counts
@@ -324,6 +326,7 @@ void parse_function_part(int *local_count) {
 	*param_count = 0;
 	// make one place for the name of function
 	sub_table_idx[++cur_depth] = symbol_table_top + 1;
+	symbol_table[symbol_table_top].offset_byte = *local_count + 1;
 	parse_function_head(symbol_idx, param_count);
 	symbol_table[*symbol_idx].param_count = *param_count;
 	// the function name counts
@@ -344,6 +347,7 @@ void parse_function_part(int *local_count) {
 		*param_count = 0;
 		// make one place for the name of function
 		sub_table_idx[++cur_depth] = symbol_table_top + 1;
+		symbol_table[symbol_table_top].offset_byte = *local_count + 1;
 		parse_function_head(symbol_idx, param_count);
 		symbol_table[*symbol_idx].param_count = *param_count;
 		// the function name counts
