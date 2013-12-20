@@ -1,6 +1,5 @@
-const n	= 10;
 var a: array[10] of integer;
-	sp, left, right, seed: integer;
+	sp, left, right, seed, n: integer;
 	stack: array[100] of integer;
 procedure printarray;
 	var i: integer;
@@ -8,17 +7,21 @@ procedure printarray;
 		i:= 1; 
 		while i <= n do
 			begin 
-				write(a[i]);  
+				write(" ", a[i]);  
 				i:= i + 1 
 			end
 	end;
 procedure initialize; 
-	var i: integer;
-	begin 
+	var i, tmp: integer;
+	begin
 		i:= 1;
+		write("Enter n:");
+		read(n);
+		write("Enter a[i]:");
 		while i <= n do
 			begin 
-				a[i] := 10 - i;
+				read(tmp);
+				a[i] := tmp;
 				i := i + 1
 			end
 	end;
@@ -63,7 +66,7 @@ procedure quicksort;
 	end; 
 begin 
 	initialize;
-	write("before:");
+	write("before:\n");
 	printarray;
 	sp := 0; 
 	left := 1;

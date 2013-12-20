@@ -3,6 +3,7 @@ struct token_st token_history[MAX_TOKEN_NUM];
 int idx = 0; // index of the token
 int verbose_off = 0; // turn off verbose printing
 int describe_token_off = 0; // turn off tokens of a N-T printing
+int print_symbol_off = 0; // turn off printing symbol table state
 int line_num = 1;
 const char *map_sy_string[65535];
 const char * map_quad_string[1024];
@@ -439,7 +440,7 @@ void describe_token_history(int st, int en) {
 }
 
 void print_error(const char x[]) {
-	printf("(line: %d, token: %s)Error\t%s!\n", line_num, map_sy_string[token.sy], x);
+	printf("(line: %d, token: %s)Error:\t%s!\n", line_num, map_sy_string[token.sy], x);
 	//    printf("Error\t%s!\t Next token:\t%s\t", x, map_sy_string[token.sy]);
 	//    if (token.sy == INTCON)
 	//        printf("%d\n", token.val.intVal);
@@ -549,13 +550,13 @@ void init_map_quad_string() {
 void print_symbol_table() {
 	int i;
 	for (i = 0; i < symbol_table_top; i++) {
-		printf("name: %s\tcategory: %d\ttype: %s\tdepth: %d\toffset_byte: %d\tparam_count: %d\n",
+		printf("name: %s\ttype: %s\tdepth: %d\toffset_byte: %d\tparam_count: %d\tparam_idx: %d\n",
 			symbol_table[i].name,
-			symbol_table[i].category_code,
 			map_type_string[symbol_table[i].type_code - 517],
 			symbol_table[i].depth,
 			symbol_table[i].offset_byte,
-			symbol_table[i].param_count);
+			symbol_table[i].param_count,
+			symbol_table[i].param_idx);
 	}
 }
 
@@ -634,18 +635,28 @@ void init_map_sy_string() {
 }
 
 void do_compile_job() {
-	char tmp[32];
+	char input_name[1024];
 	//printf("Input your source file name:\n");
-	//scanf("%s", tmp);
-	strcpy(tmp, "input.pas");
-	in = fopen(tmp, "r");
+	//scanf("%s", input_name);
+	strcpy(input_name, "input.pas");
+	in = fopen(input_name, "r");
 	verbose_off = 1;
 	describe_token_off = 1;
+	print_symbol_off = 1;
 	get_token_with_history();
 	parse_program();
-	print_quadruples();
-	//freopen("temp.asm", "w", stdout);
-	freopen("D:\\masm32\\final_design\\temp.asm", "w", stdout);
+	// print_quadruples();
 	gen_asm();
+	printf("Compile successful!\n");
 	fclose(stdout);
+}
+
+int main() {
+	init_map_sy_string();
+	init_map_type_string();
+	init_map_quad_string();
+	quadruple_top = 0;
+	symbol_table_top = 0;
+	do_compile_job();
+	return 0;
 }

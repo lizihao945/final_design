@@ -12,6 +12,7 @@
 // global variables
 extern int verbose_off;
 extern int describe_token_off;
+extern int print_symbol_off;
 extern struct token_st token_history[];
 extern int idx;
 extern int line_num;
@@ -62,5 +63,4 @@ void test_for_statement();
 void test_compound_statement();
 void test_assign_statement();
 
-void do_compile_job();
 #endif // DEBUG_HELPER_FUNCTION_H_INCLUDED

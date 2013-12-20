@@ -1,12 +1,77 @@
-var x,y,g,m,z:integer;
-function mymod(fArg1,fArg2:integer): integer; 
+var a: array[10] of integer;
+	sp, left, right, seed, n: integer;
+	stack: array[100] of integer;
+procedure printarray;
+	var i: integer;
 	begin 
-		fArg1 := fArg1 - fArg1 / fArg2 * fArg2 ; 
-		mymod := fArg1
+		i:= 1; 
+		while i <= n do
+			begin 
+				write(" ", a[i]);  
+				i:= i + 1 
+			end
+	end;
+procedure initialize; 
+	var i, tmp: integer;
+	begin
+		i:= 1;
+		write("Enter n:");
+		read(n);
+		write("Enter a[i]:");
+		while i <= n do
+			begin 
+				read(tmp);
+				a[i] := tmp;
+				i := i + 1
+			end
+	end;
+procedure quicksort; 
+	var i, j, x, w, middle: integer;
+	begin
+		i := left;
+		j:= right; 
+		middle := (left + right) / 2;
+		x:= a[middle];
+		while i < j do 
+			begin 
+				while a[i] < x do i:= i + 1; 
+				while a[j] > x do j:= j - 1; 
+				if i <= j then
+					begin 
+						w:= a[i];
+						a[i]:= a[j];
+						a[j]:= w; 
+						i:= i + 1; 
+						j:= j - 1
+					end
+			end;
+		if left < j then
+			begin 
+				sp := sp + 1; 
+                stack[sp] := right; 
+                right := j; 
+                quicksort; 
+                right := stack[sp];
+                sp := sp - 1
+            end;
+		if i < right then
+			begin 
+				sp := sp + 1; 
+	            stack[sp] := left; 
+	            left := i; 
+				quicksort; 
+	            left := stack[sp];
+	            sp := sp - 1
+            end
 	end; 
 begin 
-	x := 10;
-	y := 3;
-	write(mymod(x, y))
-end.
-
+	initialize;
+	write("before:\n");
+	printarray;
+	sp := 0; 
+	left := 1;
+	right := n;
+	quicksort;
+	write("after:");
+	printarray
+end. 

@@ -4,7 +4,6 @@
 	Nov. 1st, 2013
 */
 #include "lexer.h"
-FILE *in;
 struct token_st token;
 
 int get_char_type(char ch) {
