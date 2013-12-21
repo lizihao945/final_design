@@ -36,11 +36,13 @@ void parse_sub_program(int symbol_idx) {
 	if (token.sy ==VARTK)
 		parse_var_part(local_count);
 	// a deeper layer start from the parameter_list
-	if (token.sy == PROCETK) {
-		parse_procedure_part(local_count);
-	}
-	if (token.sy == FUNCTK) {
-		parse_function_part(local_count);
+	while (token.sy == PROCETK || token.sy == FUNCTK){
+		if (token.sy == PROCETK) {
+			parse_procedure_part(local_count);
+		}
+		if (token.sy == FUNCTK) {
+			parse_function_part(local_count);
+		}
 	}
 	if (token.sy != BEGINTK) {
 		eval_error(ERR_UNACCEPTABLE, "missing 'begin' in the program");
