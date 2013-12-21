@@ -8,10 +8,6 @@ begin
 	else fab := fab(x - 2) + fab(x - 1)
 end;
 begin
-	while 1 = 1 do
-		begin
-			read(n);
-			write("answer:", fab(n));
-			write("!")
-		end
+	read(n);
+	write(fab(n))
 end.

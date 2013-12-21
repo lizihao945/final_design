@@ -727,7 +727,7 @@ void parse_factor(t_quad_arg *p)  {
 void parse_var(t_quad_arg *p) {
 	char name[MAX_NAME];
 	int i = idx;
-	int *ct, symbol_idx;
+	int symbol_idx;
 	t_quad_arg *q;
 	q = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	parse_id(name);
@@ -746,9 +746,8 @@ void parse_var(t_quad_arg *p) {
 	} else if (token.sy == LPARENT) {
 		if (p->symbol_item->category_code != CATEGORY_FUNCTION)
 			eval_error(ERR_UNACCEPTABLE, "it's not a function");
-		ct = (int *) malloc(sizeof(int));
-		parse_argument(ct, symbol_idx);
-		quadruple_call(*p, (*ct)+1);
+		parse_argument(symbol_idx);
+		*p = quadruple_call(*p);
 	} else {
 		// a IDEN has been taken as a var()
 	}
@@ -756,8 +755,8 @@ void parse_var(t_quad_arg *p) {
 	print_verbose("<var> parsed");
 }
 
-void parse_argument(int *ct, int symbol_idx) {
-	int i = idx;
+void parse_argument(int symbol_idx) {
+	int i = idx, ct;
 	t_quad_arg *r;
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy != LPARENT) {
@@ -765,16 +764,13 @@ void parse_argument(int *ct, int symbol_idx) {
 	}
 	get_token_with_history();
 	// here is the first argument
-	*ct = 1;
+	ct = 1;
 	parse_expression(r);
-	if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[*ct]].category_code == CATEGORY_PARAMVAL)
+	if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[ct]].category_code == CATEGORY_PARAMVAL)
 		quadruple_paramval(*r);
 	else
 		quadruple_paramref(*r);
 	parse_optargument(ct, symbol_idx);
-	if (*ct == 0) {
-		eval_error(ERR_UNACCEPTABLE, "no argument specified");
-	}
 	if (token.sy != RPARENT) {
 		eval_error(ERR_RPARENT_MISSED, "in a argument list");
 	}
@@ -783,14 +779,14 @@ void parse_argument(int *ct, int symbol_idx) {
 	print_verbose("<argument> parsed");
 }
 
-void parse_optargument(int *ct, int symbol_idx) {
+void parse_optargument(int ct, int symbol_idx) {
 	t_quad_arg *r;
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy == COMMA) {
-		(*ct)++;
+		ct++;
 		get_token_with_history();
 		parse_expression(r);
-		if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[*ct]].category_code == CATEGORY_PARAMVAL)
+		if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[ct]].category_code == CATEGORY_PARAMVAL)
 			quadruple_paramval(*r);
 		else
 			quadruple_paramref(*r);
@@ -800,7 +796,7 @@ void parse_optargument(int *ct, int symbol_idx) {
 
 void parse_statement() {
 	int i = idx;
-	int *ct, symbol_idx;
+	int symbol_idx;
 	char name[MAX_NAME];
 	t_quad_arg *p;
 	switch (token.sy) {
@@ -818,9 +814,8 @@ void parse_statement() {
 				parse_assign_statement(*p);
 			} else {
 				if (token.sy == LPARENT) { // foo(1)
-					ct = (int *) malloc(sizeof(int));
-					parse_argument(ct, symbol_idx);
-					quadruple_call(*p, (*ct)+1);
+					parse_argument(symbol_idx);
+					quadruple_call(*p);
 				} else { //foo
 					if (p->symbol_item->param_count != 0) {
 						eval_error(ERR_UNACCEPTABLE, "arguments not specified");
@@ -828,7 +823,7 @@ void parse_statement() {
 					}
 					if (p->symbol_item->category_code != CATEGORY_PROCEDURE)
 						eval_error(ERR_UNACCEPTABLE, "it's not a procedure");
-					quadruple_call(*p, 0); // procedure call without return value
+					quadruple_call(*p); // procedure call without return value
 				}
 			}
 			break;

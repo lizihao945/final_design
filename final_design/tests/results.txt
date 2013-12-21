@@ -1,0 +1,3 @@
+GCD: 9LCM: 135GCD: 5LCM: 0GCD: 1LCM: 6 0d7 1d5 2d72
+ cocks: 4 rabbits: 0 cocks: 0 rabbits: 0 cocks: 0 rabbits: 0
+ The ASCII of c1 is: 119 The result is: -25 The ASCII of c1 is: 70 The result is: 4
