@@ -27,6 +27,21 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 				strcat(s, arg.symbol_item->name);
 				break;
 			}
+			// function
+			if (arg.symbol_item->category_code == CATEGORY_FUNCTION) {
+				arg_depth = arg.symbol_item->depth;
+				strcat(s, "dword ptr [ebp+");
+				tmp = (char *) malloc(sizeof(char) * 256);
+				// return address, display, return value address, params
+				itoa((1 + arg_depth + 1) * 4, tmp, 10);
+				strcat(s, tmp);
+				strcat(s, "]");
+				fprintf(out, "\tmov %s, %s\n", reg_name[reg_idx = get_reg_idx()], s);
+				strcpy(s, "dword ptr [");
+				strcat(s, reg_name[reg_idx]);
+				strcat(s, "]");
+				break;
+			}
 			// const
 			if (arg.symbol_item->category_code == CATEGORY_CONST) {
 				tmp = (char *) malloc(sizeof(char) * 256);
@@ -39,10 +54,9 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 			if (arg.symbol_item->category_code == CATEGORY_PARAMREF || arg.symbol_item->category_code == CATEGORY_PARAMVAL) {
 				strcat(s, "dword ptr [ebp+");
 				tmp = (char *) malloc(sizeof(char) * 256);
-				// return value address is allocated at ebp+4
-				// display allocated: ebp + 8 ~> ebp + (arg_depth - 1) * 4
 				// first parameter first
-				itoa((cur_procedure.arg1.symbol_item->param_count - arg.symbol_item->param_idx + 1) * 4 + 4 + (arg_depth - 1) * 4, tmp, 10);
+				// return address, display, return value address, params
+				itoa(4 + (arg_depth - 1) * 4 + 4 + (cur_procedure.arg1.symbol_item->param_count - arg.symbol_item->param_idx + 1) * 4, tmp, 10);
 				strcat(s, tmp);
 				strcat(s, "]");
 				if (arg.symbol_item->category_code == CATEGORY_PARAMREF) {					
@@ -162,6 +176,10 @@ void gen_asm() {
 				free_regs();
 				break;
 			case QUAD_CALL:
+				// push the address of return value
+				asm_arg_str(quadruple[quad_idx].arg2, arg2);
+				fprintf(out, "\tlea eax, %s\n", arg2->name);
+				fprintf(out, "\tpush eax\n");
 				// the depth is that of the <sub_program>
 				// add one to the depth of the procedure symbol
 				caller_depth = cur_procedure.arg1.symbol_item->depth + 1;

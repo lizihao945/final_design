@@ -749,6 +749,8 @@ void parse_var(t_quad_arg *p) {
 		parse_argument(symbol_idx);
 		*p = quadruple_call(*p);
 	} else {
+		if (p->symbol_item->category_code == CATEGORY_FUNCTION)
+			*p = quadruple_call(*p);
 		// a IDEN has been taken as a var()
 	}
 	describe_token_history(i, idx);
