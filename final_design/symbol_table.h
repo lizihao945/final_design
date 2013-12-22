@@ -34,7 +34,7 @@ struct symbol_item_st {
 	// parameter
 	int param_idx; // parameter index(start from 0)
 	// procedure
-	int param_symbol_idx[256]; // 256 parameters?
+	int param_val[256]; // paramval if 1 else paramref
 	int param_count;
 };
 

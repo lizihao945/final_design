@@ -427,7 +427,8 @@ void parse_parameter(int cur_proc_sym_idx, int *param_count) {
 	char name[MAX_NAME];
 	int *type_code;
 	int i = idx;
-	int flag = 0, st, tmp;
+	int flag, st, tmp;
+	flag = 0;
 	if (token.sy == VARTK) {
 		flag = 1;
 		get_token_with_history();
@@ -436,23 +437,27 @@ void parse_parameter(int cur_proc_sym_idx, int *param_count) {
 	// start index of the symbol table of the procedure
 	st = symbol_table_top;
 	parse_id(name);
-	if (flag)
+	if (flag) {
 		tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth);
-	else
+		symbol_table[cur_proc_sym_idx].param_val[*param_count + 1] = 0;
+	} else {
 		tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth);
+		symbol_table[cur_proc_sym_idx].param_val[*param_count + 1] = 1;
+	}
 	(*param_count)++;
 	symbol_table[tmp].param_idx = *param_count;
-	symbol_table[cur_proc_sym_idx].param_symbol_idx[*param_count] = tmp;
 	while (token.sy == COMMA) {
 		get_token_with_history();
 		parse_id(name);
-		if (flag)
+		if (flag) {
 			tmp = push_symbol(CATEGORY_PARAMREF, 0, name, cur_depth);
-		else
+			symbol_table[cur_proc_sym_idx].param_val[*param_count + 1] = 0;
+		} else {
 			tmp = push_symbol(CATEGORY_PARAMVAL, 0, name, cur_depth);
+			symbol_table[cur_proc_sym_idx].param_val[*param_count + 1] = 1;
+		}
 		(*param_count)++;
 		symbol_table[tmp].param_idx = *param_count;
-		symbol_table[cur_proc_sym_idx].param_symbol_idx[*param_count] = tmp;
 	}
 	if (token.sy != COLON) {
 		eval_error(ERR_COLON_MISSED, "missing ':' to indicate the type of IDEN");
@@ -768,7 +773,7 @@ void parse_argument(int symbol_idx) {
 	// here is the first argument
 	ct = 1;
 	parse_expression(r);
-	if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[ct]].category_code == CATEGORY_PARAMVAL)
+	if (symbol_table[symbol_idx].param_val[ct])
 		quadruple_paramval(*r);
 	else
 		quadruple_paramref(*r);
@@ -788,7 +793,7 @@ void parse_optargument(int ct, int symbol_idx) {
 		ct++;
 		get_token_with_history();
 		parse_expression(r);
-		if (symbol_table[symbol_table[symbol_idx].param_symbol_idx[ct]].category_code == CATEGORY_PARAMVAL)
+		if (symbol_table[symbol_idx].param_val[ct])
 			quadruple_paramval(*r);
 		else
 			quadruple_paramref(*r);

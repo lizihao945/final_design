@@ -1,13 +1,17 @@
-var i, a, b: integer;
-function mod(x, y: integer): integer;
+var a, b: integer;
+procedure f1(a: integer; var b: integer);
 	begin
-		mod := x - x / y * y
+		write(a);
+		write(b)
+	end;
+procedure f2(c: integer; var d: integer);
+	begin
+		write(c);
+		write(d)
 	end;
 begin
-	for i:= 100 to 999 do
-		begin
-			a := i / 100;
-			b := mod(i, 10);
-			if a = b then write(" ", i)
-		end
+	a := 10;
+	b := 1;
+	f1(a, b);
+	f2(a, b)
 end.
