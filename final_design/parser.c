@@ -818,6 +818,9 @@ void parse_statement() {
 				if (p->symbol_item->category_code == CATEGORY_CONST ||
 					p->symbol_item->category_code == CATEGORY_PROCEDURE)
 					eval_error(ERR_UNACCEPTABLE, "left value can't be assigned");
+				if (p->symbol_item->category_code == CATEGORY_FUNCTION &&
+					strcmp(p->symbol_item->name, last_proc_name))
+						eval_error(ERR_UNACCEPTABLE, "left value can't be assigned");
 				parse_assign_statement(*p);
 			} else {
 				if (token.sy == LPARENT) { // foo(1)
