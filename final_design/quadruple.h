@@ -59,6 +59,11 @@ typedef struct quadruple_st {
 	t_quad_arg arg1, arg2, result;
 } t_quadruple;
 
+struct node_st {
+	t_quad_arg quad_arg;
+	int dag_node_idx;
+};
+
 extern t_quadruple quadruple[MAX_QUAD_NUM];
 extern int label[];
 extern int quadruple_top, label_top;

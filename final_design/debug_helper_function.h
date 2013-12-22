@@ -8,6 +8,7 @@
 #include "quadruple.h"
 #include "env.h"
 #include "gen_asm.h"
+#include "dag.h"
 
 // global variables
 extern int verbose_off;

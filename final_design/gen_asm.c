@@ -157,7 +157,7 @@ void gen_asm() {
 				fprintf(out, "\tmov esp, ebp\n");
 				fprintf(out, "\tpop ebp\n");
 				if (!strcmp(quadruple[quad_idx].arg1.symbol_item->name, "start")) {
-					fprintf(out, "\tpush offset Writeline\n\tcall crt_printf\n");
+					fprintf(out, "\tpush offset WriteLine\n\tcall crt_printf\n");
 					fprintf(out, "\tcall ExitProcess\n");
 				}
 				else
@@ -238,8 +238,6 @@ void gen_asm() {
 						fprintf(out, "\tcall crt_printf\n");
 					}
 				}
-				// new line after write();
-				// fprintf(out, "\tpush offset Writeline\n\tcall crt_printf\n");
 				free_regs();
 				break;
 			case QUAD_GETARRAY:

@@ -646,7 +646,8 @@ void do_compile_job() {
 	get_token_with_history();
 	parse_program();
 	print_quadruples();
-	gen_asm();
+	gen_dag();
+	//gen_asm();
 	printf("Compile successful!\n");
 	fclose(stdout);
 }
