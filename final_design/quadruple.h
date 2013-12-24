@@ -65,8 +65,11 @@ struct node_st {
 };
 
 extern t_quadruple quadruple[MAX_QUAD_NUM];
+extern t_quadruple new_quadruple[MAX_QUAD_NUM];
 extern int label[];
 extern int quadruple_top, label_top;
+extern int new_quadruple_top;
+
 t_quad_arg quadruple_add(t_quad_arg arg1, t_quad_arg arg2);
 t_quad_arg quadruple_sub(t_quad_arg arg1, t_quad_arg arg2);
 t_quad_arg quadruple_mult(t_quad_arg arg1, t_quad_arg arg2);

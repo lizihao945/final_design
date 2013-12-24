@@ -4,6 +4,7 @@ int idx = 0; // index of the token
 int verbose_off = 0; // turn off verbose printing
 int describe_token_off = 0; // turn off tokens of a N-T printing
 int print_symbol_off = 0; // turn off printing symbol table state
+int dag_off = 0; // dag optimization
 int line_num = 1;
 const char *map_sy_string[65535];
 const char * map_quad_string[1024];
@@ -643,11 +644,14 @@ void do_compile_job() {
 	verbose_off = 1;
 	describe_token_off = 1;
 	print_symbol_off = 1;
+	dag_off = 0;
 	get_token_with_history();
 	parse_program();
+	printf("**** quadruples before optimization ****\n");
 	print_quadruples();
-	gen_dag();
-	//gen_asm();
+	if (!dag_off)
+		gen_dag();
+	gen_asm();
 	printf("Compile successful!\n");
 	fclose(stdout);
 }

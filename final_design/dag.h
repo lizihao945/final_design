@@ -2,6 +2,7 @@
 #define DAG_H
 
 #include <stdlib.h>
+#include <string.h>
 #include "quadruple.h"
 #include "debug_helper_function.h"
 

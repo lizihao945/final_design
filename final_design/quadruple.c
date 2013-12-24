@@ -1,8 +1,10 @@
 #include "quadruple.h"
 
 struct quadruple_st quadruple[MAX_QUAD_NUM];
+struct quadruple_st new_quadruple[MAX_QUAD_NUM];
 int label[MAX_QUAD_NUM];
 int quadruple_top, label_top;
+int new_quadruple_top;
 
 t_quad_arg  quadruple_add(t_quad_arg  arg1, t_quad_arg  arg2) {
 	t_quad_arg  rt;
