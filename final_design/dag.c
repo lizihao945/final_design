@@ -1,5 +1,7 @@
 #include "dag.h"
 
+int entry_bb, exit_bb;
+int bb_map[1024][1024];
 int in_bb[1024];
 int in_bb_top;
 struct node_st node_list[1024];
@@ -56,6 +58,14 @@ void gen_quadruples() {
 		new_quadruple[new_quadruple_top].result = gen_quad_arg(dag_idx_queue[i]);
 		new_quadruple_top++;
 	}
+	// need data analysis
+	for (i = 0; i < node_list_top; i++)
+		if (node_list[i].quad_arg.arg_code == ARG_SYMBOL || node_list[i].quad_arg.arg_code == ARG_TEMP_IDX) {
+			new_quadruple[new_quadruple_top].op = QUAD_ASSIGN;
+			new_quadruple[new_quadruple_top].arg1 = node_list[i].quad_arg;
+			new_quadruple[new_quadruple_top].arg2 = gen_quad_arg(node_list[i].dag_node_idx);
+			new_quadruple_top++;
+		}
 }
 
 // find leaf of arg_code with int_val
@@ -123,8 +133,15 @@ void add_in_quad(int quad_idx) {
 	in_bb[in_bb_top++] = quad_idx;
 }
 
+int find_bb_idx(int label_idx) {
+	int i;
+	for (i = 0; i < in_bb_top; i++)
+		if (quadruple[in_bb[i]].op == QUAD_LABEL && quadruple[in_bb[i]].arg1.val.int_val == label_idx)
+			return i;
+}
+
 void devide_bb() {
-	int quad_idx;
+	int quad_idx, i;
 	in_bb_top = 0;
 	for (quad_idx = 0; quad_idx < quadruple_top; quad_idx++)
 		switch (quadruple[quad_idx].op) {
@@ -133,7 +150,7 @@ void devide_bb() {
 				add_in_quad(quad_idx + 1);
 				break;
 			case QUAD_LABEL:
-				add_in_quad(quad_idx + 1);
+				add_in_quad(quad_idx);
 				break;
 			case QUAD_READ:
 			case QUAD_PROCMARK:
@@ -144,7 +161,24 @@ void devide_bb() {
 			default:
 				break;
 		}
+	// last bb is invalid
 	add_in_quad(quadruple_top);
+	in_bb_top--;
+	// generate two virtual basic blocks
+	entry_bb = in_bb_top;
+	exit_bb = in_bb_top + 1;
+	memset(bb_map, 0, 1024 * 1024 * sizeof(int));
+	bb_map[entry_bb][0] = 1;
+	for (i = 1; i <= in_bb_top; i++)
+		if (quadruple[in_bb[i] - 1].op == QUAD_JMP)
+			bb_map[i - 1][find_bb_idx(quadruple[in_bb[i] - 1].arg1.val.int_val)] = 1;
+		else if (quadruple[in_bb[i] - 1].op == QUAD_JMPF) {
+			bb_map[i - 1][find_bb_idx(quadruple[in_bb[i] - 1].arg1.val.int_val)] = 1;
+			bb_map[i - 1][i] = 1;
+		} else if (quadruple[in_bb[i] - 1].op == QUAD_PROCEND && !strcmp(quadruple[in_bb[i] - 1].arg1.symbol_item->name, "start"))
+			bb_map[i - 1][in_bb_top + 1] = 1;
+		else // somewhere jumps to next quad
+			bb_map[i - 1][i] = 1;
 }
 
 void gen_dag() {
@@ -175,12 +209,14 @@ void gen_dag() {
 					dag_idx= find_or_create_dag(quadruple[j].op, left_idx, right_idx); // step 4
 					opt(quadruple[j].result, dag_idx); // step 5
 					break;
+				case QUAD_JMP:
+					break;
 				default:
 					new_quadruple[new_quadruple_top++] = quadruple[j];
 					break;
 			}
 		}
-		printf("******** bb%d ********\n", i);
+		printf("******** bb%d from %d to %d\n", i, in_bb[i], in_bb[i + 1] - 1);
 		printf("dag ****\n");
 		for (j = 0; j < dag_top; j++)
 			if (dag[j].op)
@@ -193,21 +229,18 @@ void gen_dag() {
 			printf(":\t%d\n", node_list[j].dag_node_idx);
 		}
 		// generate quadruples from dag
+		// jmp should be the last quadruple
 		gen_quadruples();
+		if (quadruple[in_bb[i + 1] - 1].op == QUAD_JMP)
+			new_quadruple[new_quadruple_top++] = quadruple[in_bb[i + 1] - 1];
+		//////////////////////////////////////////////////////////////////////////
 		printf("dag_idx_queue ****\n");
 		for (j = 0; j < dag_idx_queue_top; j++)
 			printf("%d, ", dag_idx_queue[j]);
 		printf("\n");
 		printf("******** bb%d ********\n\n", i);
-		printf("generated quadruples ****\n");
-		quadruple_top = new_quadruple_top;
-		for (j = 0; j < new_quadruple_top; j++) {
-			quadruple[j] = new_quadruple[j];
-			printf("\t%s\t", map_quad_string[new_quadruple[j].op]);
-			describe_quad_arg(new_quadruple[j].arg1);
-			describe_quad_arg(new_quadruple[j].arg2);
-			describe_quad_arg(new_quadruple[j].result);
-			printf("\n");
-		}
 	}
+	quadruple_top = new_quadruple_top;
+	for (j = 0; j < new_quadruple_top; j++)
+		quadruple[j] = new_quadruple[j];
 }

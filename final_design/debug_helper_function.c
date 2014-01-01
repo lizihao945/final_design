@@ -649,8 +649,13 @@ void do_compile_job() {
 	parse_program();
 	printf("**** quadruples before optimization ****\n");
 	print_quadruples();
+	//////////////////////////////////////////////////////////////////////////
 	if (!dag_off)
 		gen_dag();
+	printf("generated quadruples ****\n");
+	print_quadruples();
+	//////////////////////////////////////////////////////////////////////////
+	live_var_analysis();
 	gen_asm();
 	printf("Compile successful!\n");
 	fclose(stdout);

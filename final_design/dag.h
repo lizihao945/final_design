@@ -21,4 +21,10 @@ struct dag_st {
 	int left_idx, right_idx;
 };
 
+extern int entry_bb, exit_bb; // virtual basic blocks
+extern int bb_map[1024][1024];
+extern int in_bb[1024];
+extern int in_bb_top;
+void devide_bb();
+
 #endif
