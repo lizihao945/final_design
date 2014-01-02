@@ -1,19 +1,16 @@
-var a, b, i: integer;
+var x, y, z, a, b, i: integer;
 begin
-  a := 0;
-  i := 0;
-  while i < 10 do
-    begin
-      a := a * i;
-      i := i + 1
-    end;
-  write("a=", a);
-  b := a;
+  x := a;
+  y := b;
   i := 0;
   while i < 100 do
     begin
-      b := b + i;
+      z := a * 10;
+      x := x + y;
+      if x < z then
+        x := x - y;
+      y := y + 1;
       i := i + 1;
     end;
-  write("b=", b);
+  write("a=", a);
 end.

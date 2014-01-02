@@ -463,10 +463,10 @@ void print_quadruples() {
 	int i;
 	for (i = 0; i < quadruple_top; i++) {
 		if (quadruple[i].op == QUAD_LABEL) {
-			printf("LABEL: %d\n", quadruple[i].arg1.val.int_val);
+			printf("(%d)LABEL: %d\n", i, quadruple[i].arg1.val.int_val);
 			continue;
 		}
-		printf("\t");
+		printf("(%d)\t", i);
 		if (strlen(map_quad_string[quadruple[i].op]) <= 7)
 			printf("%s\t\t", map_quad_string[quadruple[i].op]);
 		else
@@ -644,16 +644,17 @@ void do_compile_job() {
 	verbose_off = 1;
 	describe_token_off = 1;
 	print_symbol_off = 1;
-	dag_off = 0;
+	dag_off = 1;
 	get_token_with_history();
 	parse_program();
 	printf("**** quadruples before optimization ****\n");
 	print_quadruples();
 	//////////////////////////////////////////////////////////////////////////
-	if (!dag_off)
+	if (!dag_off) {
 		gen_dag();
-	printf("generated quadruples ****\n");
-	print_quadruples();
+		printf("generated quadruples ****\n");
+		print_quadruples();
+	}
 	//////////////////////////////////////////////////////////////////////////
 	live_var_analysis();
 	gen_asm();
