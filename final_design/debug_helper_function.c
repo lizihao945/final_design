@@ -4,7 +4,8 @@ int idx = 0; // index of the token
 int verbose_off = 0; // turn off verbose printing
 int describe_token_off = 0; // turn off tokens of a N-T printing
 int print_symbol_off = 0; // turn off printing symbol table state
-int dag_off = 0; // dag optimization
+int dag_off = 0; // turn off dag optimization
+int temp_reg_all_off = 0;// turn off temporary register allocation
 int line_num = 1;
 const char *map_sy_string[65535];
 const char * map_quad_string[1024];
@@ -644,7 +645,8 @@ void do_compile_job() {
 	verbose_off = 1;
 	describe_token_off = 1;
 	print_symbol_off = 1;
-	dag_off = 0;
+	dag_off = 1;
+	temp_reg_all_off = 0;
 	get_token_with_history();
 	parse_program();
 	printf("**** quadruples before optimization ****\n");
@@ -658,7 +660,10 @@ void do_compile_job() {
 	//////////////////////////////////////////////////////////////////////////
 	//live_var_analysis();
 	//////////////////////////////////////////////////////////////////////////
-	gen_asm();
+	if (!temp_reg_all_off)
+		gen_asm_with_temp_reg_all();
+	else
+		gen_asm();
 	printf("Compile successful!\n");
 	fclose(stdout);
 }

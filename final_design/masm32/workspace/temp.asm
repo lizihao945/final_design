@@ -11,101 +11,47 @@ String db "%s", 0
 OneChar db "%c", 0
 OneInt db "%d", 0
 WriteLine db 0ah, 0
-string0 db " ", 0
+string0 db "e=", 0
 .CODE
-; PROCMARK	start_mod	0	
-start_mod	PROC
-; *** prologue ***
-	push	ebp
-	mov ebp, esp
-	sub esp, 12
-; temps allocated between ebp-4 and ebp-12
-; *** subroutine body ***
-; DIV/	x	y	
-	mov edx, 0
-	mov eax, dword ptr [ebp+20]
-	mov ebx, dword ptr [ebp+16]
-	idiv ebx
-	mov dword ptr [ebp-4], eax
-; MULT*	t0	y	
-	mov eax, dword ptr [ebp-4]
-	imul eax, dword ptr [ebp+16]
-	mov dword ptr [ebp-8], eax
-; SUB-	x	t1	
-	mov eax, dword ptr [ebp+20]
-	sub eax, dword ptr [ebp-8]
-	mov dword ptr [ebp-12], eax
-; ASSIGN	start_mod	t2	
-	mov eax, dword ptr [ebp-12]
-	mov ebx, dword ptr [ebp+12]
-	mov dword ptr [ebx], eax
-; PROCEND	start_mod	N/A	
-; *** epilogue ***
-	mov esp, ebp
-	pop ebp
-	ret
-start_mod	ENDP
-; PROCMARK	start	4	
+; PROCMARK	start	5	3	
 start	PROC
 ; *** prologue ***
 	push	ebp
 	mov ebp, esp
-	sub esp, 24
-; temps allocated between ebp-20 and ebp-24
+	sub esp, 32
+; temps allocated between ebp-24 and ebp-32
 ; *** subroutine body ***
-; ASSIGN	i	100	
-	mov dword ptr [ebp-4], 100
-; LABEL	0	N/A	
-label0:
-; LEQ<=	i	999	
-	mov eax, dword ptr [ebp-4]
-	mov ebx, 999
-	cmp eax, ebx
-	jg label2
-; JMPF	2	t0	
-; DIV/	i	100	
-	mov edx, 0
-	mov eax, dword ptr [ebp-4]
-	mov ebx, 100
-	idiv ebx
+; ASSIGN	a	3	N/A	
+	mov eax, 3
+; ASSIGN	b	11	N/A	
+	mov ecx, 11
+; ASSIGN	c	2	N/A	
+	mov edx, 2
+; ASSIGN	d	20	N/A	
+	mov dword ptr [ebp-4], eax
+	mov eax, 20
+; SUB-	a	b	t0	
+	mov dword ptr [ebp-8], ecx
+	mov ecx, dword ptr [ebp-4]
+	sub ecx, dword ptr [ebp-8]
+; SUB-	c	d	t1	
+	sub edx, eax
+; ADD+	t0	t1	t2	
+	mov dword ptr [ebp-12], edx
+	mov edx, dword ptr [ebp-24]
+	add edx, dword ptr [ebp-28]
+	mov dword ptr [ebp-32], eax
+; ASSIGN	e	t2	N/A	
+	mov eax, dword ptr [ebp-32]
 	mov dword ptr [ebp-20], eax
-; ASSIGN	a	t0	
-	mov eax, dword ptr [ebp-20]
-	mov dword ptr [ebp-8], eax
-; PARAMVAL	i	N/A	
-	push dword ptr [ebp-4]
-; PARAMVAL	10	N/A	
-	push 10
-; CALL	start_mod	t1	
-	lea eax, dword ptr [ebp-24]
-	push eax
-	push ebp
-	call start_mod
-; ASSIGN	b	t1	
-	mov eax, dword ptr [ebp-24]
-	mov dword ptr [ebp-12], eax
-; EQL=	a	b	
-	mov eax, dword ptr [ebp-8]
-	mov ebx, dword ptr [ebp-12]
-	cmp eax, ebx
-	jne label1
-; JMPF	1	t0	
-; WRITE	 	i	
+; WRITE	e=	e	N/A	
 	push offset string0
 	push offset String
 	call crt_printf
-	push dword ptr [ebp-4]
+	push dword ptr [ebp-20]
 	push offset OneInt
 	call crt_printf
-; LABEL	1	N/A	
-label1:
-; INC	i	N/A	
-	inc dword ptr [ebp-4]
-; JMP	0	N/A	
-	jmp label0
-; LABEL	2	N/A	
-label2:
-; PROCEND	start	N/A	
+; PROCEND	start	N/A	N/A	
 ; *** epilogue ***
 	mov esp, ebp
 	pop ebp

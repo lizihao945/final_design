@@ -5,7 +5,6 @@
 #include "symbol_table.h"
 #include "debug_helper_function.h"
 #include "env.h"
-#include "gen_asm.h"
 
 #define ARG_LABEL 904
 #define ARG_IMMEDIATE 905
@@ -48,6 +47,11 @@ typedef struct quad_arg_st {
 	} val;
 	struct symbol_item_st *symbol_item;
 } t_quad_arg;
+
+struct allocation_st {
+	int reg_idx;
+	struct quad_arg_st arg;
+};
 
 typedef struct linked_quad_args_st {
 	t_quad_arg val;

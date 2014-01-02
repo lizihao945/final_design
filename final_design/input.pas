@@ -1,13 +1,9 @@
-var i, a, b: integer;
-function mod(x, y: integer): integer;
-  begin
-    mod := x - x / y * y
-  end;
+var a, b, c, d, e: integer;
 begin
-  for i:= 100 to 999 do
-    begin
-      a := i / 100;
-      b := mod(i, 10);
-      if a = b then write(" ", i)
-    end
+  a := 3;
+  b := 11;
+  c := 2;
+  d := 20;
+  e := (a - b) + (c - d);
+  write("e=", e);
 end.
