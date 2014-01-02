@@ -644,7 +644,7 @@ void do_compile_job() {
 	verbose_off = 1;
 	describe_token_off = 1;
 	print_symbol_off = 1;
-	dag_off = 1;
+	dag_off = 0;
 	get_token_with_history();
 	parse_program();
 	printf("**** quadruples before optimization ****\n");
@@ -656,7 +656,8 @@ void do_compile_job() {
 		print_quadruples();
 	}
 	//////////////////////////////////////////////////////////////////////////
-	live_var_analysis();
+	//live_var_analysis();
+	//////////////////////////////////////////////////////////////////////////
 	gen_asm();
 	printf("Compile successful!\n");
 	fclose(stdout);

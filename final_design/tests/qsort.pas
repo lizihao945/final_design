@@ -66,7 +66,7 @@ procedure quicksort;
 	end; 
 begin 
 	initialize;
-	write("before:\n");
+	write("before:");
 	printarray;
 	sp := 0; 
 	left := 1;

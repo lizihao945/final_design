@@ -64,10 +64,14 @@ void gen_quadruples() {
 	}
 	// need data analysis
 	for (i = 0; i < node_list_top; i++)
-		if (node_list[i].quad_arg.arg_code == ARG_SYMBOL || node_list[i].quad_arg.arg_code == ARG_TEMP_IDX) {
+		if (node_list[i].quad_arg.arg_code == ARG_SYMBOL) {
 			new_quadruple[new_quadruple_top].op = QUAD_ASSIGN;
 			new_quadruple[new_quadruple_top].arg1 = node_list[i].quad_arg;
 			new_quadruple[new_quadruple_top].arg2 = gen_quad_arg(node_list[i].dag_node_idx);
+			if (new_quadruple[new_quadruple_top].arg2.arg_code == ARG_SYMBOL
+				&& (!strcmp(new_quadruple[new_quadruple_top].arg2.symbol_item->name,
+									new_quadruple[new_quadruple_top].arg1.symbol_item->name)))
+				continue;
 			new_quadruple_top++;
 		}
 }
@@ -188,11 +192,24 @@ void devide_bb() {
 }
 
 void gen_dag() {
-	int i, j;
+	int i, j, k, flag;
 	int left_idx, right_idx, dag_idx;
 	devide_bb();
 	new_quadruple_top = 0;
 	for (i = 1; i < in_bb[0]; i++) {
+		//////////////////////////////////////////////////////////////////////////
+		// check if array or call in the bb
+		flag = 0;
+		for (j = in_bb[i]; j < in_bb[i + 1]; j++)
+			if (quadruple[j].op == QUAD_SETARRAY || quadruple[j].op == QUAD_GETARRAY || quadruple[j].op == QUAD_CALL) {
+				for (k = in_bb[i]; k < in_bb[i + 1]; k++)		
+					new_quadruple[new_quadruple_top++] = quadruple[k];
+				flag = 1;
+				break;
+			}
+		//////////////////////////////////////////////////////////////////////////
+		if (flag)
+			continue;
 		node_list_top = 0;
 		dag_top = 0;
 		dag_idx_queue_top = 0;

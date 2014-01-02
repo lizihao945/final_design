@@ -1,16 +1,13 @@
-var x, y, z, a, b, i: integer;
+var i, a, b: integer;
+function mod(x, y: integer): integer;
+  begin
+    mod := x - x / y * y
+  end;
 begin
-  x := a;
-  y := b;
-  i := 0;
-  while i < 100 do
+  for i:= 100 to 999 do
     begin
-      z := a * 10;
-      x := x + y;
-      if x < z then
-        x := x - y;
-      y := y + 1;
-      i := i + 1;
-    end;
-  write("a=", a);
+      a := i / 100;
+      b := mod(i, 10);
+      if a = b then write(" ", i)
+    end
 end.
