@@ -1,11 +1,9 @@
 #include "debug_helper_function.h"
 struct token_st token_history[MAX_TOKEN_NUM];
 int idx = 0; // index of the token
-int verbose_off = 0; // turn off verbose printing
-int describe_token_off = 0; // turn off tokens of a N-T printing
-int print_symbol_off = 0; // turn off printing symbol table state
-int dag_off = 0; // turn off dag optimization
-int temp_reg_all_off = 0;// turn off temporary register allocation
+int verbose_off = 1; // turn off verbose printing
+int describe_token_off = 1; // turn off tokens of a N-T printing
+int print_symbol_off = 1; // turn off printing symbol table state
 int line_num = 1;
 const char *map_sy_string[65535];
 const char * map_quad_string[1024];
@@ -637,34 +635,44 @@ void init_map_sy_string() {
 }
 
 void do_compile_job() {
+	int mode;
 	char input_name[1024];
-	//printf("Input your source file name:\n");
-	//scanf("%s", input_name);
-	strcpy(input_name, "input.pas");
+	printf("Input your source file path:\n");
+	scanf("%s", input_name);
 	in = fopen(input_name, "r");
-	verbose_off = 1;
-	describe_token_off = 1;
-	print_symbol_off = 1;
-	dag_off = 1;
-	temp_reg_all_off = 0;
+	printf("Input mode number:\n");
+	printf("0 for bare running!\n");
+	printf("1 to find local common subexpressions!\n");
+	printf("2 to do temporary register allocation!\n");
+	scanf("%d", &mode);
+	//////////////////////////////////////////////////////////////////////////
 	get_token_with_history();
 	parse_program();
 	printf("**** quadruples before optimization ****\n");
 	print_quadruples();
 	//////////////////////////////////////////////////////////////////////////
-	if (!dag_off) {
-		gen_dag();
-		printf("generated quadruples ****\n");
-		print_quadruples();
+	switch (mode) {
+		case 0:
+			gen_asm();
+			break;
+		case 1:
+			gen_dag();
+			printf("generated quadruples ****\n");
+			print_quadruples();
+			gen_asm();
+			break;
+		case 2:
+			gen_asm_with_temp_reg_all();
+			break;
+		case 3:
+			//live_var_analysis();
+			break;
+		default:
+			printf("Mode not accepted!\n");
+			break;
 	}
-	//////////////////////////////////////////////////////////////////////////
-	//live_var_analysis();
-	//////////////////////////////////////////////////////////////////////////
-	if (!temp_reg_all_off)
-		gen_asm_with_temp_reg_all();
-	else
-		gen_asm();
 	printf("Compile successful!\n");
+	printf("Filed stored to %s!\n", asm_path);
 	fclose(stdout);
 }
 

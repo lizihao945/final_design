@@ -1,9 +1,7 @@
-var a, b, c, d, e: integer;
+var x, y, z: integer;
 begin
-  a := 3;
-  b := 11;
-  c := 2;
-  d := 20;
-  e := (a - b) + (c - d);
-  write("e=", e);
+  x := 6;
+  y := 3;
+  z := ((x + y) - ((x + y) * (x - y))) + ((x + y) * (x - y));
+  write(z)
 end.
