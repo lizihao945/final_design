@@ -18,6 +18,8 @@ struct asm_arg_st {
 	char *name;
 };
 
+extern char * reg_name[8];
+void gen_asm_with_reg_all();
 void gen_asm();
 
 #endif

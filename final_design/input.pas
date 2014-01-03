@@ -1,13 +1,27 @@
-var i, a, b: integer;
-function mod(x, y: integer): integer;
-  begin
-    mod := x - x / y * y
-  end;
+const a = 45, b = 27;
+var x, y, g, m: integer;
+procedure swap;
+	var temp: integer;
+	begin
+		temp := x;
+		x := y;
+		y := temp
+	end;
+procedure mod;
+	begin
+		x := x - x / y * y
+	end;
 begin
-  for i:= 100 to 999 do
-    begin
-      a := i / 100;
-      b := mod(i, 10);
-      if a = b then write(" ", i)
-    end
+	x := a;
+	y := b;
+	mod;
+	while x <> 0 do
+		begin
+			swap;
+			mod
+		end;
+	g := y;
+	m := a * b / g;
+	write(g);
+	write(m)
 end.

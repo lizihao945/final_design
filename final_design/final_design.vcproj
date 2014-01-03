@@ -205,6 +205,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gen_asm_new.c"
+				>
+			</File>
+			<File
 				RelativePath=".\lexer.c"
 				>
 			</File>
