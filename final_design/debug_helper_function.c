@@ -644,6 +644,7 @@ void do_compile_job() {
 	printf("0 for bare running!\n");
 	printf("1 to find local common subexpressions!\n");
 	printf("2 to do temporary register allocation!\n");
+	printf("3 to do live variable analysis!\n");
 	scanf("%d", &mode);
 	//////////////////////////////////////////////////////////////////////////
 	get_token_with_history();
@@ -665,7 +666,7 @@ void do_compile_job() {
 					gen_asm_with_temp_reg_all();
 					break;
 				case 3:
-					//live_var_analysis();
+					live_var_analysis();
 					break;
 				default:
 					printf("Mode not accepted!\n");
