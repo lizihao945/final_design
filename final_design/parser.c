@@ -693,6 +693,8 @@ void parse_optterm(t_quad_arg p, t_quad_arg *r) {
 		flag = token.sy;
 		get_token_with_history();
 		parse_factor(&q);
+		if (q.arg_code == ARG_IMMEDIATE && q.val.int_val == 0)
+			eval_error(ERR_UNACCEPTABLE, "divided by zero!");
 		if (flag == MULT)
 			p1 = quadruple_mult(p, q);
 		else
