@@ -10,6 +10,17 @@ void free_regs();
 void prog_head();
 void gen_jcc(int flag);
 void describe_quad_arg_to_file(t_quad_arg arg);
+
+int find_proc(int arg_idx, int diff) {
+	int i;
+	while (diff) {
+		while (quadruple[arg_idx].op != QUAD_PROCMARK)
+			arg_idx++;
+		diff--;
+	}
+	return arg_idx;
+}
+
 /**
  * the value placed in regs in this procedure should not be freed
  * until the address of arg is calculated
@@ -50,8 +61,35 @@ void asm_arg_str(t_quad_arg arg, struct asm_arg_st *asm_arg) {
 				break;
 			}
 			// parameter
+			// the depth of cur_procedure is less than the depth of its content
+			cur_depth = cur_procedure.arg1.symbol_item->depth + 1;
 			arg_depth = arg.symbol_item->depth;
 			if (arg.symbol_item->category_code == CATEGORY_PARAMREF || arg.symbol_item->category_code == CATEGORY_PARAMVAL) {
+				if (arg_depth < cur_depth) {
+					// abp to arg_depth layer
+					reg_idx = get_reg_idx();
+					fprintf(out, "\tmov %s, dword ptr [ebp+%d]\n", reg_name[reg_idx], (cur_depth - arg_depth + 1) * 4);
+					strcat(s, "dword ptr [");
+					strcat(s, reg_name[reg_idx]);
+					strcat(s, "+");
+					tmp = (char *) malloc(sizeof(char) * 256);
+					// first parameter first
+					// return address, display, return value address, params
+					itoa(4 + (arg_depth - 1) * 4 + 4 + (quadruple[find_proc(quad_idx, cur_depth - arg_depth)].arg1.symbol_item->param_count - arg.symbol_item->param_idx + 1) * 4, tmp, 10);
+					strcat(s, tmp);
+					strcat(s, "]");
+					if (arg.symbol_item->category_code == CATEGORY_PARAMREF) {					
+						// allocate a free register to save address of the parameter
+						reg_idx = get_reg_idx();
+						fprintf(out, "\tmov %s, %s\n", reg_name[reg_idx], s);
+						s[0] = '\0';
+						strcat(s, "dword ptr [");
+						strcat(s, reg_name[reg_idx]);
+						strcat(s, "]");
+						break;
+					}
+					break;
+				}
 				strcat(s, "dword ptr [ebp+");
 				tmp = (char *) malloc(sizeof(char) * 256);
 				// first parameter first
