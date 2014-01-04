@@ -270,6 +270,13 @@ void gen_asm() {
 						fprintf(out, "\tpush offset %s\n", arg2->name);
 						fprintf(out, "\tpush offset String\n");
 						fprintf(out, "\tcall crt_printf\n");
+					} else if (quadruple[quad_idx].arg2.arg_code == ARG_SYMBOL) {
+						fprintf(out, "\tpush %s\n", arg2->name);
+						if (quadruple[quad_idx].arg2.symbol_item->type_code == TYPE_INTEGER)
+							fprintf(out, "\tpush offset OneInt\n");
+						else
+							fprintf(out, "\tpush offset OneChar\n");
+						fprintf(out, "\tcall crt_printf\n");
 					} else {
 						fprintf(out, "\tpush %s\n", arg2->name);
 						fprintf(out, "\tpush offset OneInt\n");

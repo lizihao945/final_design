@@ -4,9 +4,9 @@ begin
 	a := (a + b) - (a + b);
 	if a < b then
 		begin
-		  x := 6;
-		  y := 3;
-		  z := ((x + y) - ((x + y) * (x - y))) + ((x + y) * (x - y));
-		  write(z)
+			x := 6;
+			y := 3;
+			z := ((x + y) - ((x + y) * (x - y))) + ((x + y) * (x - y));
+			write(z)
 		end;
 end.
