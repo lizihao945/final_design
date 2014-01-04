@@ -163,6 +163,7 @@ void devide_bb() {
 				add_in_quad(quad_idx);
 				break;
 			case QUAD_READ:
+			case QUAD_WRITE:
 			case QUAD_PROCMARK:
 			case QUAD_PROCEND:
 				add_in_quad(quad_idx);
