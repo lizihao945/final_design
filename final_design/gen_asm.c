@@ -241,6 +241,7 @@ void gen_asm() {
 				free_regs();
 				break;
 			case QUAD_GETARRAY:
+				//////////////////////////////////////////////////////////////////////////
 				asm_arg_str(quadruple[quad_idx].arg1, arg1);
 				fprintf(out, "\tlea eax, %s\n", arg1->name);
 				if (quadruple[quad_idx].arg2.arg_code == ARG_IMMEDIATE)
@@ -249,6 +250,13 @@ void gen_asm() {
 					asm_arg_str(quadruple[quad_idx].arg2, arg2);
 					fprintf(out, "\timul ecx, %s, 4\n", arg2->name);
 					fprintf(out, "\tsub eax, ecx\n");
+				}
+				// check if QUAD_PARAMREF is followed
+				if (quadruple[quad_idx + 1].op == QUAD_PARAMREF) {
+					fprintf(out, "\tpush eax\n");
+					// step over next QUAD_PARAMREF
+					quad_idx++;
+					break;
 				}
 				fprintf(out, "\tmov eax, dword ptr [eax]\n");
 				asm_arg_str(quadruple[quad_idx].result, arg3);
