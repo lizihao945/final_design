@@ -765,7 +765,7 @@ void parse_var(t_quad_arg *p) {
 }
 
 void parse_argument(int symbol_idx) {
-	int i = idx, ct;
+	int i = idx, *ct;
 	t_quad_arg *r;
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy != LPARENT) {
@@ -773,13 +773,16 @@ void parse_argument(int symbol_idx) {
 	}
 	get_token_with_history();
 	// here is the first argument
-	ct = 1;
+	ct = (int *) malloc(sizeof(int));
+	*ct = 1;
 	parse_expression(r);
-	if (symbol_table[symbol_idx].param_val[ct])
+	if (symbol_table[symbol_idx].param_val[*ct])
 		quadruple_paramval(*r);
 	else
 		quadruple_paramref(*r);
 	parse_optargument(ct, symbol_idx);
+	if (*ct != symbol_table[symbol_idx].param_count)
+		eval_error(ERR_UNACCEPTABLE, "parameter mismatch!");
 	if (token.sy != RPARENT) {
 		eval_error(ERR_RPARENT_MISSED, "in a argument list");
 	}
@@ -788,14 +791,14 @@ void parse_argument(int symbol_idx) {
 	print_verbose("<argument> parsed");
 }
 
-void parse_optargument(int ct, int symbol_idx) {
+void parse_optargument(int *ct, int symbol_idx) {
 	t_quad_arg *r;
 	r = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 	if (token.sy == COMMA) {
-		ct++;
+		(*ct)++;
 		get_token_with_history();
 		parse_expression(r);
-		if (symbol_table[symbol_idx].param_val[ct])
+		if (symbol_table[symbol_idx].param_val[*ct])
 			quadruple_paramval(*r);
 		else
 			quadruple_paramref(*r);
