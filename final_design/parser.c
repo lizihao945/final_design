@@ -607,6 +607,8 @@ void parse_assign_statement(t_quad_arg p) {
 	int i = idx;
 	t_quad_arg *q, *idx_val;
 	if (token.sy == LBRACK) {
+		if (p.symbol_item->category_code != CATEGORY_ARRAY)
+			eval_error(ERR_UNACCEPTABLE, "not an array");
 		get_token_with_history();
 		idx_val = (t_quad_arg *) malloc(sizeof(t_quad_arg));
 		// the index value of array
@@ -743,6 +745,8 @@ void parse_var(t_quad_arg *p) {
 	*(p->symbol_item) = symbol_table[lookup_id(name)];
 	symbol_idx = lookup_id(name);
 	if (token.sy == LBRACK) {
+		if (symbol_table[symbol_idx].category_code != CATEGORY_ARRAY)
+			eval_error(ERR_UNACCEPTABLE, "not an array");
 		get_token_with_history();
 		parse_expression(q);
 		*p = quadruple_getarray(*p, *q);
